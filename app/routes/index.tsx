@@ -1,4 +1,4 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, useRouter, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/start";
 import { supabase } from "@/lib/supabase";
 
@@ -10,6 +10,11 @@ const getTodos = createServerFn({
 });
 
 export const Route = createFileRoute("/")({
+  beforeLoad: async ({ context }) => {
+    if (!context.user) {
+      throw redirect({ href: "/login" });
+    }
+  },
   component: Home,
   loader: async () => await getTodos(),
 });
