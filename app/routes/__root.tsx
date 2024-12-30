@@ -50,7 +50,6 @@ export const Route = createRootRoute({
   }),
   beforeLoad: async () => {
     const user = await fetchUser();
-    console.log(user);
     if (!user) {
       return null;
     }
