@@ -29,6 +29,11 @@ export const signupFn = createServerFn()
   });
 
 export const Route = createFileRoute("/signup")({
+  beforeLoad(ctx) {
+    if (ctx) {
+      throw redirect({ to: "/" });
+    }
+  },
   component: SignupComp,
 });
 

@@ -12,22 +12,25 @@ import { DefaultCatchBoundary } from "@/components/DefaultCatchBoundary";
 import { Link } from "@tanstack/react-router";
 import type { User } from "@supabase/supabase-js";
 
-const fetchUser: Fetcher<undefined, undefined, User | null> = createServerFn({
-  method: "GET",
-}).handler(async () => {
-  const supabase = await getSupabaseServerClient();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-  if (error) {
-    console.error("Error fetching user:", error);
-    return { user: null };
-  }
-
-  // ! This is a hack to get around the type error
-  return user as any;
-});
+export const fetchUser: Fetcher<undefined, undefined, User | null> =
+  createServerFn({
+    method: "GET",
+  }).handler(async () => {
+    const supabase = await getSupabaseServerClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+    if (error) {
+      console.error("Error fetching user:", error);
+      return null;
+    }
+    if (!user) {
+      return null;
+    }
+    // ! This is a hack to get around the type error
+    return user as any;
+  });
 
 export const Route = createRootRoute({
   head: () => ({
@@ -48,6 +51,9 @@ export const Route = createRootRoute({
   beforeLoad: async () => {
     const user = await fetchUser();
     console.log(user);
+    if (!user) {
+      return null;
+    }
     return user;
   },
   errorComponent: (props) => {

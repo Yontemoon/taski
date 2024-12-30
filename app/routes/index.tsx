@@ -1,15 +1,17 @@
 import { createFileRoute, useRouter, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/start";
-import { supabase } from "@/lib/supabase";
+import { getSupabaseServerClient } from "@/lib/supabase";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useForm } from "@tanstack/react-form";
+import { fetchUser } from "./__root";
 
 const getTodos = createServerFn({
   method: "GET",
 })
   .validator((userId: unknown) => userId as string)
   .handler(async ({ data }) => {
+    const supabase = await getSupabaseServerClient();
     const todos = await supabase.from("todos").select("*").eq("user_id", data);
     return todos.data;
   });
@@ -19,15 +21,18 @@ const postTodo = createServerFn({ method: "POST" })
     return data as { todo: string; user_id: string };
   })
   .handler(async ({ data }) => {
-    console.log("DATA POST", data);
-    const todo = await supabase.from("todos").insert(data).single();
-    console.log(todo);
+    const supabase = await getSupabaseServerClient();
+    const todo = await supabase.from("todos").insert({
+      todo: data.todo,
+      user_id: data.user_id,
+    });
     return todo.data;
   });
 
 export const Route = createFileRoute("/")({
-  beforeLoad: async ({ context }) => {
-    if (!context) {
+  beforeLoad: async () => {
+    const user = await fetchUser();
+    if (!user) {
       throw redirect({ to: "/login" });
     }
   },
