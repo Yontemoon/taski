@@ -3,24 +3,31 @@ import {
   ScrollRestoration,
   createRootRoute,
 } from "@tanstack/react-router";
-import { Meta, Scripts, createServerFn } from "@tanstack/start";
+import { Fetcher, Meta, Scripts, createServerFn } from "@tanstack/start";
 import type { ReactNode } from "react";
 import styles from "@/styles/app.css?url";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import { NotFound } from "@/components/NotFound";
 import { DefaultCatchBoundary } from "@/components/DefaultCatchBoundary";
 import { Link } from "@tanstack/react-router";
+import type { User } from "@supabase/supabase-js";
 
-const fetchUser = createServerFn({ method: "GET" }).handler(async () => {
+const fetchUser: Fetcher<undefined, undefined, User | null> = createServerFn({
+  method: "GET",
+}).handler(async () => {
   const supabase = await getSupabaseServerClient();
-  const { data, error: _error } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
 
-  if (!data.user?.email) {
-    return null;
+  if (error) {
+    console.error("Error fetching user:", error);
+    return { user: null };
   }
 
-  // ! FIX LATER
-  return data.user as any;
+  // ! This is a hack to get around the type error
+  return user as any;
 });
 
 export const Route = createRootRoute({
@@ -39,9 +46,9 @@ export const Route = createRootRoute({
     ],
     links: [{ rel: "stylesheet", href: styles }],
   }),
-  beforeLoad: async ({ context }) => {
+  beforeLoad: async () => {
+    // const userId = context.data.;
     const user = await fetchUser();
-    console.log(user);
     return { user };
   },
   errorComponent: (props) => {
