@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getSupabaseServerClient, supabase } from "@/lib/supabase";
+import { getSupabaseServerClient } from "@/lib/supabase";
 import { createServerFn } from "@tanstack/start";
 
 const getTodos = createServerFn({

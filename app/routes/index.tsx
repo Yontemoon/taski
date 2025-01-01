@@ -44,6 +44,7 @@ function Home() {
       };
       await postTodos({ data });
       queryClient.invalidateQueries({ queryKey: ["todos", user?.id] });
+      // rese
     },
   });
   if (isLoading) {
@@ -55,10 +56,11 @@ function Home() {
       <h1>My Todos</h1>
       <div className="flex gap-5 max-w-screen-md justify-center items-center">
         <form
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
             e.stopPropagation();
-            form.handleSubmit();
+            await form.handleSubmit();
+            form.reset();
           }}
         >
           <form.Field
