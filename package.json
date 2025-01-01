@@ -1,11 +1,10 @@
 {
   "name": "taski",
   "version": "1.0.0",
-  "main": "index.js",
   "type": "module",
   "scripts": {
     "dev": "vinxi dev",
-    "build": "vinxi build",
+    "build": "vinxi build --preset vercel",
     "start": "vinxi start",
     "types": "npx supabase gen types typescript --project-id 'udtsoseizguuxxylpzuw' --schema public > app/types/database.types.ts"
   },
