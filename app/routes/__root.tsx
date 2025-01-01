@@ -1,7 +1,7 @@
 import {
   Outlet,
   ScrollRestoration,
-  createRootRoute,
+  createRootRouteWithContext,
 } from "@tanstack/react-router";
 import { Fetcher, Meta, Scripts, createServerFn } from "@tanstack/start";
 import type { ReactNode } from "react";
@@ -11,6 +11,7 @@ import { NotFound } from "@/components/NotFound";
 import { DefaultCatchBoundary } from "@/components/DefaultCatchBoundary";
 import { Link } from "@tanstack/react-router";
 import type { User } from "@supabase/supabase-js";
+import { QueryClient } from "@tanstack/react-query";
 
 export const fetchUser: Fetcher<undefined, undefined, User | null> =
   createServerFn({
@@ -32,7 +33,11 @@ export const fetchUser: Fetcher<undefined, undefined, User | null> =
     return user as any;
   });
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<
+  {
+    queryClient: QueryClient;
+  } & User
+>()({
   head: () => ({
     meta: [
       {
@@ -55,6 +60,7 @@ export const Route = createRootRoute({
     }
     return user;
   },
+
   errorComponent: (props) => {
     return (
       <RootDocument>
@@ -105,6 +111,8 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         </div>
         {children}
         <ScrollRestoration />
+        {/* <TanStackRouterDevtools position="bottom-right" />
+        <ReactQueryDevtools buttonPosition="bottom-left" /> */}
         <Scripts />
       </body>
     </html>

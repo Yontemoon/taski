@@ -1,67 +1,53 @@
-import { createFileRoute, useRouter, redirect } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/start";
-import { getSupabaseServerClient } from "@/lib/supabase";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useForm } from "@tanstack/react-form";
-import { fetchUser } from "./__root";
-
-const getTodos = createServerFn({
-  method: "GET",
-})
-  .validator((userId: unknown) => userId as string)
-  .handler(async ({ data }) => {
-    const supabase = await getSupabaseServerClient();
-    const todos = await supabase.from("todos").select("*").eq("user_id", data);
-    return todos.data;
-  });
-
-const postTodo = createServerFn({ method: "POST" })
-  .validator((data: unknown) => {
-    return data as { todo: string; user_id: string };
-  })
-  .handler(async ({ data }) => {
-    const supabase = await getSupabaseServerClient();
-    const todo = await supabase.from("todos").insert({
-      todo: data.todo,
-      user_id: data.user_id,
-    });
-    return todo.data;
-  });
+import { todosQueryOptions } from "@/lib/todos";
+import { useSuspenseQuery } from "@tanstack/react-query";
+// import type { User } from "@supabase/supabase-js";
 
 export const Route = createFileRoute("/")({
-  beforeLoad: async () => {
-    const user = await fetchUser();
-    if (!user) {
+  beforeLoad: async ({ context }) => {
+    if (!context?.id) {
       throw redirect({ to: "/login" });
     }
   },
-  component: Home,
   loader: async ({ context }) => {
-    const todos = await getTodos({ data: context?.id });
-    return { todos };
+    console.log("CONTEXT", context);
+    if (context.id) {
+      const data = await context.queryClient.ensureQueryData(
+        todosQueryOptions(context.id)
+      );
+      return data;
+    }
   },
+  component: Home,
 });
 
 function Home() {
-  const router = useRouter();
-  const loaderData = Route.useLoaderData();
+  // const router = useRouter();
   const user = Route.useRouteContext();
+  console.log(user);
+  const { data, isLoading } = useSuspenseQuery(todosQueryOptions(user?.id));
 
   const form = useForm({
     defaultValues: {
       todo: "",
     },
     onSubmit: async ({ value }) => {
+      console.log(value);
       const data = {
         user_id: user?.id,
         todo: value.todo,
       };
-      postTodo({ data }).then(() => {
-        router.invalidate();
-      });
+      // postTodo({ data }).then(() => {
+      //   router.invalidate();
+      // });
     },
   });
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="w-full justify-center flex flex-col items-center">
@@ -91,9 +77,7 @@ function Home() {
         </form>
       </div>
 
-      <ul>
-        {loaderData?.todos?.map((todo) => <li key={todo.id}>{todo.todo}</li>)}
-      </ul>
+      <ul>{data?.map((todo) => <li key={todo.id}>{todo.todo}</li>)}</ul>
     </div>
   );
 }
