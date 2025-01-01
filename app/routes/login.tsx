@@ -4,8 +4,7 @@ import { fetchUser } from "./__root";
 
 export const Route = createFileRoute("/login")({
   beforeLoad: async ({ context }) => {
-    const user = await fetchUser();
-    if (user) {
+    if (context.id) {
       throw redirect({ to: "/" });
     }
   },

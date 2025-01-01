@@ -3,8 +3,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useForm } from "@tanstack/react-form";
 import { todosQueryOptions } from "@/lib/todos";
-import { useSuspenseQuery } from "@tanstack/react-query";
-// import type { User } from "@supabase/supabase-js";
+import {
+  useMutation,
+  useSuspenseQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { postTodos } from "@/lib/todos";
 
 export const Route = createFileRoute("/")({
   beforeLoad: async ({ context }) => {
@@ -13,7 +17,6 @@ export const Route = createFileRoute("/")({
     }
   },
   loader: async ({ context }) => {
-    console.log("CONTEXT", context);
     if (context.id) {
       const data = await context.queryClient.ensureQueryData(
         todosQueryOptions(context.id)
@@ -25,10 +28,9 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  // const router = useRouter();
   const user = Route.useRouteContext();
-  console.log(user);
   const { data, isLoading } = useSuspenseQuery(todosQueryOptions(user?.id));
+  const queryClient = useQueryClient();
 
   const form = useForm({
     defaultValues: {
@@ -40,9 +42,8 @@ function Home() {
         user_id: user?.id,
         todo: value.todo,
       };
-      // postTodo({ data }).then(() => {
-      //   router.invalidate();
-      // });
+      await postTodos({ data });
+      queryClient.invalidateQueries({ queryKey: ["todos", user?.id] });
     },
   });
   if (isLoading) {
@@ -73,7 +74,17 @@ function Home() {
               );
             }}
           />
-          <Button type="submit">Add Todo</Button>
+          <form.Subscribe
+            selector={(state) => state.isSubmitting}
+            children={(isSubmitting) => {
+              console.log(isSubmitting);
+              return (
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Submitting" : "Submit"}
+                </Button>
+              );
+            }}
+          />
         </form>
       </div>
 
