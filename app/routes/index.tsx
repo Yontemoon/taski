@@ -11,6 +11,7 @@ import {
 import { postTodos } from "@/lib/todos";
 import { extractHashtag } from "@/lib/utils";
 import type { Tables } from "@/types/database.types";
+import { deleteTodo } from "@/lib/todos";
 
 type TTodos = Tables<"todos">;
 
@@ -36,7 +37,7 @@ function Home() {
   const { data, isLoading } = useSuspenseQuery(todosQueryOptions(user?.id));
   const queryClient = useQueryClient();
 
-  const mutation = useMutation({
+  const addMutation = useMutation({
     mutationFn: postTodos,
     onMutate: async (newTodo) => {
       await queryClient.cancelQueries({ queryKey: ["todos", user?.id] });
@@ -60,6 +61,25 @@ function Home() {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: deleteTodo,
+    onMutate: async (todo_id) => {
+      await queryClient.cancelQueries({ queryKey: ["todos", user?.id] });
+
+      const previousTodos = queryClient.getQueryData(["todos", user?.id]);
+      queryClient.setQueryData(["todos", user?.id], (old: TTodos[]) => [
+        ...old.filter((todo) => todo.id !== todo_id.data.todo_id),
+      ]);
+      return previousTodos;
+    },
+    onError: (err, todo_id, context) => {
+      queryClient.setQueryData(["todos", user?.id], context);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos", user?.id] });
+    },
+  });
+
   const form = useForm({
     defaultValues: {
       todo: "",
@@ -70,8 +90,7 @@ function Home() {
         user_id: user?.id,
         todo: value.todo,
       };
-      console.log(data);
-      mutation.mutate({ data });
+      addMutation.mutate({ data });
     },
   });
   if (isLoading) {
@@ -116,7 +135,25 @@ function Home() {
         </form>
       </div>
 
-      <ul>{data?.map((todo) => <li key={todo.id}>{todo.todo}</li>)}</ul>
+      <ul className="max-w-5xl w-full px-5">
+        {data?.map((todo) => (
+          <li key={todo.id} className="flex justify-between gap-5 w-full mb-2">
+            <p>{todo.todo}</p>
+            <Button
+              onClick={() => {
+                const data = {
+                  todo_id: todo.id,
+                  user_id: user?.id,
+                  todo: todo.todo!,
+                };
+                deleteMutation.mutate({ data });
+              }}
+            >
+              Delete
+            </Button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
