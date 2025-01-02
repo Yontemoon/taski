@@ -9,22 +9,82 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      todos: {
+      hashtags: {
         Row: {
           created_at: string
           id: number
-          todo: string | null
+          tags: string | null
           user_id: string | null
         }
         Insert: {
           created_at?: string
           id?: number
-          todo?: string | null
+          tags?: string | null
           user_id?: string | null
         }
         Update: {
           created_at?: string
           id?: number
+          tags?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      todo_hashtags: {
+        Row: {
+          hashtag_id: number | null
+          id: number
+          todo_id: number | null
+        }
+        Insert: {
+          hashtag_id?: number | null
+          id?: number
+          todo_id?: number | null
+        }
+        Update: {
+          hashtag_id?: number | null
+          id?: number
+          todo_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "todo_hashtags_hashtag_id_fkey"
+            columns: ["hashtag_id"]
+            isOneToOne: false
+            referencedRelation: "hashtags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "todo_hashtags_todo_id_fkey"
+            columns: ["todo_id"]
+            isOneToOne: false
+            referencedRelation: "todos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      todos: {
+        Row: {
+          created_at: string
+          date_set: string | null
+          id: number
+          is_complete: boolean
+          todo: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          date_set?: string | null
+          id?: number
+          is_complete?: boolean
+          todo?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          date_set?: string | null
+          id?: number
+          is_complete?: boolean
           todo?: string | null
           user_id?: string | null
         }

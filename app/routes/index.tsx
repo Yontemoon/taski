@@ -9,6 +9,10 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { postTodos } from "@/lib/todos";
+import { extractHashtag } from "@/lib/utils";
+import type { Tables } from "@/types/database.types";
+
+type TTodos = Tables<"todos">;
 
 export const Route = createFileRoute("/")({
   beforeLoad: async ({ context }) => {
@@ -32,19 +36,42 @@ function Home() {
   const { data, isLoading } = useSuspenseQuery(todosQueryOptions(user?.id));
   const queryClient = useQueryClient();
 
+  const mutation = useMutation({
+    mutationFn: postTodos,
+    onMutate: async (newTodo) => {
+      await queryClient.cancelQueries({ queryKey: ["todos", user?.id] });
+
+      const previousTodos = queryClient.getQueryData(["todos", user?.id]);
+      queryClient.setQueryData(["todos", user?.id], (old: TTodos[]) => [
+        ...old,
+        {
+          todo: newTodo?.data?.todo,
+          user_id: newTodo?.data?.user_id,
+          id: old.length,
+        },
+      ]);
+      return previousTodos;
+    },
+    onError: (err, newTodo, context) => {
+      queryClient.setQueryData(["todos", user?.id], context);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos", user?.id] });
+    },
+  });
+
   const form = useForm({
     defaultValues: {
       todo: "",
     },
+
     onSubmit: async ({ value }) => {
-      console.log(value);
       const data = {
         user_id: user?.id,
         todo: value.todo,
       };
-      await postTodos({ data });
-      queryClient.invalidateQueries({ queryKey: ["todos", user?.id] });
-      // rese
+      console.log(data);
+      mutation.mutate({ data });
     },
   });
   if (isLoading) {
@@ -79,7 +106,6 @@ function Home() {
           <form.Subscribe
             selector={(state) => state.isSubmitting}
             children={(isSubmitting) => {
-              console.log(isSubmitting);
               return (
                 <Button type="submit" disabled={isSubmitting}>
                   {isSubmitting ? "Submitting" : "Submit"}

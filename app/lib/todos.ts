@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import { createServerFn } from "@tanstack/start";
+import { extractHashtag } from "./utils";
 
 const getTodos = createServerFn({
   method: "GET",
@@ -15,11 +16,22 @@ const getTodos = createServerFn({
 const postTodos = createServerFn({
   method: "POST",
 })
-  .validator((data: unknown) => data as { user_id: string; todo: string })
+  .validator((data: { user_id: string; todo: string }) =>
+    data as { user_id: string; todo: string }
+  )
   .handler(async ({ data }) => {
+    console.log("data", data);
     const supabase = await getSupabaseServerClient();
-    const todo = await supabase.from("todos").insert(data);
-    return todo.data;
+    const hashtags = extractHashtag(data.todo);
+
+    if (hashtags.length >= 0) {
+      await supabase.from("hashtags").insert(
+        hashtags.map((tag) => ({ tags: tag, user_id: data.user_id })),
+      );
+    }
+
+    await supabase.from("todos").insert(data);
+    // return todo.data;
   });
 
 const todosQueryOptions = (userId: string) =>
