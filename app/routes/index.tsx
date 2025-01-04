@@ -3,10 +3,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useForm } from "@tanstack/react-form";
 import { todosQueryOptions } from "@/lib/todos";
+import { tagsQueryOptions } from "@/lib/tags";
 import {
   useMutation,
   useSuspenseQuery,
+  useSuspenseQueries,
   useQueryClient,
+  queryOptions,
 } from "@tanstack/react-query";
 import { postTodos, deleteTodo, isCompleteTodo } from "@/lib/todos";
 import type { Tables } from "@/types/database.types";
@@ -22,10 +25,15 @@ export const Route = createFileRoute("/")({
   },
   loader: async ({ context }) => {
     if (context.id) {
-      const data = await context.queryClient.ensureQueryData(
+      const tags = await context.queryClient.ensureQueryData(
+        tagsQueryOptions(context.id)
+      );
+
+      const todos = await context.queryClient.ensureQueryData(
         todosQueryOptions(context.id)
       );
-      return data;
+      console.log({ tags, todos });
+      return { tags, todos };
     }
   },
   component: Home,
@@ -34,6 +42,11 @@ export const Route = createFileRoute("/")({
 function Home() {
   const user = Route.useRouteContext();
   const { data, isLoading } = useSuspenseQuery(todosQueryOptions(user?.id));
+  const { data: tags, isLoading: tagsLoading } = useSuspenseQuery(
+    tagsQueryOptions(user?.id)
+  );
+
+  console.log(tags);
   const queryClient = useQueryClient();
 
   const addMutation = useMutation({
@@ -123,7 +136,7 @@ function Home() {
       addMutation.mutate({ data });
     },
   });
-  if (isLoading) {
+  if (isLoading || tagsLoading) {
     return <div>Loading...</div>;
   }
 
@@ -164,7 +177,15 @@ function Home() {
           />
         </form>
       </div>
-
+      <div>
+        <ul className="">
+          <li>
+            {tags?.map((tag) => {
+              return <div key={tag.id}>{tag.tags}</div>;
+            })}
+          </li>
+        </ul>
+      </div>
       <ul className="max-w-5xl w-full px-5">
         {data?.map((todo) => (
           <li key={todo.id} className="flex justify-between gap-5 w-full mb-2">

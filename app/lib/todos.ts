@@ -9,7 +9,8 @@ const getTodos = createServerFn({
   .validator((userId: unknown) => userId as string)
   .handler(async ({ data }) => {
     const supabase = await getSupabaseServerClient();
-    const todos = await supabase.from("todos").select("*").eq("user_id", data);
+    const todos = await supabase.from("todos").select("*").eq("user_id", data)
+      .order("id");
     return todos.data;
   });
 

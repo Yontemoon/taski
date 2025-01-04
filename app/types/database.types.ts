@@ -13,20 +13,20 @@ export type Database = {
         Row: {
           created_at: string
           id: number
-          tags: string | null
-          user_id: string | null
+          tags: string
+          user_id: string
         }
         Insert: {
           created_at?: string
           id?: number
-          tags?: string | null
-          user_id?: string | null
+          tags: string
+          user_id: string
         }
         Update: {
           created_at?: string
           id?: number
-          tags?: string | null
-          user_id?: string | null
+          tags?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -66,6 +66,7 @@ export type Database = {
       todos: {
         Row: {
           created_at: string
+          date_order: number | null
           date_set: string | null
           id: number
           is_complete: boolean
@@ -74,6 +75,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          date_order?: number | null
           date_set?: string | null
           id?: number
           is_complete?: boolean
@@ -82,6 +84,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          date_order?: number | null
           date_set?: string | null
           id?: number
           is_complete?: boolean
