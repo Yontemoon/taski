@@ -13,33 +13,83 @@ const getTodos = createServerFn({
     return todos.data;
   });
 
-
-// ! There is no DELETE method in supabase, Maybe create a api call?
 const deleteTodo = createServerFn({
-  method: "POST"
+  method: "POST",
 })
-.validator((data: {todo_id: number, user_id: string, todo: string} ) => data as {todo_id: number, user_id: string, todo: string}) 
-.handler(async ({data}) => {
-  console.log(data);
-
-  const hashtags = extractHashtag(data.todo);
-
-  const supabase = await getSupabaseServerClient();
-  const deletedTodo = await supabase.from("todos").delete().eq("id",data.todo_id).eq("user_id", data.user_id).select()
-  
-  if (deletedTodo.status === 200 && hashtags.length > 0) {
-    for (let i = 0; i < hashtags.length; i++) {
-      const currentTag = hashtags[i]
-      const isFound = await supabase.from("hashtags").select().eq("tags", currentTag).eq("user_id", data.user_id).single()
-      if (isFound.data) {
-        await supabase.from("hashtags").delete().eq("tags", currentTag).eq("user_id", data.user_id).select()
-      }
+  .validator((data: { todo_id: number; user_id: string }) => {
+    if (!data.todo_id || !data.user_id) {
+      throw new Error("Invalid data provided");
     }
-  }
-  console.log(deletedTodo);
+    return data;
+  })
+  .handler(async ({ data }) => {
+    const supabase = await getSupabaseServerClient();
 
+    try {
+      const { data: deletedTodo, error: deleteTodoError } = await supabase
+        .from("todos")
+        .delete()
+        .eq("id", data.todo_id)
+        .eq("user_id", data.user_id)
+        .select();
 
+      if (deleteTodoError) {
+        console.error("Error deleting todo:", deleteTodoError.message);
+        throw new Error("Failed to delete the todo");
+      }
+
+      if (!deletedTodo || deletedTodo.length === 0) {
+        console.warn("No todo found to delete with the provided ID");
+        throw new Error("Todo not found");
+      }
+
+      return {
+        success: true,
+        message: "Todo and associated hashtags deleted successfully",
+      };
+    } catch (error) {
+      console.error("Error in deleteTodo handler:", error);
+      return {
+        success: false,
+        message: "Failed to delete todo",
+      };
+    }
+  });
+
+const isCompleteTodo = createServerFn({
+  method: "POST",
 })
+  .validator(
+    (data: { todo_id: number; user_id: string; is_completed: boolean }) => {
+      if (!data.todo_id || !data.user_id || data.is_completed === undefined) {
+        throw new Error("Invalid data provided");
+      }
+      return data;
+    },
+  )
+  .handler(async ({ data }) => {
+    const supabase = await getSupabaseServerClient();
+    try {
+      const response = await supabase.from("todos").update({
+        is_complete: data.is_completed,
+      }).eq("user_id", data.user_id).eq("id", data.todo_id);
+
+      if (response.error) {
+        console.error("Error updating todo:", response.error.message);
+        throw new Error("Failed to update the todo");
+      }
+      return {
+        success: true,
+        message: "Todo completion status updated successfully",
+      };
+    } catch (error) {
+      console.error("Error in isCompleteTodo handler:", error);
+      return {
+        success: false,
+        message: "Failed to change completion of todo",
+      };
+    }
+  });
 
 const postTodos = createServerFn({
   method: "POST",
@@ -55,7 +105,8 @@ const postTodos = createServerFn({
     const newTagsId: number[] = [];
 
     // Step 1: Insert the todo
-    const todoResponse = await supabase.from("todos").insert(data).select().single();
+    const todoResponse = await supabase.from("todos").insert(data).select()
+      .single();
     if (todoResponse.error || !todoResponse.data) {
       throw new Error("Error inserting todo");
     }
@@ -81,14 +132,14 @@ const postTodos = createServerFn({
 
       const existingTags = existingTagsResponse.data || [];
       const existingTagsMap = new Map(
-        existingTags.map((tag) => [tag.tags, tag.id])
+        existingTags.map((tag) => [tag.tags, tag.id]),
       );
 
       console.log(existingTagsMap);
 
       // Step 2b: Insert new hashtags in bulk
       const newHashtags = formattedHashtags.filter(
-        (tag) => !existingTagsMap.has(tag.tags)
+        (tag) => !existingTagsMap.has(tag.tags),
       );
       if (newHashtags.length > 0) {
         const newTagsResponse = await supabase
@@ -127,7 +178,6 @@ const postTodos = createServerFn({
     console.log("Todo and hashtags successfully saved");
   });
 
-
 const todosQueryOptions = (userId: string) =>
   queryOptions({
     queryKey: ["todos", userId],
@@ -137,4 +187,4 @@ const todosQueryOptions = (userId: string) =>
       ),
   });
 
-export { postTodos, deleteTodo, todosQueryOptions };
+export { deleteTodo, isCompleteTodo, postTodos, todosQueryOptions };

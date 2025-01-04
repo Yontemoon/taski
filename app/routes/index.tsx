@@ -8,10 +8,9 @@ import {
   useSuspenseQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { postTodos } from "@/lib/todos";
-import { extractHashtag } from "@/lib/utils";
+import { postTodos, deleteTodo, isCompleteTodo } from "@/lib/todos";
 import type { Tables } from "@/types/database.types";
-import { deleteTodo } from "@/lib/todos";
+import { cn } from "@/lib/utils";
 
 type TTodos = Tables<"todos">;
 
@@ -54,6 +53,37 @@ function Home() {
       return previousTodos;
     },
     onError: (err, newTodo, context) => {
+      queryClient.setQueryData(["todos", user?.id], context);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos", user?.id] });
+    },
+  });
+
+  const isCompleteMutation = useMutation({
+    mutationFn: isCompleteTodo,
+    onMutate: async ({ data }) => {
+      await queryClient.cancelQueries({ queryKey: ["todos", user?.id] });
+
+      const previousTodos = queryClient.getQueryData([
+        "todos",
+        user?.id,
+      ]) as TTodos[];
+
+      const updatedTodos = previousTodos.map((todo) => {
+        if (todo.id === data.todo_id) {
+          return {
+            ...todo,
+            is_complete: data.is_completed,
+          };
+        }
+        return todo;
+      });
+
+      queryClient.setQueryData(["todos", user?.id], updatedTodos);
+      return previousTodos;
+    },
+    onError: (err, todo_id, context) => {
       queryClient.setQueryData(["todos", user?.id], context);
     },
     onSettled: () => {
@@ -138,13 +168,30 @@ function Home() {
       <ul className="max-w-5xl w-full px-5">
         {data?.map((todo) => (
           <li key={todo.id} className="flex justify-between gap-5 w-full mb-2">
-            <p>{todo.todo}</p>
+            <p
+              onClick={() => {
+                if (isCompleteMutation.isPending) {
+                  return;
+                }
+                const data = {
+                  user_id: user.id,
+                  todo_id: todo.id,
+                  is_completed: !todo.is_complete,
+                };
+                isCompleteMutation.mutate({ data });
+              }}
+              className={cn(
+                "hover:cursor-pointer",
+                todo.is_complete && "line-through"
+              )}
+            >
+              {todo.todo}
+            </p>
             <Button
               onClick={() => {
                 const data = {
                   todo_id: todo.id,
                   user_id: user?.id,
-                  todo: todo.todo!,
                 };
                 deleteMutation.mutate({ data });
               }}
