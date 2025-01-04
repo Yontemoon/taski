@@ -7,13 +7,11 @@ import { tagsQueryOptions } from "@/lib/tags";
 import {
   useMutation,
   useSuspenseQuery,
-  useSuspenseQueries,
   useQueryClient,
-  queryOptions,
 } from "@tanstack/react-query";
 import { postTodos, deleteTodo, isCompleteTodo } from "@/lib/todos";
 import type { Tables } from "@/types/database.types";
-import { cn } from "@/lib/utils";
+import { cn, extractHashtag } from "@/lib/utils";
 
 type TTodos = Tables<"todos">;
 
@@ -32,7 +30,7 @@ export const Route = createFileRoute("/")({
       const todos = await context.queryClient.ensureQueryData(
         todosQueryOptions(context.id)
       );
-      console.log({ tags, todos });
+      // console.log({ tags, todos });
       return { tags, todos };
     }
   },
@@ -46,7 +44,6 @@ function Home() {
     tagsQueryOptions(user?.id)
   );
 
-  console.log(tags);
   const queryClient = useQueryClient();
 
   const addMutation = useMutation({
@@ -94,6 +91,7 @@ function Home() {
       });
 
       queryClient.setQueryData(["todos", user?.id], updatedTodos);
+      // queryClient.setQueryData(["tags", user?.id],)
       return previousTodos;
     },
     onError: (err, todo_id, context) => {
@@ -120,6 +118,7 @@ function Home() {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["todos", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["tags", user?.id] });
     },
   });
 
@@ -143,40 +142,41 @@ function Home() {
   return (
     <div className="w-full justify-center flex flex-col items-center">
       <h1>My Todos</h1>
-      <div className="flex gap-5 max-w-screen-md justify-center items-center">
-        <form
-          onSubmit={async (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            await form.handleSubmit();
-            form.reset();
+
+      <form
+        className="flex gap-5 justify-center items-center max-w-5xl w-full"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          await form.handleSubmit();
+          form.reset();
+        }}
+      >
+        <form.Field
+          name="todo"
+          children={(field) => {
+            return (
+              <Input
+                name={field.name}
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+              />
+            );
           }}
-        >
-          <form.Field
-            name="todo"
-            children={(field) => {
-              return (
-                <Input
-                  name={field.name}
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-              );
-            }}
-          />
-          <form.Subscribe
-            selector={(state) => state.isSubmitting}
-            children={(isSubmitting) => {
-              return (
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Submitting" : "Submit"}
-                </Button>
-              );
-            }}
-          />
-        </form>
-      </div>
+        />
+        <form.Subscribe
+          selector={(state) => state.isSubmitting}
+          children={(isSubmitting) => {
+            return (
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Submitting" : "Submit"}
+              </Button>
+            );
+          }}
+        />
+      </form>
+
       <div>
         <ul className="">
           <li>

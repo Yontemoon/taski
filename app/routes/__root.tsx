@@ -12,6 +12,8 @@ import { DefaultCatchBoundary } from "@/components/DefaultCatchBoundary";
 import { Link } from "@tanstack/react-router";
 import type { User } from "@supabase/supabase-js";
 import { QueryClient } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 
 export const fetchUser: Fetcher<undefined, undefined, User | null> =
   createServerFn({
@@ -29,7 +31,7 @@ export const fetchUser: Fetcher<undefined, undefined, User | null> =
     if (!user) {
       return null;
     }
-    // ! This is a hack to get around the type error
+
     return user as any;
   });
 
@@ -111,8 +113,8 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         </div>
         {children}
         <ScrollRestoration />
-        {/* <TanStackRouterDevtools position="bottom-right" />
-        <ReactQueryDevtools buttonPosition="bottom-left" /> */}
+        <TanStackRouterDevtools position="bottom-right" />
+        <ReactQueryDevtools buttonPosition="bottom-left" />
         <Scripts />
       </body>
     </html>
