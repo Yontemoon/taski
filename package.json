@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "vinxi dev",
     "build": "vinxi build --preset vercel",
-    "start": "vinxi start",
+    "build-local": "vinxi build --preset node-server",
+    "start": "vinx start --preset vercel",
+    "start-local": "vinxi start --preset node-server",
     "types": "npx supabase gen types typescript --project-id 'udtsoseizguuxxylpzuw' --schema public > app/types/database.types.ts"
   },
   "keywords": [],
