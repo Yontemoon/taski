@@ -9,7 +9,10 @@ const getTodos = createServerFn({
   .validator((userId: unknown) => userId as string)
   .handler(async ({ data }) => {
     const supabase = await getSupabaseServerClient();
-    const todos = await supabase.from("todos").select("*").eq("user_id", data)
+    const todos = await supabase
+      .from("todos")
+      .select("*")
+      .eq("user_id", data)
       .order("id");
     return todos.data;
   });
@@ -71,9 +74,13 @@ const isCompleteTodo = createServerFn({
   .handler(async ({ data }) => {
     const supabase = await getSupabaseServerClient();
     try {
-      const response = await supabase.from("todos").update({
-        is_complete: data.is_completed,
-      }).eq("user_id", data.user_id).eq("id", data.todo_id);
+      const response = await supabase
+        .from("todos")
+        .update({
+          is_complete: data.is_completed,
+        })
+        .eq("user_id", data.user_id)
+        .eq("id", data.todo_id);
 
       if (response.error) {
         console.error("Error updating todo:", response.error.message);
@@ -99,84 +106,95 @@ const postTodos = createServerFn({
     data as { user_id: string; todo: string }
   )
   .handler(async ({ data }) => {
-    console.log("data", data);
     const supabase = await getSupabaseServerClient();
 
-    const hashtags = extractHashtag(data.todo);
-    const newTagsId: number[] = [];
+    try {
+      const hashtags = extractHashtag(data.todo);
+      const newTagsId: number[] = [];
 
-    // Step 1: Insert the todo
-    const todoResponse = await supabase.from("todos").insert(data).select()
-      .single();
-    if (todoResponse.error || !todoResponse.data) {
-      throw new Error("Error inserting todo");
-    }
-    const todoId = todoResponse.data.id;
-
-    // Step 2: Handle hashtags
-    if (hashtags.length > 0) {
-      const formattedHashtags = hashtags.map((tag) => ({
-        tags: tag,
-        user_id: data.user_id,
-      }));
-
-      // Step 2a: Check for existing hashtags in a single query
-      const existingTagsResponse = await supabase
-        .from("hashtags")
+      // Step 1: Insert the todo
+      const todoResponse = await supabase
+        .from("todos")
+        .insert(data)
         .select()
-        .in("tags", hashtags)
-        .eq("user_id", data.user_id);
-
-      if (existingTagsResponse.error) {
-        throw new Error("Error fetching existing hashtags");
+        .single();
+      if (todoResponse.error || !todoResponse.data) {
+        throw new Error("Error inserting todo");
       }
+      const todoId = todoResponse.data.id;
 
-      const existingTags = existingTagsResponse.data || [];
-      const existingTagsMap = new Map(
-        existingTags.map((tag) => [tag.tags, tag.id]),
-      );
+      // Step 2: Handle hashtags
+      if (hashtags.length > 0) {
+        const formattedHashtags = hashtags.map((tag) => ({
+          tags: tag,
+          user_id: data.user_id,
+        }));
 
-      console.log(existingTagsMap);
-
-      // Step 2b: Insert new hashtags in bulk
-      const newHashtags = formattedHashtags.filter(
-        (tag) => !existingTagsMap.has(tag.tags),
-      );
-      if (newHashtags.length > 0) {
-        const newTagsResponse = await supabase
+        // Step 2a: Check for existing hashtags in a single query
+        const existingTagsResponse = await supabase
           .from("hashtags")
-          .insert(newHashtags)
-          .select();
-        if (newTagsResponse.error) {
-          throw new Error("Error inserting new hashtags");
+          .select()
+          .in("tags", hashtags)
+          .eq("user_id", data.user_id);
+
+        if (existingTagsResponse.error) {
+          throw new Error("Error fetching existing hashtags");
         }
 
-        newTagsResponse.data.forEach((tag) => {
-          existingTagsMap.set(tag.tags, tag.id);
-        });
+        const existingTags = existingTagsResponse.data || [];
+        const existingTagsMap = new Map(
+          existingTags.map((tag) => [tag.tags, tag.id]),
+        );
+
+        // Step 2b: Insert new hashtags in bulk
+        const newHashtags = formattedHashtags.filter(
+          (tag) => !existingTagsMap.has(tag.tags),
+        );
+        if (newHashtags.length > 0) {
+          const newTagsResponse = await supabase
+            .from("hashtags")
+            .insert(newHashtags)
+            .select();
+          if (newTagsResponse.error) {
+            throw new Error("Error inserting new hashtags");
+          }
+
+          newTagsResponse.data.forEach((tag) => {
+            existingTagsMap.set(tag.tags, tag.id);
+          });
+        }
+
+        // Collect all tag IDs
+        newTagsId.push(...Array.from(existingTagsMap.values()));
       }
 
-      // Collect all tag IDs
-      newTagsId.push(...Array.from(existingTagsMap.values()));
-    }
+      // Step 3: Link hashtags to todo in bulk
+      if (newTagsId.length > 0) {
+        const todoHashtags = newTagsId.map((hashtag_id) => ({
+          todo_id: todoId,
+          hashtag_id,
+        }));
 
-    // Step 3: Link hashtags to todo in bulk
-    if (newTagsId.length > 0) {
-      const todoHashtags = newTagsId.map((hashtag_id) => ({
-        todo_id: todoId,
-        hashtag_id,
-      }));
+        const todoHashtagsResponse = await supabase
+          .from("todo_hashtags")
+          .insert(todoHashtags);
 
-      const todoHashtagsResponse = await supabase
-        .from("todo_hashtags")
-        .insert(todoHashtags);
-
-      if (todoHashtagsResponse.error) {
-        throw new Error("Error inserting todo_hashtags");
+        if (todoHashtagsResponse.error) {
+          throw new Error("Error inserting todo_hashtags");
+        }
       }
-    }
 
-    console.log("Todo and hashtags successfully saved");
+      return {
+        message: "Posting todo successful",
+        success: true,
+      };
+    } catch (error) {
+      console.error("Error posting new todo", error);
+      return {
+        message: "Error occured posting new todo",
+        success: false,
+      };
+    }
   });
 
 const todosQueryOptions = (userId: string) =>

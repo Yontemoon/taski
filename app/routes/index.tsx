@@ -14,6 +14,7 @@ import type { Tables } from "@/types/database.types";
 import { cn, extractHashtag } from "@/lib/utils";
 
 type TTodos = Tables<"todos">;
+type TTags = Tables<"hashtags">;
 
 export const Route = createFileRoute("/")({
   beforeLoad: async ({ context }) => {
@@ -30,7 +31,6 @@ export const Route = createFileRoute("/")({
       const todos = await context.queryClient.ensureQueryData(
         todosQueryOptions(context.id)
       );
-      // console.log({ tags, todos });
       return { tags, todos };
     }
   },
@@ -48,15 +48,30 @@ function Home() {
 
   const addMutation = useMutation({
     mutationFn: postTodos,
-    onMutate: async (newTodo) => {
+    onMutate: async ({ data }) => {
+      const newHashtags = extractHashtag(data.todo);
+      const previousTags = queryClient.getQueryData(["tags", user?.id]) as
+        | TTags[]
+        | [];
+
+      const tagSet = new Set(previousTags.map((prevTag) => prevTag.tags));
+      newHashtags.forEach((tag) => tagSet.add(tag));
+      const updatedTags = Array.from(tagSet).map((tag, index) => ({
+        id: index,
+        tags: tag,
+      }));
+
+      await queryClient.cancelQueries({ queryKey: ["tags", user?.id] });
+      await queryClient.setQueryData(["tags", user?.id], updatedTags);
+
       await queryClient.cancelQueries({ queryKey: ["todos", user?.id] });
 
       const previousTodos = queryClient.getQueryData(["todos", user?.id]);
       queryClient.setQueryData(["todos", user?.id], (old: TTodos[]) => [
         ...old,
         {
-          todo: newTodo?.data?.todo,
-          user_id: newTodo?.data?.user_id,
+          todo: data?.todo,
+          user_id: data?.user_id,
           id: old.length,
         },
       ]);
@@ -67,6 +82,7 @@ function Home() {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["todos", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["tags", user?.id] });
     },
   });
 
@@ -91,7 +107,6 @@ function Home() {
       });
 
       queryClient.setQueryData(["todos", user?.id], updatedTodos);
-      // queryClient.setQueryData(["tags", user?.id],)
       return previousTodos;
     },
     onError: (err, todo_id, context) => {
@@ -178,12 +193,18 @@ function Home() {
       </form>
 
       <div>
-        <ul className="">
-          <li>
-            {tags?.map((tag) => {
-              return <div key={tag.id}>{tag.tags}</div>;
-            })}
-          </li>
+        <ul className="flex gap-2 ">
+          {tags?.map((tag) => {
+            return (
+              <li
+                key={tag.tags}
+                className="border-solid border-black border p-2 hover:cursor-pointer"
+                onClick={() => console.log(tag.id)}
+              >
+                {tag.tags}
+              </li>
+            );
+          })}
         </ul>
       </div>
       <ul className="max-w-5xl w-full px-5">
