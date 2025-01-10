@@ -100,7 +100,7 @@ const useIndexMutations = (user: {id: string}) => {
       });
 
 
-      return {addMutation, isCompleteMutation, deleteMutation}
+      return { addMutation, isCompleteMutation, deleteMutation }
 }
 
 

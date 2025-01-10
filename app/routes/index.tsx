@@ -1,3 +1,4 @@
+import React from "react";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -49,6 +50,7 @@ function Home() {
   const { addMutation, deleteMutation, isCompleteMutation } = useIndexMutations(
     { id: user.id }
   );
+  const [date, setDate] = React.useState<Date | undefined>(new Date());
 
   const form = useForm({
     defaultValues: {
@@ -76,13 +78,13 @@ function Home() {
     <div className="w-full justify-center flex flex-col items-center">
       <h1>My Todos</h1>
       <Popover>
-        <PopoverTrigger>
+        <PopoverTrigger asChild>
           <Button variant={"outline"}>
             <CalendarIcon size={24} />
           </Button>
         </PopoverTrigger>
-        <PopoverContent>
-          <Calendar />
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar mode="single" selected={date} onSelect={setDate} />
         </PopoverContent>
       </Popover>
 
