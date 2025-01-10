@@ -1,7 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import { createServerFn } from "@tanstack/start";
-import { extractHashtag } from "./utils";
 
 const getTodos = createServerFn({
   method: "GET",
@@ -13,7 +12,9 @@ const getTodos = createServerFn({
     try {
       const { data, error } = await supabase
         .from("todos")
-        .select("*");
+        .select("*")
+        .order("created_at", { ascending: true })
+
       if (error) {
         throw new Error(error.message);
       }

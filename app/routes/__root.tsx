@@ -99,7 +99,11 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
             activeOptions={{ exact: true }}
           >
             Home
-          </Link>{" "}
+          </Link>
+          <Link to="/calendar" activeProps={{ className: "font-bold" }}>
+            Calendar
+          </Link>
+
           <div className="ml-auto">
             {user ? (
               <>
