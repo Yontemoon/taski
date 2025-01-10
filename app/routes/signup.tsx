@@ -29,8 +29,8 @@ export const signupFn = createServerFn()
   });
 
 export const Route = createFileRoute("/signup")({
-  beforeLoad(ctx) {
-    if (ctx) {
+  beforeLoad({ context }) {
+    if (context.id) {
       throw redirect({ to: "/" });
     }
   },

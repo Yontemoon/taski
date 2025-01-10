@@ -9,53 +9,50 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      hashtags: {
+      tags: {
         Row: {
-          created_at: string
+          created_at: string | null
           id: number
-          tags: string
+          name: string
           user_id: string
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           id?: number
-          tags: string
+          name: string
           user_id: string
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           id?: number
-          tags?: string
+          name?: string
           user_id?: string
         }
         Relationships: []
       }
-      todo_hashtags: {
+      todo_tags: {
         Row: {
-          hashtag_id: number | null
-          id: number
-          todo_id: number | null
+          tag_id: number
+          todo_id: number
         }
         Insert: {
-          hashtag_id?: number | null
-          id?: number
-          todo_id?: number | null
+          tag_id: number
+          todo_id: number
         }
         Update: {
-          hashtag_id?: number | null
-          id?: number
-          todo_id?: number | null
+          tag_id?: number
+          todo_id?: number
         }
         Relationships: [
           {
-            foreignKeyName: "todo_hashtags_hashtag_id_fkey"
-            columns: ["hashtag_id"]
+            foreignKeyName: "todo_tags_tag_id_fkey"
+            columns: ["tag_id"]
             isOneToOne: false
-            referencedRelation: "hashtags"
+            referencedRelation: "tags"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "todo_hashtags_todo_id_fkey"
+            foreignKeyName: "todo_tags_todo_id_fkey"
             columns: ["todo_id"]
             isOneToOne: false
             referencedRelation: "todos"
@@ -65,31 +62,28 @@ export type Database = {
       }
       todos: {
         Row: {
-          created_at: string
-          date_order: number | null
-          date_set: string | null
+          created_at: string | null
           id: number
-          is_complete: boolean
-          todo: string | null
-          user_id: string | null
+          status: boolean
+          todo: string
+          updated_at: string | null
+          user_id: string
         }
         Insert: {
-          created_at?: string
-          date_order?: number | null
-          date_set?: string | null
+          created_at?: string | null
           id?: number
-          is_complete?: boolean
-          todo?: string | null
-          user_id?: string | null
+          status?: boolean
+          todo: string
+          updated_at?: string | null
+          user_id: string
         }
         Update: {
-          created_at?: string
-          date_order?: number | null
-          date_set?: string | null
+          created_at?: string | null
           id?: number
-          is_complete?: boolean
-          todo?: string | null
-          user_id?: string | null
+          status?: boolean
+          todo?: string
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -101,7 +95,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      todo_status: "pending" | "completed" | "archived"
     }
     CompositeTypes: {
       [_ in never]: never
