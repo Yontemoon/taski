@@ -5,7 +5,7 @@ import { fetchUser } from "./__root";
 export const Route = createFileRoute("/login")({
   beforeLoad: async ({ context }) => {
     if (context.id) {
-      throw redirect({ to: "/" });
+      throw redirect({ to: "/", search: { date: new Date() } });
     }
   },
   component: LoginComp,

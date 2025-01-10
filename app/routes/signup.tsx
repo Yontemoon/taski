@@ -31,7 +31,7 @@ export const signupFn = createServerFn()
 export const Route = createFileRoute("/signup")({
   beforeLoad({ context }) {
     if (context.id) {
-      throw redirect({ to: "/" });
+      throw redirect({ to: "/", search: { date: new Date() } });
     }
   },
   component: SignupComp,

@@ -1,5 +1,5 @@
 import React from "react";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useForm } from "@tanstack/react-form";
@@ -16,11 +16,20 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
+type IndexSearch = {
+  date: Date | null;
+};
+
 export const Route = createFileRoute("/")({
   beforeLoad: async ({ context }) => {
     if (!context?.id) {
       throw redirect({ to: "/login" });
     }
+  },
+  validateSearch: (search: Record<string, Date>): IndexSearch => {
+    return {
+      date: search.date,
+    };
   },
   loader: async ({ context }) => {
     if (context.id) {
@@ -42,6 +51,7 @@ function Home() {
   const { data, isLoading, error } = useSuspenseQuery(
     todosQueryOptions(user?.id)
   );
+  const navigate = useNavigate({ from: Route.fullPath });
 
   const { data: tags, isLoading: tagsLoading } = useSuspenseQuery(
     tagsQueryOptions(user?.id)
@@ -84,7 +94,17 @@ function Home() {
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
-          <Calendar mode="single" selected={date} onSelect={setDate} />
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={(date) => {
+              if (date) {
+                navigate({
+                  search: () => ({ date: date }),
+                });
+              }
+            }}
+          />
         </PopoverContent>
       </Popover>
 

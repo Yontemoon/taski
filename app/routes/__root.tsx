@@ -93,6 +93,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <div className="p-2 flex gap-2 text-lg">
           <Link
             to="/"
+            search={() => ({ date: new Date() })}
             activeProps={{
               className: "font-bold",
             }}
