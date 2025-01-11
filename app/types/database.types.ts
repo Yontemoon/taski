@@ -63,6 +63,7 @@ export type Database = {
       todos: {
         Row: {
           created_at: string | null
+          date_set: string
           id: number
           status: boolean
           todo: string
@@ -71,6 +72,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          date_set?: string
           id?: number
           status?: boolean
           todo: string
@@ -79,6 +81,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          date_set?: string
           id?: number
           status?: boolean
           todo?: string

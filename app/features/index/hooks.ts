@@ -12,6 +12,9 @@ const useIndexMutations = (user: {id: string}) => {
         mutationFn: postTodos,
         onMutate: async ({ data }) => {
           const newHashtags = extractHashtag(data.todo);
+          await queryClient.cancelQueries({ queryKey: ["tags", user?.id] });
+          await queryClient.cancelQueries({ queryKey: ["todos", user?.id] })
+
     
           const previousTags = queryClient.getQueryData(["tags", user?.id]) as
             | TTags[]
@@ -23,11 +26,8 @@ const useIndexMutations = (user: {id: string}) => {
             id: crypto.randomUUID(),
             name: tag,
           }));
-    
-          await queryClient.cancelQueries({ queryKey: ["tags", user?.id] });
           await queryClient.setQueryData(["tags", user?.id], updatedTags);
-          await queryClient.cancelQueries({ queryKey: ["todos", user?.id] });
-    
+
           const previousTodos = queryClient.getQueryData(["todos", user?.id]);
           queryClient.setQueryData(["todos", user?.id], (old: TTodos[]) => [
             ...old,

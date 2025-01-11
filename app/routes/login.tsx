@@ -1,11 +1,12 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Login } from "../components/Login";
 import { fetchUser } from "./__root";
+import { formatDate } from "@/lib/utils";
 
 export const Route = createFileRoute("/login")({
   beforeLoad: async ({ context }) => {
     if (context.id) {
-      throw redirect({ to: "/", search: { date: new Date() } });
+      throw redirect({ to: "/", search: { date: formatDate(new Date()) } });
     }
   },
   component: LoginComp,

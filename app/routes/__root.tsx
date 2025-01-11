@@ -14,6 +14,7 @@ import type { User } from "@supabase/supabase-js";
 import { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+import { formatDate } from "@/lib/utils";
 
 export const fetchUser: Fetcher<undefined, undefined, User | null> =
   createServerFn({
@@ -93,7 +94,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <div className="p-2 flex gap-2 text-lg">
           <Link
             to="/"
-            search={() => ({ date: new Date() })}
+            search={() => ({ date: formatDate(new Date()) })}
             activeProps={{
               className: "font-bold",
             }}

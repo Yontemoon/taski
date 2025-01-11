@@ -15,30 +15,36 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { format, parse } from "date-fns";
+import { formatDate } from "@/lib/utils";
+import { z } from "zod";
 
-type IndexSearch = {
-  date: Date | null;
-};
+const IndexSearch = z.object({
+  date: z.string().default(formatDate(new Date())),
+});
 
 export const Route = createFileRoute("/")({
-  beforeLoad: async ({ context }) => {
+  validateSearch: IndexSearch,
+  beforeLoad: async ({ context, search }) => {
     if (!context?.id) {
       throw redirect({ to: "/login" });
     }
+
+    return search;
   },
-  validateSearch: (search: Record<string, Date>): IndexSearch => {
-    return {
-      date: search.date,
-    };
-  },
-  loader: async ({ context }) => {
+  loaderDeps: ({ search: { date } }) => ({
+    date,
+  }),
+  loader: async ({ context, deps }) => {
+    console.log("DEPS", deps);
+
     if (context.id) {
       const tags = await context.queryClient.ensureQueryData(
         tagsQueryOptions(context.id)
       );
 
       const todos = await context.queryClient.ensureQueryData(
-        todosQueryOptions(context.id)
+        todosQueryOptions(context.id, deps.date)
       );
       return { todos, tags };
     }
@@ -48,10 +54,11 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const user = Route.useRouteContext();
-  const { data, isLoading, error } = useSuspenseQuery(
-    todosQueryOptions(user?.id)
-  );
+  const { date } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
+  const { data, isLoading, error } = useSuspenseQuery(
+    todosQueryOptions(user?.id, date)
+  );
 
   const { data: tags, isLoading: tagsLoading } = useSuspenseQuery(
     tagsQueryOptions(user?.id)
@@ -60,7 +67,6 @@ function Home() {
   const { addMutation, deleteMutation, isCompleteMutation } = useIndexMutations(
     { id: user.id }
   );
-  const [date, setDate] = React.useState<Date | undefined>(new Date());
 
   const form = useForm({
     defaultValues: {
@@ -96,11 +102,13 @@ function Home() {
         <PopoverContent className="w-auto p-0" align="start">
           <Calendar
             mode="single"
-            selected={date}
+            selected={parse(date, "yyyy-MM-dd", new Date())}
             onSelect={(date) => {
+              console.log(date);
               if (date) {
+                const formatDate = format(date, "yyyy-MM-dd");
                 navigate({
-                  search: () => ({ date: date }),
+                  search: () => ({ date: formatDate }),
                 });
               }
             }}

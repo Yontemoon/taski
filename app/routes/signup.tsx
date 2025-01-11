@@ -3,6 +3,7 @@ import { createServerFn, useServerFn } from "@tanstack/start";
 import { useMutation } from "@/hooks/useMutation";
 import { Auth } from "../components/Auth";
 import { getSupabaseServerClient } from "@/lib/supabase";
+import { formatDate } from "@/lib/utils";
 
 export const signupFn = createServerFn()
   .validator(
@@ -31,7 +32,7 @@ export const signupFn = createServerFn()
 export const Route = createFileRoute("/signup")({
   beforeLoad({ context }) {
     if (context.id) {
-      throw redirect({ to: "/", search: { date: new Date() } });
+      throw redirect({ to: "/", search: { date: formatDate(new Date()) } });
     }
   },
   component: SignupComp,

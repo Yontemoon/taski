@@ -5,21 +5,29 @@ import { createServerFn } from "@tanstack/start";
 const getTodos = createServerFn({
   method: "GET",
 })
-  .validator((userId: unknown) => userId as string)
+  .validator((data: {user_id: string, date: string}) => {
+    if (!data.date || !data.user_id) {
+      throw new Error("Invalid data provided")
+    }
+    return data
+  })
   .handler(async ({ data }) => {
     const supabase = await getSupabaseServerClient();
 
     try {
-      const { data, error } = await supabase
+      const { data: todos, error } = await supabase
         .from("todos")
         .select("*")
+        .eq("user_id", data.user_id)
+        .eq("date_set", data.date)
         .order("created_at", { ascending: true })
 
+        console.log("TODOS", todos);
       if (error) {
         throw new Error(error.message);
       }
 
-      return data;
+      return todos;
     } catch (error) {
       console.error("Error in getTodos", error);
       return [];
@@ -140,12 +148,14 @@ const postTodos = createServerFn({
     }
   });
 
-const todosQueryOptions = (userId: string) =>
+const todosQueryOptions = (user_id: string, date: string) =>
   queryOptions({
-    queryKey: ["todos", userId],
+    queryKey: ["todos", user_id],
     queryFn: () =>
       getTodos(
-        { data: userId },
+        { data: {
+          date, user_id
+        } },
       ),
   });
 
