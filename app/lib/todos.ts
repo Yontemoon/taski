@@ -150,7 +150,7 @@ const postTodos = createServerFn({
 
 const todosQueryOptions = (user_id: string, date: string) =>
   queryOptions({
-    queryKey: ["todos", user_id],
+    queryKey: ["todos", user_id, date],
     queryFn: () =>
       getTodos(
         { data: {
