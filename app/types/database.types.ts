@@ -95,7 +95,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_tags: {
+        Args: {
+          input_date: string
+          input_user_id: string
+        }
+        Returns: {
+          id: number
+          name: string
+          created_at: string
+        }[]
+      }
     }
     Enums: {
       todo_status: "pending" | "completed" | "archived"

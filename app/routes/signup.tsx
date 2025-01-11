@@ -2,7 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { createServerFn, useServerFn } from "@tanstack/start";
 import { useMutation } from "@/hooks/useMutation";
 import { Auth } from "../components/Auth";
-import { getSupabaseServerClient } from "@/lib/supabase";
+import { getSupabaseServerClient } from "@/lib/supabaseServerClient";
 import { formatDate } from "@/lib/utils";
 
 export const signupFn = createServerFn()

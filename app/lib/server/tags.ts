@@ -1,31 +1,23 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getSupabaseServerClient } from "./supabaseServerClient";
+import { getSupabaseServerClient } from "@/lib/supabaseServerClient";
 import { createServerFn } from "@tanstack/start";
 
 const getTags = createServerFn({ method: "GET" }).validator(
-  (data: { user_id: string; date: string }) => {
-    if (!data.user_id) {
+  (user_id: string) => {
+    if (!user_id) {
       throw new Error("user_id is required");
     }
-
-    if (!data.date) {
-      throw new Error("date is required");
-    }
-    return data;
+    return user_id;
   },
 ).handler(async ({ data }) => {
   const supabase = await getSupabaseServerClient();
   try {
-    const { data: tags, error } = await supabase.rpc("get_tags", {
-      input_user_id: data.user_id,
-      input_date: data.date,
-    });
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    return tags;
+    const tags = await supabase.from("tags").select("*").eq(
+      "user_id",
+      data,
+    )
+      .order("id");
+    return tags.data;
   } catch (error) {
     console.error("Error in getTags", error);
     return null;
@@ -49,12 +41,12 @@ const getTagsCount = createServerFn({
   }
 });
 
-const tagsQueryOptions = (user_id: string, date: string) =>
+const tagsQueryOptions = (user_id: string) =>
   queryOptions({
-    queryKey: ["tags", user_id, date],
+    queryKey: ["tags", user_id],
     queryFn: () =>
       getTags(
-        { data: { user_id, date } },
+        { data: user_id },
       ),
   });
 

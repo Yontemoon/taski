@@ -3,10 +3,10 @@ import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useForm } from "@tanstack/react-form";
-import { todosQueryOptions } from "@/lib/todos";
+import { todosQueryOptions } from "@/lib/server/todos";
 import { tagsQueryOptions } from "@/lib/tags";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { cn } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { useIndexMutations } from "@/features/index/hooks";
@@ -15,8 +15,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { format, parse } from "date-fns";
-import { formatDate } from "@/lib/utils";
+import { parse } from "date-fns";
 import { z } from "zod";
 
 const IndexSearch = z.object({
@@ -36,11 +35,9 @@ export const Route = createFileRoute("/")({
     date,
   }),
   loader: async ({ context, deps }) => {
-    console.log("DEPS", deps);
-
     if (context.id) {
       const tags = await context.queryClient.ensureQueryData(
-        tagsQueryOptions(context.id)
+        tagsQueryOptions(context.id, deps.date)
       );
 
       const todos = await context.queryClient.ensureQueryData(
@@ -56,29 +53,33 @@ function Home() {
   const user = Route.useRouteContext();
   const { date } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
+
   const { data, isLoading, error } = useSuspenseQuery(
     todosQueryOptions(user?.id, date)
   );
 
-  const { data: tags, isLoading: tagsLoading } = useSuspenseQuery(
-    tagsQueryOptions(user?.id)
-  );
+  const {
+    data: tags,
+    isLoading: tagsLoading,
+    error: tagsError,
+  } = useSuspenseQuery(tagsQueryOptions(user?.id, date));
 
   const { addMutation, deleteMutation, isCompleteMutation } = useIndexMutations(
-    { id: user.id }
+    user.id,
+    date
   );
 
   const form = useForm({
     defaultValues: {
       todo: "",
     },
-
     onSubmit: async ({ value }) => {
       const data = {
-        user_id: user?.id,
         todo: value.todo,
+        user_id: user?.id,
+        date: date,
       };
-      addMutation.mutate({ data });
+      addMutation.mutate(data);
     },
   });
 
@@ -86,7 +87,7 @@ function Home() {
     return <div>Loading...</div>;
   }
 
-  if (error) {
+  if (error || tagsError) {
     return <div>Error occured.</div>;
   }
 
@@ -104,11 +105,10 @@ function Home() {
             mode="single"
             selected={parse(date, "yyyy-MM-dd", new Date())}
             onSelect={(date) => {
-              console.log(date);
               if (date) {
-                const formatDate = format(date, "yyyy-MM-dd");
+                const formatedDate = formatDate(date);
                 navigate({
-                  search: () => ({ date: formatDate }),
+                  search: () => ({ date: formatedDate }),
                 });
               }
             }}
@@ -176,9 +176,9 @@ function Home() {
                 const data = {
                   user_id: user.id,
                   todo_id: todo.id,
-                  is_completed: !todo?.status,
+                  status: !todo?.status,
                 };
-                isCompleteMutation.mutate({ data });
+                isCompleteMutation.mutate(data);
               }}
               className={cn(
                 "hover:cursor-pointer",
@@ -193,7 +193,7 @@ function Home() {
                   todo_id: todo.id,
                   user_id: user?.id,
                 };
-                deleteMutation.mutate({ data });
+                deleteMutation.mutate(data);
               }}
             >
               Delete

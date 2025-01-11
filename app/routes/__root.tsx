@@ -6,7 +6,7 @@ import {
 import { Fetcher, Meta, Scripts, createServerFn } from "@tanstack/start";
 import type { ReactNode } from "react";
 import styles from "@/styles/app.css?url";
-import { getSupabaseServerClient } from "@/lib/supabase";
+import { getSupabaseServerClient } from "@/lib/supabaseServerClient";
 import { NotFound } from "@/components/NotFound";
 import { DefaultCatchBoundary } from "@/components/DefaultCatchBoundary";
 import { Link } from "@tanstack/react-router";
