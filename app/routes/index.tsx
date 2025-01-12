@@ -1,12 +1,17 @@
 import React from "react";
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  redirect,
+  useNavigate,
+} from "@tanstack/react-router";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useForm } from "@tanstack/react-form";
 import { todosQueryOptions } from "@/lib/server/todos";
 import { tagsQueryOptions } from "@/lib/tags";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { cn, formatDate } from "@/lib/utils";
+import { cn, dateTomorrow, dateYesterday, formatDate } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { useIndexMutations } from "@/features/index/hooks";
@@ -17,6 +22,7 @@ import {
 } from "@/components/ui/popover";
 import { parse } from "date-fns";
 import { z } from "zod";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 const IndexSearch = z.object({
   date: z.string().default(formatDate(new Date())),
@@ -94,6 +100,7 @@ function Home() {
   return (
     <div className="w-full justify-center flex flex-col items-center">
       <h1>My Todos</h1>
+      <h2>{formatDate(date)}</h2>
       <Popover>
         <PopoverTrigger asChild>
           <Button variant={"outline"}>
@@ -115,6 +122,36 @@ function Home() {
           />
         </PopoverContent>
       </Popover>
+      <div className="flex gap-5">
+        <Link
+          to="/"
+          search={(prev) => {
+            if (prev.date) {
+              return {
+                ...prev,
+                date: formatDate(dateYesterday(prev.date)),
+              };
+            }
+            return prev;
+          }}
+        >
+          <ArrowLeft />
+        </Link>
+        <Link
+          to="/"
+          search={(prev) => {
+            if (prev.date) {
+              return {
+                ...prev,
+                date: formatDate(dateTomorrow(prev.date)),
+              };
+            }
+            return prev;
+          }}
+        >
+          <ArrowRight />
+        </Link>
+      </div>
 
       <form
         className="flex gap-5 justify-center items-center max-w-5xl w-full"

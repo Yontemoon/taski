@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { format } from "date-fns"
+import { add, format, parse, sub } from "date-fns";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -11,6 +11,21 @@ export function extractHashtag(text: string) {
   return text.match(regex) || [];
 }
 
-export function formatDate (date: Date) {
-  return format(date, "yyyy-MM-dd")
+export function formatDate(date: Date | string) {
+  if (date instanceof Date) {
+    return format(date, "yyyy-MM-dd");
+  } else {
+    const parsedDate = parse(date, "yyyy-MM-dd", new Date());
+    return format(parsedDate, "MMMM do, yyy");
+  }
+}
+
+export function dateTomorrow(date: string) {
+  const parsedDate = parse(date, "yyyy-MM-dd", new Date());
+  return add(parsedDate, { days: 1 });
+}
+
+export function dateYesterday(date: string) {
+  const parsedDate = parse(date, "yyyy-MM-dd", new Date());
+  return sub(parsedDate, { days: 1 });
 }
