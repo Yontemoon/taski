@@ -25,6 +25,7 @@ export const fetchUser: Fetcher<undefined, undefined, User | null> =
       data: { user },
       error,
     } = await supabase.auth.getUser();
+    console.log("passing fetchuser fn.");
     if (error) {
       console.error("Error fetching user:", error);
       return null;
@@ -56,9 +57,11 @@ export const Route = createRootRouteWithContext<
     ],
     links: [{ rel: "stylesheet", href: styles }],
   }),
-  beforeLoad: async () => {
+  beforeLoad: async ({ context }) => {
+    if (context.id) {
+      return context;
+    }
     const user = await fetchUser();
-    console.warn("you are fetching user again", user);
     if (!user) {
       return null;
     }
@@ -86,6 +89,7 @@ function RootComponent() {
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   const user = Route.useRouteContext();
+  console.log(user);
   return (
     <html>
       <head>
