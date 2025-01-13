@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useForm } from "@tanstack/react-form";
 import { todosQueryOptions } from "@/lib/server/todos";
-import { tagsQueryOptions } from "@/lib/tags";
+import { tagsQueryOptions } from "@/lib/server/tags";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { cn, dateTomorrow, dateYesterday, formatDate } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
@@ -23,6 +23,7 @@ import {
 import { parse } from "date-fns";
 import { z } from "zod";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { tagsAllQueryOptions } from "@/lib/tags";
 
 const IndexSearch = z.object({
   date: z.string().default(formatDate(new Date())),
@@ -70,6 +71,10 @@ function Home() {
     error: tagsError,
   } = useSuspenseQuery(tagsQueryOptions(user?.id, date));
 
+  const { data: allTags } = useSuspenseQuery(tagsAllQueryOptions(user.id));
+
+  console.log(allTags);
+
   const { addMutation, deleteMutation, isCompleteMutation } = useIndexMutations(
     user.id,
     date
@@ -111,6 +116,9 @@ function Home() {
           <Calendar
             mode="single"
             selected={parse(date, "yyyy-MM-dd", new Date())}
+            onDayPointerEnter={(hoveredDate) => {
+              console.log(hoveredDate);
+            }}
             onSelect={(date) => {
               if (date) {
                 const formatedDate = formatDate(date);

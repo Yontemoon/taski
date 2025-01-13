@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/start";
 import { Login } from "../components/Login";
 import { getSupabaseServerClient } from "@/lib/supabaseServerClient";
@@ -24,7 +24,8 @@ export const Route = createFileRoute("/_authed")({
   beforeLoad: ({ context }) => {
     console.log("context in _authed", context);
     if (!context.id) {
-      throw new Error("Not authenticated");
+      // throw new Error("Not authenticated");
+      throw redirect({ to: "/login" });
     }
   },
   errorComponent: ({ error }) => {

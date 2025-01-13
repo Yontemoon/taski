@@ -58,6 +58,7 @@ export const Route = createRootRouteWithContext<
   }),
   beforeLoad: async () => {
     const user = await fetchUser();
+    console.warn("you are fetching user again", user);
     if (!user) {
       return null;
     }
@@ -98,7 +99,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
             activeProps={{
               className: "font-bold",
             }}
-            activeOptions={{ exact: true }}
+            activeOptions={{ exact: false }}
           >
             Home
           </Link>
