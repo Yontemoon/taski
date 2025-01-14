@@ -19,6 +19,7 @@ import { Route as AuthedImport } from './routes/_authed'
 import { Route as IndexImport } from './routes/index'
 import { Route as AuthedTodoImport } from './routes/_authed/todo'
 import { Route as AuthedTodoIndexImport } from './routes/_authed/todo.index'
+import { Route as AuthedTodoIdImport } from './routes/_authed/todo.$id'
 
 // Create/Update Routes
 
@@ -66,6 +67,12 @@ const AuthedTodoRoute = AuthedTodoImport.update({
 const AuthedTodoIndexRoute = AuthedTodoIndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthedTodoRoute,
+} as any)
+
+const AuthedTodoIdRoute = AuthedTodoIdImport.update({
+  id: '/$id',
+  path: '/$id',
   getParentRoute: () => AuthedTodoRoute,
 } as any)
 
@@ -122,6 +129,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedTodoImport
       parentRoute: typeof AuthedImport
     }
+    '/_authed/todo/$id': {
+      id: '/_authed/todo/$id'
+      path: '/$id'
+      fullPath: '/todo/$id'
+      preLoaderRoute: typeof AuthedTodoIdImport
+      parentRoute: typeof AuthedTodoImport
+    }
     '/_authed/todo/': {
       id: '/_authed/todo/'
       path: '/'
@@ -135,10 +149,12 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface AuthedTodoRouteChildren {
+  AuthedTodoIdRoute: typeof AuthedTodoIdRoute
   AuthedTodoIndexRoute: typeof AuthedTodoIndexRoute
 }
 
 const AuthedTodoRouteChildren: AuthedTodoRouteChildren = {
+  AuthedTodoIdRoute: AuthedTodoIdRoute,
   AuthedTodoIndexRoute: AuthedTodoIndexRoute,
 }
 
@@ -165,6 +181,7 @@ export interface FileRoutesByFullPath {
   '/logout': typeof LogoutRoute
   '/signup': typeof SignupRoute
   '/todo': typeof AuthedTodoRouteWithChildren
+  '/todo/$id': typeof AuthedTodoIdRoute
   '/todo/': typeof AuthedTodoIndexRoute
 }
 
@@ -175,6 +192,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/signup': typeof SignupRoute
+  '/todo/$id': typeof AuthedTodoIdRoute
   '/todo': typeof AuthedTodoIndexRoute
 }
 
@@ -187,6 +205,7 @@ export interface FileRoutesById {
   '/logout': typeof LogoutRoute
   '/signup': typeof SignupRoute
   '/_authed/todo': typeof AuthedTodoRouteWithChildren
+  '/_authed/todo/$id': typeof AuthedTodoIdRoute
   '/_authed/todo/': typeof AuthedTodoIndexRoute
 }
 
@@ -200,9 +219,18 @@ export interface FileRouteTypes {
     | '/logout'
     | '/signup'
     | '/todo'
+    | '/todo/$id'
     | '/todo/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '' | '/calendar' | '/login' | '/logout' | '/signup' | '/todo'
+  to:
+    | '/'
+    | ''
+    | '/calendar'
+    | '/login'
+    | '/logout'
+    | '/signup'
+    | '/todo/$id'
+    | '/todo'
   id:
     | '__root__'
     | '/'
@@ -212,6 +240,7 @@ export interface FileRouteTypes {
     | '/logout'
     | '/signup'
     | '/_authed/todo'
+    | '/_authed/todo/$id'
     | '/_authed/todo/'
   fileRoutesById: FileRoutesById
 }
@@ -277,8 +306,13 @@ export const routeTree = rootRoute
       "filePath": "_authed/todo.tsx",
       "parent": "/_authed",
       "children": [
+        "/_authed/todo/$id",
         "/_authed/todo/"
       ]
+    },
+    "/_authed/todo/$id": {
+      "filePath": "_authed/todo.$id.tsx",
+      "parent": "/_authed/todo"
     },
     "/_authed/todo/": {
       "filePath": "_authed/todo.index.tsx",

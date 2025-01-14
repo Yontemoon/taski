@@ -89,7 +89,6 @@ function RootComponent() {
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   const user = Route.useRouteContext();
-  console.log(user);
   return (
     <html>
       <head>

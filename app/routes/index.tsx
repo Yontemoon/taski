@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   createFileRoute,
   Link,
@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { useForm } from "@tanstack/react-form";
 import { todosQueryOptions } from "@/lib/server/todos";
 import { tagsQueryOptions } from "@/lib/server/tags";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { getTodos } from "@/lib/todos";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { cn, dateTomorrow, dateYesterday, formatDate } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
@@ -21,16 +22,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { parse } from "date-fns";
-import { z } from "zod";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { tagsAllQueryOptions } from "@/lib/tags";
-
-const IndexSearch = z.object({
-  date: z.string().default(formatDate(new Date())),
-});
+import { ZIndexSearch } from "@/types/z.types";
 
 export const Route = createFileRoute("/")({
-  validateSearch: IndexSearch,
+  validateSearch: ZIndexSearch,
   beforeLoad: async ({ context, search }) => {
     if (!context?.id) {
       throw redirect({ to: "/login" });
@@ -42,13 +39,18 @@ export const Route = createFileRoute("/")({
     date,
   }),
   loader: async ({ context, deps }) => {
+    const userId = context.id;
+    const cacheCheck = context.queryClient.getQueriesData({
+      queryKey: ["todos", userId, deps.date],
+    });
+    console.log("cache", cacheCheck);
     if (context.id) {
       const tags = await context.queryClient.ensureQueryData(
-        tagsQueryOptions(context.id, deps.date)
+        tagsQueryOptions(userId, deps.date)
       );
 
       const todos = await context.queryClient.ensureQueryData(
-        todosQueryOptions(context.id, deps.date)
+        todosQueryOptions(userId, deps.date)
       );
       return { todos, tags };
     }
@@ -60,6 +62,7 @@ function Home() {
   const user = Route.useRouteContext();
   const { date } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
+  const [hoveredDate, setHoveredDate] = React.useState<string | null>(null);
 
   const { data, isLoading, error } = useSuspenseQuery(
     todosQueryOptions(user?.id, date)
@@ -73,7 +76,18 @@ function Home() {
 
   const { data: allTags } = useSuspenseQuery(tagsAllQueryOptions(user.id));
 
-  console.log(allTags);
+  const { refetch } = useQuery({
+    queryFn: () => getTodos(user?.id, hoveredDate as string),
+    queryKey: ["todos", user?.id, hoveredDate],
+    enabled: hoveredDate !== null,
+  });
+
+  useEffect(() => {
+    console.log(hoveredDate);
+    if (hoveredDate !== null) {
+      refetch();
+    }
+  }, [hoveredDate]);
 
   const { addMutation, deleteMutation, isCompleteMutation } = useIndexMutations(
     user.id,
@@ -117,7 +131,13 @@ function Home() {
             mode="single"
             selected={parse(date, "yyyy-MM-dd", new Date())}
             onDayPointerEnter={(hoveredDate) => {
-              console.log(hoveredDate);
+              const parsedDate = formatDate(hoveredDate);
+              console.log(parsedDate);
+              setHoveredDate(parsedDate);
+            }}
+            onDayPointerLeave={(prevDate) => {
+              if (!prevDate) return;
+              else setHoveredDate(null);
             }}
             onSelect={(date) => {
               if (date) {
