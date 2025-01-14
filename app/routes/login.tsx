@@ -1,6 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Login } from "../components/Login";
-import { fetchUser } from "./__root";
 import { formatDate } from "@/lib/utils";
 
 export const Route = createFileRoute("/login")({

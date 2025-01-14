@@ -1,7 +1,9 @@
 import { supabase } from "@/lib/supabase";
 import { queryOptions } from "@tanstack/react-query";
 
+
 const getTodos = async (user_id: string, date: string) => {
+
   try {
     const { data: todos, error } = await supabase
       .from("todos")

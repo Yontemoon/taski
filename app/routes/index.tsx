@@ -4,6 +4,7 @@ import {
   Link,
   redirect,
   useNavigate,
+  useRouter,
 } from "@tanstack/react-router";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ import { parse } from "date-fns";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { tagsAllQueryOptions } from "@/lib/tags";
 import { ZIndexSearch } from "@/types/z.types";
+import { TTags, TTodos } from "@/types/tables.types";
 
 export const Route = createFileRoute("/")({
   validateSearch: ZIndexSearch,
@@ -40,10 +42,15 @@ export const Route = createFileRoute("/")({
   }),
   loader: async ({ context, deps }) => {
     const userId = context.id;
-    const cacheCheck = context.queryClient.getQueriesData({
+    const cachedTodos = context.queryClient.getQueriesData({
       queryKey: ["todos", userId, deps.date],
-    });
-    console.log("cache", cacheCheck);
+    })[1] as TTodos[];
+    const cachedTags = context.queryClient.getQueriesData({
+      queryKey: ["tags", userId, deps.date],
+    })[1] as TTags[];
+    if (cachedTodos && cachedTags) {
+      return { tags: cachedTags, todos: cachedTodos };
+    }
     if (context.id) {
       const tags = await context.queryClient.ensureQueryData(
         tagsQueryOptions(userId, deps.date)
@@ -60,32 +67,24 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const user = Route.useRouteContext();
+  const router = useRouter();
+  const loaderData = Route.useLoaderData();
   const { date } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
   const [hoveredDate, setHoveredDate] = React.useState<string | null>(null);
 
-  const { data, isLoading, error } = useSuspenseQuery(
-    todosQueryOptions(user?.id, date)
-  );
-
-  const {
-    data: tags,
-    isLoading: tagsLoading,
-    error: tagsError,
-  } = useSuspenseQuery(tagsQueryOptions(user?.id, date));
-
-  const { data: allTags } = useSuspenseQuery(tagsAllQueryOptions(user.id));
-
-  const { refetch } = useQuery({
-    queryFn: () => getTodos(user?.id, hoveredDate as string),
-    queryKey: ["todos", user?.id, hoveredDate],
-    enabled: hoveredDate !== null,
-  });
-
   useEffect(() => {
     console.log(hoveredDate);
     if (hoveredDate !== null) {
-      refetch();
+      const cachedTodos = user.queryClient.getQueriesData({
+        queryKey: ["todos", user.id, hoveredDate],
+      })[0];
+      if (!cachedTodos) {
+        user.queryClient.setQueryData(
+          ["todos", user.id, hoveredDate],
+          getTodos(user.id, hoveredDate)
+        );
+      }
     }
   }, [hoveredDate]);
 
@@ -105,16 +104,9 @@ function Home() {
         date: date,
       };
       addMutation.mutate(data);
+      router.invalidate();
     },
   });
-
-  if (isLoading || tagsLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error || tagsError) {
-    return <div>Error occured.</div>;
-  }
 
   return (
     <div className="w-full justify-center flex flex-col items-center">
@@ -217,7 +209,7 @@ function Home() {
 
       <div>
         <ul className="flex gap-2 ">
-          {tags?.map((tag) => {
+          {loaderData?.tags?.map((tag) => {
             return (
               <li
                 key={tag.id}
@@ -231,7 +223,7 @@ function Home() {
         </ul>
       </div>
       <ul className="max-w-5xl w-full px-5">
-        {data?.map((todo) => (
+        {loaderData?.todos?.map((todo) => (
           <li key={todo.id} className="flex justify-between gap-5 w-full mb-2">
             <p
               onClick={() => {
@@ -256,7 +248,7 @@ function Home() {
               onClick={() => {
                 const data = {
                   todo_id: todo.id,
-                  user_id: user?.id,
+                  user_id: user.id,
                 };
                 deleteMutation.mutate(data);
               }}

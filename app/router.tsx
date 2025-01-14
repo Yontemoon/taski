@@ -8,7 +8,13 @@ import type { QueryClient as TQueryClient } from "@tanstack/react-query";
 import type { User } from "@supabase/supabase-js";
 
 export function createRouter() {
-  const queryClient = new QueryClient();
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+      },
+    },
+  });
 
   return routerWithQueryClient(
     createTanStackRouter({

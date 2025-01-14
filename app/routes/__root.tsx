@@ -15,6 +15,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { formatDate } from "@/lib/utils";
+import { supabase } from "@/lib/supabase";
 
 export const fetchUser: Fetcher<undefined, undefined, User | null> =
   createServerFn({
@@ -61,7 +62,15 @@ export const Route = createRootRouteWithContext<
     if (context.id) {
       return context;
     }
+
+    const session = await supabase.auth.getSession();
+
+    if (session.data.session?.user) {
+      return session.data.session.user;
+    }
+
     const user = await fetchUser();
+    console.log(user);
     if (!user) {
       return null;
     }
@@ -89,6 +98,7 @@ function RootComponent() {
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   const user = Route.useRouteContext();
+  console.log("USER IN ROOT", user);
   return (
     <html>
       <head>

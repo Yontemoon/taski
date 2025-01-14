@@ -10,12 +10,12 @@ export function Login() {
   const loginMutation = useMutation({
     fn: async ({ data }: any) => {
       console.log(data);
-      const res = await loginFn({ data }); // server fn
-      await userSignIn(data.email, data.password); //client side
+      // const res = await loginFn({ data }); // server fn
+      const res = await userSignIn(data.email, data.password); //client side
       return res;
     },
     onSuccess: async (ctx) => {
-      if (!ctx.data?.error) {
+      if (ctx.data?.success !== false) {
         await router.invalidate();
         router.navigate({ to: "/" });
         return;
