@@ -7,7 +7,6 @@ const userSignIn = async (email: string, password: string) => {
       password: password,
     });
 
-    console.log("RES", data);
     if (error) throw new Error("Error in userSignIn");
     return {
       success: true,

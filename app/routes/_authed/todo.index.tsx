@@ -1,9 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { formatDate } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authed/todo/")({
-  component: TodoIndexComponent,
+  beforeLoad() {
+    throw redirect({
+      to: "/todo/$id",
+      params: {
+        id: formatDate(new Date()),
+      },
+    });
+  },
 });
-
-function TodoIndexComponent() {
-  return <div>Select a post.</div>;
-}

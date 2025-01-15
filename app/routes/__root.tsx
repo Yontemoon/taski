@@ -22,11 +22,14 @@ export const fetchUser: Fetcher<undefined, undefined, User | null> =
     method: "GET",
   }).handler(async () => {
     const supabase = await getSupabaseServerClient();
+    // const session = await supabase.auth.getSession();
+    // if (session.data.session?.user) {
+    //   return session.data.session?.user;
+    // }
     const {
       data: { user },
       error,
     } = await supabase.auth.getUser();
-    console.log("passing fetchuser fn.");
     if (error) {
       console.error("Error fetching user:", error);
       return null;
@@ -62,15 +65,14 @@ export const Route = createRootRouteWithContext<
     if (context.id) {
       return context;
     }
-
+    console.log("CONTEXT", context);
     const session = await supabase.auth.getSession();
-
+    console.log("SESSION", session);
     if (session.data.session?.user) {
-      return session.data.session.user;
+      return session.data.session?.user;
     }
-
+    console.log("PASSING PSESSION");
     const user = await fetchUser();
-    console.log(user);
     if (!user) {
       return null;
     }
@@ -107,12 +109,12 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <body>
         <div className="p-2 flex gap-2 text-lg">
           <Link
-            to="/"
-            search={() => ({ date: formatDate(new Date()) })}
+            to="/todo/$id"
+            params={{ id: formatDate(new Date()) }}
             activeProps={{
               className: "font-bold",
             }}
-            activeOptions={{ exact: false }}
+            // activeOptions={{ exact: false }}
           >
             Home
           </Link>
