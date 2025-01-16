@@ -101,7 +101,7 @@ function RouteComponent() {
   });
 
   return (
-    <div>
+    <>
       <h1>My Todos</h1>
       <h2>{formatDate(date)}</h2>
       <Popover>
@@ -246,6 +246,6 @@ function RouteComponent() {
           </li>
         ))}
       </ul>
-    </div>
+    </>
   );
 }
