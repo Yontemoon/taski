@@ -100,7 +100,6 @@ function RootComponent() {
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   const user = Route.useRouteContext();
-  console.log("USER IN ROOT", user);
   return (
     <html>
       <head>

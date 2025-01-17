@@ -1,9 +1,17 @@
 // routes/api/hello.ts
-import { json } from "@tanstack/start";
+import { setHeaders } from "vinxi/http";
 import { createAPIFileRoute } from "@tanstack/start/api";
 
 export const APIRoute = createAPIFileRoute("/api/hello")({
   GET: async ({ request }) => {
-    return json({ message: "Hello world" });
-  },
+
+    setHeaders({
+      "Content-Type": "application/json",
+      "Cache-Control": "public, max-age=300, s-maxage=300"
+    })
+    console.log("passing api route");
+    return new Response(
+      JSON.stringify({message: "Hello worldssss"})
+ )
+  }
 });

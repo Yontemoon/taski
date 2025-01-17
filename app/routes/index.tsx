@@ -14,15 +14,17 @@ export const Route = createFileRoute("/")({
   loader: async ({ context, deps }) => {
     const res = await fetch("http://localhost:3000/api/hello");
     const hello = await res.json();
-    console.log("RESP", hello);
+    return hello;
   },
   component: Home,
 });
 
 function Home() {
+  const data = Route.useLoaderData();
   return (
     <div className="w-full justify-center flex flex-col items-center">
       <h1>My Todos</h1>
+      <h2>{data.message}</h2>
     </div>
   );
 }
