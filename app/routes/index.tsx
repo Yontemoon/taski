@@ -1,20 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import axios from "redaxios";
 
 export const Route = createFileRoute("/")({
-  // beforeLoad: async ({ context, search }) => {
-  //   if (!context?.id) {
-  //     throw redirect({ to: "/login" });
-  //   }
-
-  //   return search;
-  // },
-  // loaderDeps: ({ search: { date } }) => ({
-  //   date,
-  // }),
   loader: async ({ context, deps }) => {
-    const res = await fetch("http://localhost:3000/api/hello");
-    const hello = await res.json();
-    return hello;
+    const res = await axios.get(`http://localhost:3000/api/hello`);
+
+    console.log(res);
+    const data = res.data;
+    return data;
   },
   component: Home,
 });

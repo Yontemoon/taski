@@ -7,6 +7,7 @@ export const APIRoute = createAPIFileRoute("/api/users/$id/todo/$todoDate")({
   GET: async ({ request, params }) => {
     const supabase = await getSupabaseServerClient();
     const { id, todoDate } = params;
+    console.log(id, todoDate);
     try {
       const { data: todos, error } = await supabase
         .from("todos")
