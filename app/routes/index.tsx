@@ -3,7 +3,7 @@ import axios from "redaxios";
 
 export const Route = createFileRoute("/")({
   loader: async ({ context, deps }) => {
-    const res = await axios.get(`http://localhost:3000/api/hello`);
+    const res = await axios.get(`${process.env.SERVER_URL}/api/hello`);
 
     console.log(res);
     const data = res.data;
