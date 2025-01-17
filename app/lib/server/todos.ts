@@ -35,15 +35,22 @@ const getTodos = createServerFn({
 const todosQueryOptions = (user_id: string, date: string) =>
   queryOptions({
     queryKey: ["todos", user_id, date],
-    queryFn: () =>
-      getTodos(
-        {
-          data: {
-            date,
-            user_id,
-          },
-        },
-      ),
+    queryFn: async () => {
+      const res = await fetch(
+        `http://localhost:3000/api/users/${user_id}/todo/${date}`,
+      );
+      const todos = await res.json();
+      console.log(todos);
+      return todos;
+    },
+    // getTodos(
+    //   {
+    //     data: {
+    //       date,
+    //       user_id,
+    //     },
+    //   },
+    // ),
   });
 
 export { todosQueryOptions };
