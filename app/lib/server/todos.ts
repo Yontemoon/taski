@@ -1,6 +1,8 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/start";
 import { getSupabaseServerClient } from "@/lib/supabaseServerClient";
+import axios from "redaxios"
+import { TTodos } from "@/types/tables.types";
 
 const getTodos = createServerFn({
   method: "GET",
@@ -11,7 +13,7 @@ const getTodos = createServerFn({
     }
     return data;
   })
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const supabase = await getSupabaseServerClient();
 
     try {
@@ -36,21 +38,14 @@ const todosQueryOptions = (user_id: string, date: string) =>
   queryOptions({
     queryKey: ["todos", user_id, date],
     queryFn: async () => {
-      const res = await fetch(
+      const res = await axios(
         `http://localhost:3000/api/users/${user_id}/todo/${date}`,
       );
-      const todos = await res.json();
-      console.log(todos);
+      const todos = await res.data as TTodos[]
       return todos;
     },
-    // getTodos(
-    //   {
-    //     data: {
-    //       date,
-    //       user_id,
-    //     },
-    //   },
-    // ),
+
   });
+
 
 export { todosQueryOptions };

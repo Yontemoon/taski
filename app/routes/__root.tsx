@@ -22,10 +22,7 @@ export const fetchUser: Fetcher<undefined, undefined, User | null> =
     method: "GET",
   }).handler(async () => {
     const supabase = await getSupabaseServerClient();
-    // const session = await supabase.auth.getSession();
-    // if (session.data.session?.user) {
-    //   return session.data.session?.user;
-    // }
+
     const {
       data: { user },
       error,
@@ -65,13 +62,13 @@ export const Route = createRootRouteWithContext<
     if (context.id) {
       return context;
     }
-    console.log("CONTEXT", context);
+
     const session = await supabase.auth.getSession();
-    console.log("SESSION", session);
+
     if (session.data.session?.user) {
       return session.data.session?.user;
     }
-    console.log("PASSING PSESSION");
+
     const user = await fetchUser();
     if (!user) {
       return null;

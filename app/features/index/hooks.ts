@@ -2,12 +2,22 @@ import { addTodos, deleteTodo, updateIsComplete } from "@/lib/todos";
 import { extractHashtag } from "@/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { TTags, TTodos } from "@/types/tables.types";
+import axios from "redaxios"
 
 const useIndexMutations = (user_id: string, date: string) => {
   const queryClient = useQueryClient();
 
   const addMutation = useMutation({
-    mutationFn: addTodos,
+    mutationFn: async (data: {todo: string}) => {
+      const res = await axios(`${process.env.SERVER_URL}/api/users${user_id}/todo/${date}`, {
+        method: 'POST',
+        body: {
+          todo: data.todo
+        }
+      })
+    
+
+    },
     onMutate: async (data) => {
       const newHashtags = extractHashtag(data.todo);
       await queryClient.cancelQueries({ queryKey: ["tags", user_id, date] });
@@ -38,7 +48,7 @@ const useIndexMutations = (user_id: string, date: string) => {
           ...old,
           {
             todo: data?.todo,
-            user_id: data?.user_id,
+            user_id: user_id,
             id: crypto.randomUUID(),
           },
         ],
