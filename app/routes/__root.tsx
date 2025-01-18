@@ -119,7 +119,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
           </Link>
 
           <div className="ml-auto">
-            {user ? (
+            {user.id ? (
               <>
                 <span className="mr-2">{user.email}</span>
                 <Link to="/logout">Logout</Link>
@@ -131,8 +131,12 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         </div>
         {children}
         <ScrollRestoration />
-        <TanStackRouterDevtools position="bottom-right" />
-        <ReactQueryDevtools buttonPosition="bottom-left" />
+        {import.meta.env.DEV && (
+          <TanStackRouterDevtools position="bottom-right" />
+        )}
+        {import.meta.env.DEV && (
+          <ReactQueryDevtools buttonPosition="bottom-left" />
+        )}
         <Scripts />
       </body>
     </html>
