@@ -28,9 +28,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const fetchInitialUser = async () => {
       try {
-        const fetchedUser = await supabase.auth
-          .getUser()
-          .then((r) => r.data.user);
+        const fetchedUser = (await supabase.auth.getUser()).data.user;
+
         console.log("FETCHED USER", fetchedUser);
         setUser(fetchedUser);
       } catch (err) {
@@ -64,12 +63,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signOut = useCallback(async () => {
     setError(null);
     try {
-      const success = await supabase.auth.signOut();
-      if (success) {
-        setUser(null);
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        throw new Error(error.message);
       }
+
+      setUser(null);
     } catch (err: any) {
-      console.error("Error signing out:", err.message);
+      console.error("Error signing out:", err);
       setError(err.message);
     }
   }, []);
