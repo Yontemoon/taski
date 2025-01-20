@@ -13,8 +13,8 @@ const getTodos = async (user_id: string, date: string) => {
     if (error) {
       throw new Error(error.message);
     }
-
-    return todos;
+    console.log(todos);
+    return todos || [];
   } catch (error) {
     console.error("Error in getTodos", error);
     return [];

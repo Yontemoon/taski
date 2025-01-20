@@ -84,8 +84,9 @@ function RouteComponent() {
         // Fetch and cache data for the hovered date
         context.queryClient.prefetchQuery({
           queryKey: ["todos", context?.auth.user?.id!, hoveredDate],
-          queryFn: () => {
-            getTodos(context?.auth.user?.id!, hoveredDate);
+          queryFn: async () => {
+            const todo = await getTodos(context?.auth.user?.id!, hoveredDate);
+            return todo;
           },
         });
       }
