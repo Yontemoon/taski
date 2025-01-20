@@ -21,7 +21,11 @@ import { useIndexMutations } from "@/features/index/hooks";
 import { useForm } from "@tanstack/react-form";
 import { Input } from "@/components/ui/input";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { tagsQueryOptions, todosQueryOptions } from "@/lib/options";
+import {
+  tagsAllQueryOptions,
+  tagsQueryOptions,
+  todosQueryOptions,
+} from "@/lib/options";
 import { getTodos } from "@/lib/supabase/index";
 
 export const Route = createFileRoute("/_authed/todo/$id")({
@@ -44,6 +48,13 @@ function RouteComponent() {
   const { data: tags } = useSuspenseQuery(
     tagsQueryOptions(context?.auth.user?.id!, date)
   );
+
+  const { data: allTags } = useSuspenseQuery(
+    tagsAllQueryOptions(context?.auth.user?.id!)
+  );
+
+  console.log(allTags);
+
   const navigate = useNavigate({ from: Route.fullPath });
   const [hoveredDate, setHoveredDate] = React.useState<string | null>(null);
 

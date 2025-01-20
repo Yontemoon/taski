@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getTagsByDate } from "@/lib/supabase/tags";
+import { getAllTags, getTagsByDate } from "@/lib/supabase/tags";
 import { getTodos } from "@/lib/supabase/todo";
 
 const tagsQueryOptions = (user_id: string, date: string) =>
@@ -16,4 +16,10 @@ const todosQueryOptions = (user_id: string, date: string) =>
     staleTime: Infinity,
   });
 
-export { todosQueryOptions, tagsQueryOptions };
+const tagsAllQueryOptions = (user_id: string) =>
+  queryOptions({
+    queryKey: ["tags", user_id],
+    queryFn: () => getAllTags(user_id),
+  });
+
+export { todosQueryOptions, tagsQueryOptions, tagsAllQueryOptions };
