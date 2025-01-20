@@ -81,8 +81,6 @@ function RouteComponent() {
     onSubmit: async ({ value }) => {
       const data = {
         todo: value.todo,
-        user_id: context.auth?.user?.id!,
-        date: date,
       };
       addMutation.mutate(data);
       router.invalidate();

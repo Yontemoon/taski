@@ -1,26 +1,20 @@
-import { addTodos, deleteTodo, updateIsComplete } from "@/lib/todos";
 import { extractHashtag } from "@/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { TTags, TTodos } from "@/types/tables.types";
-import axios from "redaxios";
+import {addTodos, deleteTodo, updateIsComplete} from "@/lib/supabase"
 
 const useIndexMutations = (user_id: string, date: string) => {
   const queryClient = useQueryClient();
 
   const addMutation = useMutation({
     mutationFn: async (data: { todo: string }) => {
-      console.log("PASSING HERE");
-      const res = await axios(
-        {
-          method: "POST",
-          url: `${import.meta.env.VITE_URL}/api/users/${user_id}/todo/${date}`,
-          responseType: "json",
-          data: {
-            todo: data.todo,
-          },
-        },
-      );
-      console.log("RES", res);
+      const mutationData = {
+        ...data,
+        user_id,
+        date
+      }
+      const res = await addTodos(mutationData)
+      return res
     },
     onMutate: async (data) => {
       const newHashtags = extractHashtag(data.todo);
@@ -35,7 +29,7 @@ const useIndexMutations = (user_id: string, date: string) => {
 
       const tagSet = new Set(previousTags.map((prevTag) => prevTag.name));
       newHashtags.forEach((tag) => tagSet.add(tag.replace("#", "")));
-      const updatedTags = Array.from(tagSet).map((tag, index) => ({
+      const updatedTags = Array.from(tagSet).map((tag) => ({
         id: crypto.randomUUID(),
         name: tag,
       }));
@@ -59,7 +53,7 @@ const useIndexMutations = (user_id: string, date: string) => {
       );
       return previousTodos;
     },
-    onError: (err, newTodo, context) => {
+    onError: (_err, _newTodo, context) => {
       queryClient.setQueryData(["todos", user_id, date], context);
     },
     onSettled: () => {
@@ -92,7 +86,7 @@ const useIndexMutations = (user_id: string, date: string) => {
       queryClient.setQueryData(["todos", user_id, date], updatedTodos);
       return previousTodos;
     },
-    onError: (err, todo_id, context) => {
+    onError: (_err, _todo_id, context) => {
       queryClient.setQueryData(["todos", user_id, date], context);
     },
     onSettled: () => {
@@ -111,7 +105,7 @@ const useIndexMutations = (user_id: string, date: string) => {
       ]);
       return previousTodos;
     },
-    onError: (err, data, context) => {
+    onError: (_err, _data, context) => {
       queryClient.setQueryData(["todos", user_id, date], context);
     },
     onSettled: () => {
