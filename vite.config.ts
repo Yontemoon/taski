@@ -15,7 +15,6 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
       "@assets": path.resolve(__dirname, "./src/assets"),
       "@components": path.resolve(__dirname, "./src/components"),
-      // "@supabase": path.resolve(__dirname, "./src/lib/supabase/index.ts"),
     },
   },
 });

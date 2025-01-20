@@ -1,6 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Login } from "../components/Login";
 import { formatDate } from "@/lib/utils";
+import { Card } from "@/components/ui/card";
 
 export const Route = createFileRoute("/login")({
   beforeLoad: async ({ context }) => {
@@ -12,5 +13,9 @@ export const Route = createFileRoute("/login")({
 });
 
 function LoginComp() {
-  return <Login />;
+  return (
+    <div>
+      <Card />
+    </div>
+  );
 }
