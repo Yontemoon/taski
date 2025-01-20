@@ -19,9 +19,15 @@ export interface AuthContextType {
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
+const getUser = () => {
+  const userInfo = localStorage.getItem("sb-udtsoseizguuxxylpzuw-auth-token");
+  if (userInfo) {
+    const jsonUser = JSON.parse(userInfo);
+    return jsonUser.user;
+  }
+};
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const isAuthenticated = !!user;
+  const [user, setUser] = useState<User | null>(getUser());
   const [error, setError] = useState<string | null>(null);
 
   // Fetch user on mount
@@ -29,8 +35,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const fetchInitialUser = async () => {
       try {
         const fetchedUser = (await supabase.auth.getUser()).data.user;
-
-        console.log("FETCHED USER", fetchedUser);
         setUser(fetchedUser);
       } catch (err) {
         console.error("Error fetching user:", err);
