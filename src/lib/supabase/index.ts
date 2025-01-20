@@ -5,8 +5,6 @@ import {
   deleteTodo,
   getTags,
   getTodos,
-  tagsQueryOptions,
-  todosQueryOptions,
   updateIsComplete,
 } from "./todo";
 
@@ -24,7 +22,5 @@ export {
   deleteTodo,
   getTags,
   getTodos,
-  tagsQueryOptions,
-  todosQueryOptions,
   updateIsComplete,
 };

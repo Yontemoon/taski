@@ -26,34 +26,10 @@ import { getTodos } from "@/lib/supabase/index";
 
 export const Route = createFileRoute("/_authed/todo/$id")({
   beforeLoad: async ({ context }) => {
-    console.log("CON.TX");
     if (!context?.auth?.user?.id) {
       throw redirect({ to: "/login" });
     }
   },
-
-  // loader: async ({ context, params: { id } }) => {
-  //   const userId = context.id;
-  //   // const cachedTodos = context.queryClient.getQueriesData({
-  //   //   queryKey: ["todos", userId, id],
-  //   // })[1] as TTodos[];
-  //   // const cachedTags = context.queryClient.getQueriesData({
-  //   //   queryKey: ["tags", userId, id],
-  //   // })[1] as TTags[];
-  //   // if (cachedTodos && cachedTags) {
-  //   //   return { tags: cachedTags, todos: cachedTodos };
-  //   // }
-  //   if (context.id) {
-  //     const tags = await context.queryClient.ensureQueryData(
-  //       tagsQueryOptions(userId, id)
-  //     );
-
-  //     const todos = await context.queryClient.ensureQueryData(
-  //       todosQueryOptions(userId, id)
-  //     );
-  //     return { todos, tags };
-  //   }
-  // },
   component: RouteComponent,
 });
 

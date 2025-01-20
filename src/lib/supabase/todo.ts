@@ -1,5 +1,4 @@
 import { supabase } from "@/lib/supabase";
-import { queryOptions } from "@tanstack/react-query";
 
 const getTodos = async (user_id: string, date: string) => {
   try {
@@ -126,35 +125,11 @@ const getTags = async (user_id: string) => {
   }
 };
 
-const todosQueryOptions = (user_id: string, date: string) =>
-  queryOptions({
-    queryKey: ["todos", user_id, date],
-    queryFn: async () => {
-      const todos = await getTodos(
-        user_id,
-        date,
-      );
-      return todos;
-    },
-  });
-
-const tagsQueryOptions = (user_id: string) =>
-  queryOptions({
-    queryKey: ["tags", user_id],
-    queryFn: async () => {
-      const tags = await getTags(
-        user_id,
-      );
-      return tags;
-    },
-  });
 
 export {
   addTodos,
   deleteTodo,
   getTags,
   getTodos,
-  tagsQueryOptions,
-  todosQueryOptions,
   updateIsComplete,
 };
