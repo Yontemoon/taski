@@ -4,7 +4,7 @@ import { formatDate } from "@/lib/utils";
 
 export const Route = createFileRoute("/login")({
   beforeLoad: async ({ context }) => {
-    if (context.id) {
+    if (context.auth.user) {
       throw redirect({ to: "/", search: { date: formatDate(new Date()) } });
     }
   },

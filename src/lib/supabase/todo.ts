@@ -25,7 +25,7 @@ const addTodos = async (
   data: { todo: string; user_id: string; date: string },
 ) => {
   try {
-    const { error, data: _testing } = await supabase.from("todos").insert({
+    const { error, data: _todoData } = await supabase.from("todos").insert({
       todo: data.todo,
       user_id: data.user_id,
       date_set: data.date,

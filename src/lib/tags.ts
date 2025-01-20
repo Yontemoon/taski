@@ -1,6 +1,4 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getSupabaseServerClient } from "./supabaseServerClient";
-import { createServerFn } from "@tanstack/start";
 import { supabase } from "@/lib/supabase";
 
 const getAllTags = async (user_id: string) => {

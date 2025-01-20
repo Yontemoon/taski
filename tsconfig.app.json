@@ -24,6 +24,7 @@
       "@/*": ["src/*"],
       "@components/*": ["src/components/*"],
       "@assets/*": ["src/assets/*"]
+      // "@supabase": ["src/lib/supabase/index.ts"]
     }
   },
   "include": ["src"]

@@ -1,13 +1,11 @@
-import { todosQueryOptions } from "@/lib/server/todos";
 import {
   createFileRoute,
   Link,
   redirect,
   useNavigate,
-  useParams,
   useRouter,
 } from "@tanstack/react-router";
-import { tagsQueryOptions } from "@/lib/server/tags";
+
 import { cn, dateTomorrow, dateYesterday, formatDate } from "@/lib/utils";
 import {
   Popover,
@@ -15,22 +13,21 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, CalendarIcon, Router } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { parse } from "date-fns";
 import React, { Suspense } from "react";
-import { getTodos } from "@/lib/todos";
 import { useIndexMutations } from "@/features/index/hooks";
 import { useForm } from "@tanstack/react-form";
 import { Input } from "@/components/ui/input";
-// import { TTags, TTodos } from "@/types/tables.types";
 import { useSuspenseQuery } from "@tanstack/react-query";
-// import { useQueryClient } from "@tanstack/react-query";
-import axios from "redaxios";
+import { tagsQueryOptions, todosQueryOptions } from "@/lib/options";
+import { getTodos } from "@/lib/supabase/index";
 
 export const Route = createFileRoute("/_authed/todo/$id")({
   beforeLoad: async ({ context }) => {
-    if (!context?.id) {
+    console.log("CON.TX");
+    if (!context?.auth?.user?.id) {
       throw redirect({ to: "/login" });
     }
   },
@@ -61,34 +58,34 @@ export const Route = createFileRoute("/_authed/todo/$id")({
 });
 
 function RouteComponent() {
-  const user = Route.useRouteContext();
+  const context = Route.useRouteContext();
   const router = useRouter();
   // const loaderData = Route.useLoaderData();
   const { id: date } = Route.useParams();
-  const { data } = useSuspenseQuery(todosQueryOptions(user?.id, date));
-  const { data: tags } = useSuspenseQuery(tagsQueryOptions(user?.id, date));
+  const { data } = useSuspenseQuery(
+    todosQueryOptions(context?.auth.user?.id!, date)
+  );
+  const { data: tags } = useSuspenseQuery(
+    tagsQueryOptions(context?.auth.user?.id!, date)
+  );
   const navigate = useNavigate({ from: Route.fullPath });
   const [hoveredDate, setHoveredDate] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (hoveredDate !== null) {
       // Check if data for the hovered date is already cached
-      const cachedTodos = user.queryClient.getQueryData([
+      const cachedTodos = context.queryClient.getQueryData([
         "todos",
-        user.id,
+        context?.auth.user?.id!,
         hoveredDate,
       ]);
 
       if (!cachedTodos) {
         // Fetch and cache data for the hovered date
-        user.queryClient.prefetchQuery({
-          queryKey: ["todos", user.id, hoveredDate],
-          queryFn: async () => {
-            const res = await axios.get(
-              `http://localhost:3000/api/users/${user.id}/todo/${hoveredDate}`
-            );
-            console.log("TODOS", res.data);
-            return res.data;
+        context.queryClient.prefetchQuery({
+          queryKey: ["todos", context?.auth.user?.id!, hoveredDate],
+          queryFn: () => {
+            getTodos(context?.auth.user?.id!, hoveredDate);
           },
         });
       }
@@ -96,7 +93,7 @@ function RouteComponent() {
   }, [hoveredDate]);
 
   const { addMutation, deleteMutation, isCompleteMutation } = useIndexMutations(
-    user.id,
+    context.auth?.user?.id!,
     date
   );
 
@@ -107,7 +104,7 @@ function RouteComponent() {
     onSubmit: async ({ value }) => {
       const data = {
         todo: value.todo,
-        user_id: user?.id,
+        user_id: context.auth?.user?.id!,
         date: date,
       };
       addMutation.mutate(data);
@@ -238,7 +235,7 @@ function RouteComponent() {
                       return;
                     }
                     const data = {
-                      user_id: user.id,
+                      user_id: context.auth.user?.id!,
                       todo_id: todo.id,
                       status: !todo?.status,
                     };
@@ -255,7 +252,7 @@ function RouteComponent() {
                   onClick={() => {
                     const data = {
                       todo_id: todo.id,
-                      user_id: user.id,
+                      user_id: context.auth.user?.id!,
                     };
                     deleteMutation.mutate(data);
                   }}
