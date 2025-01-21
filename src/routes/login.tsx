@@ -1,29 +1,51 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import React from "react";
+import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { formatDate } from "@/lib/utils";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useForm } from "@tanstack/react-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+// import { User } from "@supabase/supabase-js";
 
 export const Route = createFileRoute("/login")({
   beforeLoad: async ({ context }) => {
     if (context.auth.user) {
-      throw redirect({ to: "/", search: { date: formatDate(new Date()) } });
+      throw redirect({ to: "/" });
     }
   },
   component: LoginComp,
 });
 
 function LoginComp() {
+  const { auth } = Route.useRouteContext();
+  const router = useRouter();
+  const navigate = Route.useNavigate();
+
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+
   const form = useForm({
     defaultValues: {
       email: "",
       password: "",
     },
-    onSubmit: ({ value, formApi }) => {
-      console.log(value);
-      formApi.reset();
+    onSubmit: async ({ value, formApi }) => {
+      try {
+        setIsLoading(true);
+        const res = await auth.signIn(value.email, value.password);
+
+        if (typeof res !== "string") {
+          console.log("passing stringifad");
+          await router.invalidate();
+          await navigate({
+            to: "/todo/$id",
+            params: { id: formatDate(new Date()) },
+          });
+        }
+        formApi.reset();
+      } finally {
+        setIsLoading(false);
+      }
     },
   });
 
@@ -61,7 +83,7 @@ function LoginComp() {
                 children={(field) => {
                   return (
                     <>
-                      <Label>Email:</Label>
+                      <Label>Password:</Label>
                       <Input
                         type="password"
                         id={field.name}
@@ -74,8 +96,8 @@ function LoginComp() {
                   );
                 }}
               />
-              <Button className="w-full" type="submit">
-                Login
+              <Button className="w-full" type="submit" disabled={isLoading}>
+                {isLoading ? "Loading" : "Login"}
               </Button>
             </form>
           </CardContent>

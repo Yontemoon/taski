@@ -12,9 +12,10 @@ import { supabase } from "@/lib/supabase";
 export interface AuthContextType {
   user: User | null;
   error: string | null;
-  signIn: (email: string, password: string) => Promise<User | null>;
+  signIn: (email: string, password: string) => Promise<User | string>;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  isLoading: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -28,17 +29,21 @@ const getUser = () => {
 };
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(getUser());
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   // Fetch user on mount
   useEffect(() => {
     const fetchInitialUser = async () => {
+      setIsLoading(true);
       try {
         const fetchedUser = (await supabase.auth.getUser()).data.user;
         setUser(fetchedUser);
       } catch (err) {
         console.error("Error fetching user:", err);
         setError("Failed to fetch user");
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -46,8 +51,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
-    console.log(email, password, "in signin");
     setError(null);
+    setIsLoading(true);
     try {
       const signedInUser = await supabase.auth
         .signInWithPassword({
@@ -55,17 +60,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           password,
         })
         .then((r) => r.data.user);
+      console.log(signedInUser);
       setUser(signedInUser);
       return signedInUser;
     } catch (err: any) {
       console.error("Error signing in:", err.message);
       setError(err.message);
-      return null;
+      return err.message;
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
   const signOut = useCallback(async () => {
     setError(null);
+
     try {
       const { error } = await supabase.auth.signOut();
 
@@ -94,8 +103,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, error, signIn, signOut, refreshUser }}>
-      {children}
+    <AuthContext.Provider
+      value={{ user, error, signIn, signOut, refreshUser, isLoading }}
+    >
+      {isLoading ? null : children}
     </AuthContext.Provider>
   );
 };
