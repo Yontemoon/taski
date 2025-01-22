@@ -27,6 +27,17 @@ import {
   todosQueryOptions,
 } from "@/lib/options";
 import { getTodos } from "@/lib/supabase/index";
+import {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+  CommandShortcut,
+} from "@/components/ui/command";
 
 export const Route = createFileRoute("/_authed/todo/$id")({
   beforeLoad: async ({ context }) => {
@@ -57,6 +68,7 @@ function RouteComponent() {
 
   const navigate = useNavigate({ from: Route.fullPath });
   const [hoveredDate, setHoveredDate] = React.useState<string | null>(null);
+  // const [open, setOpen] = React.useState<boolean>(false)
 
   React.useEffect(() => {
     if (hoveredDate !== null) {
@@ -168,6 +180,33 @@ function RouteComponent() {
           form.reset();
         }}
       >
+        <Command>
+          <form.Field
+            name="todo"
+            children={(field) => {
+              return (
+                <CommandInput
+                  placeholder="Do something productive!"
+                  name={field.name}
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  // onChange={(e) => field.handleChange(e.target.value)}
+                />
+              );
+            }}
+          />
+
+          {
+            <CommandList>
+              <CommandEmpty>No Tags...</CommandEmpty>
+              <CommandGroup heading="Tags">
+                {allTags?.map((tag) => {
+                  return <CommandItem key={tag.id}>{tag.name}</CommandItem>;
+                })}
+              </CommandGroup>
+            </CommandList>
+          }
+        </Command>
         <form.Field
           name="todo"
           children={(field) => {
