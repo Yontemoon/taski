@@ -28,15 +28,16 @@ import {
 import { getTodos } from "@/lib/supabase/index";
 import {
   Command,
-  CommandDialog,
-  CommandEmpty,
+  // CommandDialog,
+  // CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
-  CommandSeparator,
-  CommandShortcut,
+  // CommandSeparator,
+  // CommandShortcut,
 } from "@/components/ui/command";
+import { TAllTags } from "@/types/tables.types";
 
 export const Route = createFileRoute("/_authed/todo/$id")({
   beforeLoad: async ({ context }) => {
@@ -66,7 +67,8 @@ function RouteComponent() {
 
   const navigate = useNavigate({ from: Route.fullPath });
   const [hoveredDate, setHoveredDate] = React.useState<string | null>(null);
-  // const [open, setOpen] = React.useState<boolean>(false)
+  const [currentTag, setCurrentTag] = React.useState("");
+  const [currentTags, setCurrentTags] = React.useState<TAllTags[] | null>(null);
 
   React.useEffect(() => {
     if (hoveredDate !== null) {
@@ -89,6 +91,18 @@ function RouteComponent() {
       }
     }
   }, [hoveredDate]);
+
+  React.useEffect(() => {
+    console.log("PASSING THI USEFEFF", currentTag);
+    if (currentTag) {
+      const filteredList =
+        allTags?.filter((tag) =>
+          tag.name.toLowerCase().includes(currentTag.toLowerCase())
+        ) || allTags;
+      console.log(filteredList);
+      setCurrentTags(filteredList);
+    }
+  }, [currentTag]);
 
   const { addMutation, deleteMutation, isCompleteMutation } = useIndexMutations(
     context.auth?.user?.id!,
@@ -182,22 +196,41 @@ function RouteComponent() {
           name="todo"
           children={(field) => {
             return (
-              <Command>
+              <Command shouldFilter={false} value={currentTag}>
                 <CommandInput
                   name="todo"
                   placeholder="Do something productive!"
                   value={field.state.value}
                   onBlur={field.handleBlur}
-                  onValueChange={(value) => field.handleChange(value)}
-                />
+                  onValueChange={(value) => {
+                    const words = value.split(" ");
+                    const lastWord = words[words.length - 1];
 
-                {field.state.value !== "" && (
+                    if (lastWord[0] === "#") {
+                      const extractWord = lastWord.substring(1);
+                      if (extractWord) {
+                        setCurrentTag(extractWord);
+                      } else {
+                        console.log("passing herad");
+                        console.log(currentTag);
+                        // setCurrentTag("");
+                        setCurrentTags(allTags);
+                      }
+                    } else {
+                      setCurrentTag("");
+                    }
+                    field.handleChange(value);
+                  }}
+                />
+                {
                   <CommandList onSelect={(e) => console.log(e)}>
+                    {/* <CommandEmpty>Nothing</CommandEmpty> */}
+
                     <CommandGroup
                       heading="Tags"
                       className="absolute z-10 max-h-52 overflow-y-auto bg-background max-w-screen-md"
                     >
-                      {allTags?.map((tag) => {
+                      {currentTags?.map((tag) => {
                         return (
                           <CommandItem
                             key={tag.id}
@@ -205,6 +238,7 @@ function RouteComponent() {
                               const currentValue = field.state.value;
                               field.setValue(`${currentValue}#${tag.name}`);
                             }}
+                            // keywords={[tag.name]}
                           >
                             {tag.name}
                           </CommandItem>
@@ -212,7 +246,7 @@ function RouteComponent() {
                       })}
                     </CommandGroup>
                   </CommandList>
-                )}
+                }
               </Command>
             );
           }}
