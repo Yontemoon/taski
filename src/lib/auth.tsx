@@ -27,12 +27,14 @@ const getUser = () => {
     return jsonUser.user;
   }
 };
+
+// ! Does this need be a provider? We're passing into context so it's technically available everywhere.
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(getUser());
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch user on mount
   useEffect(() => {
     const fetchInitialUser = async () => {
       setIsLoading(true);
@@ -60,7 +62,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           password,
         })
         .then((r) => r.data.user);
-      console.log(signedInUser);
       setUser(signedInUser);
       return signedInUser;
     } catch (err: any) {

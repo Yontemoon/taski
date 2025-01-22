@@ -19,7 +19,6 @@ import { parse } from "date-fns";
 import React, { Suspense } from "react";
 import { useIndexMutations } from "@/features/index/hooks";
 import { useForm } from "@tanstack/react-form";
-import { Input } from "@/components/ui/input";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   tagsAllQueryOptions,
@@ -51,6 +50,7 @@ export const Route = createFileRoute("/_authed/todo/$id")({
 function RouteComponent() {
   const context = Route.useRouteContext();
   const router = useRouter();
+
   // const loaderData = Route.useLoaderData();
   const { id: date } = Route.useParams();
   const { data } = useSuspenseQuery(
@@ -63,8 +63,6 @@ function RouteComponent() {
   const { data: allTags } = useSuspenseQuery(
     tagsAllQueryOptions(context?.auth.user?.id!)
   );
-
-  console.log(allTags);
 
   const navigate = useNavigate({ from: Route.fullPath });
   const [hoveredDate, setHoveredDate] = React.useState<string | null>(null);
@@ -180,43 +178,42 @@ function RouteComponent() {
           form.reset();
         }}
       >
-        <Command>
-          <form.Field
-            name="todo"
-            children={(field) => {
-              return (
-                <CommandInput
-                  placeholder="Do something productive!"
-                  name={field.name}
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  // onChange={(e) => field.handleChange(e.target.value)}
-                />
-              );
-            }}
-          />
-
-          {
-            <CommandList>
-              <CommandEmpty>No Tags...</CommandEmpty>
-              <CommandGroup heading="Tags">
-                {allTags?.map((tag) => {
-                  return <CommandItem key={tag.id}>{tag.name}</CommandItem>;
-                })}
-              </CommandGroup>
-            </CommandList>
-          }
-        </Command>
         <form.Field
           name="todo"
           children={(field) => {
             return (
-              <Input
-                name={field.name}
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-              />
+              <Command>
+                <CommandInput
+                  name="todo"
+                  placeholder="Do something productive!"
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onValueChange={(value) => field.handleChange(value)}
+                />
+
+                {field.state.value !== "" && (
+                  <CommandList onSelect={(e) => console.log(e)}>
+                    <CommandGroup
+                      heading="Tags"
+                      className="absolute z-10 max-h-52 overflow-y-auto bg-background max-w-screen-md"
+                    >
+                      {allTags?.map((tag) => {
+                        return (
+                          <CommandItem
+                            key={tag.id}
+                            onSelect={(_e) => {
+                              const currentValue = field.state.value;
+                              field.setValue(`${currentValue}#${tag.name}`);
+                            }}
+                          >
+                            {tag.name}
+                          </CommandItem>
+                        );
+                      })}
+                    </CommandGroup>
+                  </CommandList>
+                )}
+              </Command>
             );
           }}
         />

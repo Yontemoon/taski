@@ -35,7 +35,6 @@ function LoginComp() {
         const res = await auth.signIn(value.email, value.password);
 
         if (typeof res !== "string") {
-          console.log("passing stringifad");
           await router.invalidate();
           await navigate({
             to: "/todo/$id",
