@@ -38,6 +38,7 @@ import {
   // CommandShortcut,
 } from "@/components/ui/command";
 import { TAllTags } from "@/types/tables.types";
+import { Input } from "@/components/ui/input";
 
 export const Route = createFileRoute("/_authed/todo/$id")({
   beforeLoad: async ({ context }) => {
@@ -197,13 +198,14 @@ function RouteComponent() {
           children={(field) => {
             return (
               <Command shouldFilter={false} value={currentTag}>
-                <CommandInput
+                <Input
                   name="todo"
                   placeholder="Do something productive!"
                   value={field.state.value}
                   onBlur={field.handleBlur}
-                  onValueChange={(value) => {
-                    const words = value.split(" ");
+                  autoComplete="off"
+                  onChange={(e) => {
+                    const words = e.target.value.split(" ");
                     const lastWord = words[words.length - 1];
 
                     if (lastWord[0] === "#") {
@@ -219,7 +221,7 @@ function RouteComponent() {
                     } else {
                       setCurrentTag("");
                     }
-                    field.handleChange(value);
+                    field.handleChange(e.target.value);
                   }}
                 />
                 {
