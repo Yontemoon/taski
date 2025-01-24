@@ -59,7 +59,6 @@ function RouteComponent() {
     },
   });
 
-  // const loaderData = Route.useLoaderData();
   const { id: date } = Route.useParams();
   const { data } = useSuspenseQuery(
     todosQueryOptions(context?.auth.user?.id!, date)
