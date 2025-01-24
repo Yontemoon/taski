@@ -26,18 +26,11 @@ import {
   todosQueryOptions,
 } from "@/lib/options";
 import { getTodos } from "@/lib/supabase/index";
-import {
-  Command,
-  // CommandDialog,
-  // CommandEmpty,
-  CommandGroup,
-  CommandItem,
-  CommandList,
-  // CommandSeparator,
-  // CommandShortcut,
-} from "@/components/ui/command";
+
 import { TAllTags } from "@/types/tables.types";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { useOnClickOutside } from "usehooks-ts";
 
 export const Route = createFileRoute("/_authed/todo/$id")({
   beforeLoad: async ({ context }) => {
@@ -51,6 +44,20 @@ export const Route = createFileRoute("/_authed/todo/$id")({
 function RouteComponent() {
   const context = Route.useRouteContext();
   const router = useRouter();
+  const tagsListRef = React.useRef<HTMLDivElement>(null!);
+
+  const form = useForm({
+    defaultValues: {
+      todo: "",
+    },
+    onSubmit: async ({ value }) => {
+      const data = {
+        todo: value.todo,
+      };
+      addMutation.mutate(data);
+      router.invalidate();
+    },
+  });
 
   // const loaderData = Route.useLoaderData();
   const { id: date } = Route.useParams();
@@ -71,6 +78,10 @@ function RouteComponent() {
   const [currentTag, setCurrentTag] = React.useState("");
   const [currentTags, setCurrentTags] = React.useState<TAllTags[] | null>(null);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [selectedTag, setSelectedTag] = React.useState<TAllTags | null>(null);
+  useOnClickOutside(tagsListRef, () => {
+    setIsDialogOpen(false);
+  });
 
   React.useEffect(() => {
     if (hoveredDate !== null) {
@@ -93,6 +104,7 @@ function RouteComponent() {
   }, [hoveredDate]);
 
   React.useEffect(() => {
+    console.log(currentTag);
     const currentWord = currentTag.substring(1);
     if (currentWord) {
       const filteredList =
@@ -100,6 +112,10 @@ function RouteComponent() {
           tag.name.toLowerCase().includes(currentWord.toLowerCase())
         ) || allTags;
       setCurrentTags(filteredList);
+      if (filteredList && filteredList.length > 0) {
+        const firstTag = filteredList[0];
+        setSelectedTag(firstTag);
+      }
     } else {
       setCurrentTags(allTags);
     }
@@ -110,18 +126,12 @@ function RouteComponent() {
     date
   );
 
-  const form = useForm({
-    defaultValues: {
-      todo: "",
-    },
-    onSubmit: async ({ value }) => {
-      const data = {
-        todo: value.todo,
-      };
-      addMutation.mutate(data);
-      router.invalidate();
-    },
-  });
+  const handleSubmitForm = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    await form.handleSubmit();
+    form.reset();
+  };
 
   return (
     <>
@@ -185,24 +195,93 @@ function RouteComponent() {
       </div>
       <form
         className="flex gap-5 justify-center items-center max-w-5xl w-full"
-        onSubmit={async (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          await form.handleSubmit();
-          form.reset();
+        id="todo-form"
+        onSubmit={handleSubmitForm}
+        onKeyDown={(e) => {
+          switch (e.key) {
+            case "Enter":
+              if (isDialogOpen) {
+                e.preventDefault();
+
+                const currentTodo = form.state.values.todo;
+                const words = currentTodo.split(" ");
+                const allWordsExceptLast = words.slice(0, words.length - 1);
+                const stringifyWords = allWordsExceptLast.join(" ");
+                form.setFieldValue(
+                  "todo",
+                  `${stringifyWords} #${selectedTag?.name}`
+                );
+                setIsDialogOpen(false);
+                setCurrentTags([]);
+                break;
+              }
+          }
         }}
       >
         <form.Field
           name="todo"
           children={(field) => {
             return (
-              <Command shouldFilter={false} value={currentTag}>
+              <div className="relative w-full">
                 <Input
                   name="todo"
+                  id="todo-input"
                   placeholder="Do something productive!"
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   autoComplete="off"
+                  onFocus={() => {
+                    if (
+                      !isDialogOpen &&
+                      currentTags &&
+                      currentTags.length > 0
+                    ) {
+                      setIsDialogOpen(true);
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (isDialogOpen) {
+                      switch (e.key) {
+                        case "ArrowDown":
+                          e.preventDefault();
+                          if (currentTags) {
+                            const tagIndex = currentTags?.findIndex(
+                              (tag) => tag.id === selectedTag?.id
+                            );
+                            if (tagIndex === currentTags.length - 1) {
+                              setSelectedTag(currentTags[0]);
+                            } else {
+                              const nextTag = currentTags[tagIndex + 1];
+                              setSelectedTag(nextTag);
+                            }
+                          }
+
+                          break;
+                        case "ArrowUp":
+                          e.preventDefault();
+                          if (currentTags) {
+                            const tagIndex = currentTags?.findIndex(
+                              (tag) => tag.id === selectedTag?.id
+                            );
+                            if (tagIndex === 0) {
+                              setSelectedTag(
+                                currentTags[currentTags.length - 1]
+                              );
+                            } else {
+                              const nextTag = currentTags[tagIndex - 1];
+                              setSelectedTag(nextTag);
+                            }
+                          }
+                          break;
+                        case "ArrowRight":
+                          e.preventDefault();
+                          break;
+                        case "ArrowLeft":
+                          e.preventDefault();
+                          break;
+                      }
+                    }
+                  }}
                   onChange={(e) => {
                     const value = e.target.value;
                     const words = value.split(" ");
@@ -220,44 +299,65 @@ function RouteComponent() {
                     field.handleChange(value);
                   }}
                 />
-                {
-                  <CommandList>
-                    <CommandGroup
-                      heading="Tags"
-                      className="absolute z-10 max-h-52 overflow-y-auto bg-background max-w-screen-md"
-                    >
-                      {isDialogOpen &&
-                        currentTags?.map((tag) => {
-                          return (
-                            <CommandItem
-                              key={tag.id}
-                              onSelect={(_e) => {
-                                const currentInput = field.state.value;
 
-                                const words = currentInput.split(" ");
-                                const allWordsExceptLast = words.slice(
-                                  0,
-                                  words.length - 1
-                                );
-                                const stringifyWords =
-                                  allWordsExceptLast.join(" ");
+                {isDialogOpen && (
+                  <Card
+                    ref={tagsListRef}
+                    className="absolute z-10 max-h-52 overflow-y-auto bg-background max-w-screen-lg w-full mt-1"
+                  >
+                    <CardContent>
+                      {currentTags?.map((tag) => {
+                        return (
+                          <div
+                            key={tag.id}
+                            className={cn(
+                              "w-full hover:cursor-pointer",
+                              selectedTag?.id === tag.id && "bg-foreground/10"
+                            )}
+                            onMouseEnter={() => {
+                              setSelectedTag(tag);
+                            }}
+                            onClick={() => {
+                              const currentInput = field.state.value;
 
-                                field.setValue(
-                                  `${stringifyWords} #${tag.name} `
-                                );
+                              const words = currentInput.split(" ");
+                              const allWordsExceptLast = words.slice(
+                                0,
+                                words.length - 1
+                              );
+                              const stringifyWords =
+                                allWordsExceptLast.join(" ");
 
-                                setIsDialogOpen(false);
-                                setCurrentTags([]);
-                              }}
-                            >
-                              {tag.name}
-                            </CommandItem>
-                          );
-                        })}
-                    </CommandGroup>
-                  </CommandList>
-                }
-              </Command>
+                              field.setValue(`${stringifyWords} #${tag.name}`);
+
+                              setIsDialogOpen(false);
+                              setCurrentTags([]);
+                            }}
+                            onSelect={(_e) => {
+                              const currentInput = field.state.value;
+
+                              const words = currentInput.split(" ");
+                              const allWordsExceptLast = words.slice(
+                                0,
+                                words.length - 1
+                              );
+                              const stringifyWords =
+                                allWordsExceptLast.join(" ");
+
+                              field.setValue(`${stringifyWords} #${tag.name}`);
+
+                              setIsDialogOpen(false);
+                              setCurrentTags([]);
+                            }}
+                          >
+                            {tag.name}
+                          </div>
+                        );
+                      })}
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
             );
           }}
         />
