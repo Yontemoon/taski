@@ -31,7 +31,6 @@ import {
   // CommandDialog,
   // CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
   // CommandSeparator,
@@ -68,12 +67,13 @@ function RouteComponent() {
 
   const navigate = useNavigate({ from: Route.fullPath });
   const [hoveredDate, setHoveredDate] = React.useState<string | null>(null);
+
   const [currentTag, setCurrentTag] = React.useState("");
   const [currentTags, setCurrentTags] = React.useState<TAllTags[] | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 
   React.useEffect(() => {
     if (hoveredDate !== null) {
-      // Check if data for the hovered date is already cached
       const cachedTodos = context.queryClient.getQueryData([
         "todos",
         context?.auth.user?.id!,
@@ -81,7 +81,6 @@ function RouteComponent() {
       ]);
 
       if (!cachedTodos) {
-        // Fetch and cache data for the hovered date
         context.queryClient.prefetchQuery({
           queryKey: ["todos", context?.auth.user?.id!, hoveredDate],
           queryFn: async () => {
@@ -94,14 +93,15 @@ function RouteComponent() {
   }, [hoveredDate]);
 
   React.useEffect(() => {
-    console.log("PASSING THI USEFEFF", currentTag);
-    if (currentTag) {
+    const currentWord = currentTag.substring(1);
+    if (currentWord) {
       const filteredList =
         allTags?.filter((tag) =>
-          tag.name.toLowerCase().includes(currentTag.toLowerCase())
+          tag.name.toLowerCase().includes(currentWord.toLowerCase())
         ) || allTags;
-      console.log(filteredList);
       setCurrentTags(filteredList);
+    } else {
+      setCurrentTags(allTags);
     }
   }, [currentTag]);
 
@@ -139,7 +139,6 @@ function RouteComponent() {
             selected={parse(date, "yyyy-MM-dd", new Date())}
             onDayPointerEnter={(hoveredDate) => {
               const parsedDate = formatDate(hoveredDate);
-              console.log(parsedDate);
               setHoveredDate(parsedDate);
             }}
             onDayPointerLeave={(prevDate) => {
@@ -205,47 +204,56 @@ function RouteComponent() {
                   onBlur={field.handleBlur}
                   autoComplete="off"
                   onChange={(e) => {
-                    const words = e.target.value.split(" ");
+                    const value = e.target.value;
+                    const words = value.split(" ");
                     const lastWord = words[words.length - 1];
 
                     if (lastWord[0] === "#") {
-                      const extractWord = lastWord.substring(1);
-                      if (extractWord) {
-                        setCurrentTag(extractWord);
-                      } else {
-                        console.log("passing herad");
-                        console.log(currentTag);
-                        // setCurrentTag("");
-                        setCurrentTags(allTags);
-                      }
+                      setIsDialogOpen(true);
+
+                      setCurrentTag(lastWord);
                     } else {
+                      setIsDialogOpen(false);
                       setCurrentTag("");
+                      setCurrentTags([]);
                     }
-                    field.handleChange(e.target.value);
+                    field.handleChange(value);
                   }}
                 />
                 {
-                  <CommandList onSelect={(e) => console.log(e)}>
-                    {/* <CommandEmpty>Nothing</CommandEmpty> */}
-
+                  <CommandList>
                     <CommandGroup
                       heading="Tags"
                       className="absolute z-10 max-h-52 overflow-y-auto bg-background max-w-screen-md"
                     >
-                      {currentTags?.map((tag) => {
-                        return (
-                          <CommandItem
-                            key={tag.id}
-                            onSelect={(_e) => {
-                              const currentValue = field.state.value;
-                              field.setValue(`${currentValue}#${tag.name}`);
-                            }}
-                            // keywords={[tag.name]}
-                          >
-                            {tag.name}
-                          </CommandItem>
-                        );
-                      })}
+                      {isDialogOpen &&
+                        currentTags?.map((tag) => {
+                          return (
+                            <CommandItem
+                              key={tag.id}
+                              onSelect={(_e) => {
+                                const currentInput = field.state.value;
+
+                                const words = currentInput.split(" ");
+                                const allWordsExceptLast = words.slice(
+                                  0,
+                                  words.length - 1
+                                );
+                                const stringifyWords =
+                                  allWordsExceptLast.join(" ");
+
+                                field.setValue(
+                                  `${stringifyWords} #${tag.name} `
+                                );
+
+                                setIsDialogOpen(false);
+                                setCurrentTags([]);
+                              }}
+                            >
+                              {tag.name}
+                            </CommandItem>
+                          );
+                        })}
                     </CommandGroup>
                   </CommandList>
                 }
