@@ -307,6 +307,8 @@ function RouteComponent() {
                   >
                     <CardContent>
                       {currentTags?.map((tag) => {
+                        const isSelected = selectedTag?.id === tag.id;
+
                         return (
                           <div
                             key={tag.id}
@@ -314,7 +316,15 @@ function RouteComponent() {
                               "w-full hover:cursor-pointer",
                               selectedTag?.id === tag.id && "bg-foreground/10"
                             )}
-                            onMouseEnter={() => {
+                            ref={(e) => {
+                              if (isSelected) {
+                                e?.scrollIntoView({
+                                  behavior: "smooth",
+                                  block: "nearest",
+                                });
+                              }
+                            }}
+                            onMouseEnter={(_e) => {
                               setSelectedTag(tag);
                             }}
                             onClick={() => {
