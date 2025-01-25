@@ -24,6 +24,24 @@
     --destructive-foreground: 210 40% 98%;
     --ring: 215 20.2% 65.1%;
     --radius: 0.5rem;
+
+    --tag-color-1: 0 84% 60%;
+    --tag-color-2: 25 95% 53%;
+    --tag-color-3: 38 92% 50%;
+    --tag-color-4: 53 79% 64%;
+    --tag-color-5: 84 81% 44%;
+    --tag-color-6: 142 71% 45%;
+    --tag-color-7: 160 84% 39%;
+    --tag-color-8: 173 80% 40%;
+    --tag-color-9: 189 94% 43%;
+    --tag-color-10: 199 89% 48%;
+    --tag-color-11: 217 91% 60%;
+    --tag-color-12: 239 84% 67%;
+    --tag-color-13: 258 90% 66%;
+    --tag-color-14: 271 91% 65%;
+    --tag-color-15: 292 84% 61%;
+    --tag-color-16: 330 81% 64%;
+    --tag-color-17: 350 89% 60%;
   }
 
   .dark {
@@ -46,6 +64,24 @@
     --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
     --ring: 216 34% 17%;
+
+    --tag-color-1: 0 58% 50%;
+    --tag-color-2: 25 65% 40%;
+    --tag-color-3: 38 60% 40%;
+    --tag-color-4: 53 50% 50%;
+    --tag-color-5: 84 48% 35%;
+    --tag-color-6: 142 45% 40%;
+    --tag-color-7: 160 54% 35%;
+    --tag-color-8: 173 52% 35%;
+    --tag-color-9: 189 60% 38%;
+    --tag-color-10: 199 55% 42%;
+    --tag-color-11: 217 60% 50%;
+    --tag-color-12: 239 50% 55%;
+    --tag-color-13: 258 55% 55%;
+    --tag-color-14: 271 60% 54%;
+    --tag-color-15: 292 58% 50%;
+    --tag-color-16: 330 55% 52%;
+    --tag-color-17: 350 60% 50%;
   }
 }
 
