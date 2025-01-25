@@ -31,6 +31,7 @@ import { TAllTags } from "@/types/tables.types";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useOnClickOutside } from "usehooks-ts";
+// import RecommendCard from "@/components/RecommendCard";
 
 export const Route = createFileRoute("/_authed/todo/$id")({
   beforeLoad: async ({ context }) => {
@@ -366,6 +367,28 @@ function RouteComponent() {
                     </CardContent>
                   </Card>
                 )}
+                {/* {isDialogOpen && (
+                  <RecommendCard
+                    list={currentTags}
+                    selected={selectedTag}
+                    onSelect={(tag) => {
+                      const currentTodo = form.state.values.todo;
+                      const words = currentTodo.split(" ");
+                      const allWordsExceptLast = words.slice(
+                        0,
+                        words.length - 1
+                      );
+                      const stringifyWords = allWordsExceptLast.join(" ");
+                      form.setFieldValue(
+                        "todo",
+                        `${stringifyWords} #${tag.name}`
+                      );
+                      setSelectedTag(tag);
+                      setIsDialogOpen(false);
+                    }}
+                    onMouseEnter={(_e) => setSelectedTag(tag)}
+                  />
+                )} */}
               </div>
             );
           }}
