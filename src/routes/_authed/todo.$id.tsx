@@ -5,7 +5,6 @@ import {
   useNavigate,
   useRouter,
 } from "@tanstack/react-router";
-
 import { cn, dateTomorrow, dateYesterday, formatDate } from "@/lib/utils";
 import {
   Popover,
@@ -31,10 +30,9 @@ import { TAllTags } from "@/types/tables.types";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useOnClickOutside } from "usehooks-ts";
-import { Trash } from "lucide-react";
+// import { Trash } from "lucide-react";
 import TodoTask from "@/components/TodoTask";
 import Tag from "@/components/Tag";
-// import RecommendCard from "@/components/RecommendCard";
 
 export const Route = createFileRoute("/_authed/todo/$id")({
   beforeLoad: async ({ context }) => {
@@ -70,7 +68,6 @@ function RouteComponent() {
   const { data: tags } = useSuspenseQuery(
     tagsQueryOptions(context?.auth.user?.id!, date)
   );
-  console.log(tags);
 
   const { data: allTags } = useSuspenseQuery(
     tagsAllQueryOptions(context?.auth.user?.id!)
@@ -108,7 +105,6 @@ function RouteComponent() {
   }, [hoveredDate]);
 
   React.useEffect(() => {
-    console.log(currentTag);
     const currentWord = currentTag.substring(1);
     if (currentWord) {
       const filteredList =
@@ -393,10 +389,8 @@ function RouteComponent() {
               return (
                 <li key={tag.id}>
                   <Tag
+                    size="lg"
                     colorNumber={tag.color}
-                    // tagData={tag}
-                    // tagData={allTags}
-                    // className="border-solid border-tag-1/40 bg-tag-1/20 hover:bg-tag-1/40 transition-color duration-200 ease-in border p-2 hover:cursor-pointer rounded-lg"
                     onClick={() => console.log(tag.name)}
                   >
                     {tag.name}
@@ -414,8 +408,10 @@ function RouteComponent() {
                   key={todo.id}
                   className="flex justify-between gap-5 w-full mb-2"
                 >
-                  <div
-                    onClick={() => {
+                  <TodoTask
+                    todo={todo}
+                    tags={allTags}
+                    completionAction={() => {
                       if (isCompleteMutation.isPending) {
                         return;
                       }
@@ -426,15 +422,10 @@ function RouteComponent() {
                       };
                       isCompleteMutation.mutate(data);
                     }}
-                    className={cn(
-                      "hover:cursor-pointer",
-                      todo?.status && "line-through"
-                    )}
-                  >
-                    <TodoTask todo={todo.todo} tags={allTags} />
-                  </div>
+                  />
+
                   <Button
-                    asChild
+                    // asChild
                     onClick={() => {
                       const data = {
                         todo_id: todo.id,
@@ -443,7 +434,7 @@ function RouteComponent() {
                       deleteMutation.mutate(data);
                     }}
                   >
-                    <Trash />
+                    Delete
                   </Button>
                 </li>
               );
