@@ -11,18 +11,21 @@ export type Database = {
     Tables: {
       tags: {
         Row: {
+          color: number
           created_at: string | null
           id: number
           name: string
           user_id: string
         }
         Insert: {
+          color?: number
           created_at?: string | null
           id?: number
           name: string
           user_id: string
         }
         Update: {
+          color?: number
           created_at?: string | null
           id?: number
           name?: string
@@ -103,7 +106,7 @@ export type Database = {
         Returns: {
           id: number
           name: string
-          created_at: string
+          color: number
         }[]
       }
     }

@@ -31,6 +31,9 @@ import { TAllTags } from "@/types/tables.types";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useOnClickOutside } from "usehooks-ts";
+import { Trash } from "lucide-react";
+import TodoTask from "@/components/TodoTask";
+import Tag from "@/components/Tag";
 // import RecommendCard from "@/components/RecommendCard";
 
 export const Route = createFileRoute("/_authed/todo/$id")({
@@ -67,6 +70,7 @@ function RouteComponent() {
   const { data: tags } = useSuspenseQuery(
     tagsQueryOptions(context?.auth.user?.id!, date)
   );
+  console.log(tags);
 
   const { data: allTags } = useSuspenseQuery(
     tagsAllQueryOptions(context?.auth.user?.id!)
@@ -367,28 +371,6 @@ function RouteComponent() {
                     </CardContent>
                   </Card>
                 )}
-                {/* {isDialogOpen && (
-                  <RecommendCard
-                    list={currentTags}
-                    selected={selectedTag}
-                    onSelect={(tag) => {
-                      const currentTodo = form.state.values.todo;
-                      const words = currentTodo.split(" ");
-                      const allWordsExceptLast = words.slice(
-                        0,
-                        words.length - 1
-                      );
-                      const stringifyWords = allWordsExceptLast.join(" ");
-                      form.setFieldValue(
-                        "todo",
-                        `${stringifyWords} #${tag.name}`
-                      );
-                      setSelectedTag(tag);
-                      setIsDialogOpen(false);
-                    }}
-                    onMouseEnter={(_e) => setSelectedTag(tag)}
-                  />
-                )} */}
               </div>
             );
           }}
@@ -406,15 +388,19 @@ function RouteComponent() {
       </form>
       <Suspense fallback={<div className="animate-spin h-5 w-5 ">loading</div>}>
         <div>
-          <ul className="flex gap-2 ">
+          <ul className="flex gap-2 my-5">
             {tags?.map((tag) => {
               return (
-                <li
-                  key={tag.id}
-                  className="border-solid border-black border p-2 hover:cursor-pointer"
-                  onClick={() => console.log(tag.name)}
-                >
-                  {tag.name}
+                <li key={tag.id}>
+                  <Tag
+                    colorNumber={tag.color}
+                    // tagData={tag}
+                    // tagData={allTags}
+                    // className="border-solid border-tag-1/40 bg-tag-1/20 hover:bg-tag-1/40 transition-color duration-200 ease-in border p-2 hover:cursor-pointer rounded-lg"
+                    onClick={() => console.log(tag.name)}
+                  >
+                    {tag.name}
+                  </Tag>
                 </li>
               );
             })}
@@ -422,43 +408,46 @@ function RouteComponent() {
         </div>
         <ul className="max-w-5xl w-full px-5">
           {data &&
-            data?.map((todo) => (
-              <li
-                key={todo.id}
-                className="flex justify-between gap-5 w-full mb-2"
-              >
-                <p
-                  onClick={() => {
-                    if (isCompleteMutation.isPending) {
-                      return;
-                    }
-                    const data = {
-                      user_id: context.auth.user?.id!,
-                      todo_id: todo.id,
-                      status: !todo?.status,
-                    };
-                    isCompleteMutation.mutate(data);
-                  }}
-                  className={cn(
-                    "hover:cursor-pointer",
-                    todo?.status && "line-through"
-                  )}
+            data?.map((todo) => {
+              return (
+                <li
+                  key={todo.id}
+                  className="flex justify-between gap-5 w-full mb-2"
                 >
-                  {todo?.todo}
-                </p>
-                <Button
-                  onClick={() => {
-                    const data = {
-                      todo_id: todo.id,
-                      user_id: context.auth.user?.id!,
-                    };
-                    deleteMutation.mutate(data);
-                  }}
-                >
-                  Delete
-                </Button>
-              </li>
-            ))}
+                  <div
+                    onClick={() => {
+                      if (isCompleteMutation.isPending) {
+                        return;
+                      }
+                      const data = {
+                        user_id: context.auth.user?.id!,
+                        todo_id: todo.id,
+                        status: !todo?.status,
+                      };
+                      isCompleteMutation.mutate(data);
+                    }}
+                    className={cn(
+                      "hover:cursor-pointer",
+                      todo?.status && "line-through"
+                    )}
+                  >
+                    <TodoTask todo={todo.todo} tags={allTags} />
+                  </div>
+                  <Button
+                    asChild
+                    onClick={() => {
+                      const data = {
+                        todo_id: todo.id,
+                        user_id: context.auth.user?.id!,
+                      };
+                      deleteMutation.mutate(data);
+                    }}
+                  >
+                    <Trash />
+                  </Button>
+                </li>
+              );
+            })}
         </ul>
       </Suspense>
     </>
