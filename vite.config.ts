@@ -8,7 +8,10 @@ export default defineConfig({
   plugins: [react(), TanStackRouterVite()],
   server: {
     port: 3000,
-    open: true
+    open: true,
+  },
+  esbuild: {
+    drop: ["console"],
   },
   resolve: {
     alias: {
