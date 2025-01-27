@@ -42,6 +42,12 @@ export const Route = createFileRoute("/_authed/todo/$id")({
   component: RouteComponent,
 });
 
+// const inputReducer = (state: {isOpen: boolean, tag: string, displayedTag: TAllTags[], }, action: string) => {
+//   switch (action) {
+//     case ""
+//   }
+// }
+
 function RouteComponent() {
   const context = Route.useRouteContext();
   const router = useRouter();
@@ -79,6 +85,14 @@ function RouteComponent() {
   const [currentTags, setCurrentTags] = React.useState<TAllTags[] | null>(null);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [selectedTag, setSelectedTag] = React.useState<TAllTags | null>(null);
+
+  // const [state, dispatch] = React.useReducer(inputReducer, {
+  //   isOpen: false,
+  //   tag: "",
+  //   displayedTags: [],
+  //   selectedTag: null
+  // })
+
   useOnClickOutside(tagsListRef, () => {
     setIsDialogOpen(false);
   });
