@@ -3,6 +3,15 @@ import type { TAllTags } from "@/types/tables.types";
 import Tag from "@/components/Tag";
 import type { TTodos } from "@/types/tables.types";
 import { cn } from "@/lib/utils";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import "@/styles/app.css";
+import { TColorTypes } from "@/types/color.types";
+import { updateColor } from "@/lib/supabase/tags";
+import { useRouteContext } from "@tanstack/react-router";
 
 type PropTypes = {
   todo: TTodos;
@@ -15,23 +24,17 @@ const TodoTask = ({ todo, tags, completionAction }: PropTypes) => {
     if (task[0] === "#") {
       const removedHashtag = task.slice(1);
 
-      const colorNumber =
-        tags?.find((tag) => tag.name === removedHashtag)?.color || null;
+      const tag = tags?.find((tag) => tag.name === removedHashtag) || null;
 
       return (
-        <Tag
-          key={index}
-          colorNumber={colorNumber}
-          onClick={() => {
-            const tagId = tags?.find((tag) => tag.name === removedHashtag)?.id;
-
-            if (tagId) {
-              console.log(tagId);
-            }
-          }}
-        >
-          {removedHashtag}
-        </Tag>
+        <Popover key={index}>
+          <PopoverTrigger>
+            <Tag colorNumber={tag?.color || 1}>{removedHashtag}</Tag>
+          </PopoverTrigger>
+          <PopoverContent className="mt-1 w-50 h-50" align="start">
+            <TagThemeSelector currentTag={tag} />
+          </PopoverContent>
+        </Popover>
       );
     } else {
       return (
@@ -47,6 +50,64 @@ const TodoTask = ({ todo, tags, completionAction }: PropTypes) => {
   });
 
   return <p className="flex flex-row items-center gap-1">{tasks}</p>;
+};
+
+const themeButtonVariants = {
+  1: "bg-tag-1 hover:bg-tag-1/20",
+  2: "bg-tag-2 hover:bg-tag-2/20",
+  3: "bg-tag-3 hover:bg-tag-3/20",
+  4: "bg-tag-4 hover:bg-tag-4/20",
+  5: "bg-tag-5 hover:bg-tag-5/20",
+  6: "bg-tag-6 hover:bg-tag-6/20",
+  7: "bg-tag-7 hover:bg-tag-7/20",
+  8: "bg-tag-8 hover:bg-tag-8/20",
+  9: "bg-tag-9 hover:bg-tag-9/20",
+  10: "bg-tag-10 hover:bg-tag-10/20",
+  11: "bg-tag-11 hover:bg-tag-11/20",
+  12: "bg-tag-12 hover:bg-tag-12/20",
+  13: "bg-tag-13 hover:bg-tag-13/20",
+  14: "bg-tag-14 hover:bg-tag-14/20",
+  15: "bg-tag-15 hover:bg-tag-15/20",
+  16: "bg-tag-16 hover:bg-tag-16/20",
+  17: "bg-tag-17 hover:bg-tag-17/20",
+} as const;
+
+const TagThemeSelector = ({ currentTag }: { currentTag: TAllTags | null }) => {
+  const tags = Array.from({ length: 17 }, (_, index) => {
+    const numberedColor = (index + 1) as TColorTypes;
+    const theme = themeButtonVariants[numberedColor];
+    const { queryClient, auth } = useRouteContext({
+      from: "/_authed/todo/$id",
+    });
+
+    return (
+      <div
+        key={numberedColor}
+        className={cn(
+          `border border-solid rounded-full  hover:cursor-pointer h-4 w-4 transition-all duration-300 ease-in-out z-20`,
+          theme
+        )}
+        onClick={async () => {
+          const isSameColor = currentTag?.color === numberedColor;
+          if (!isSameColor && currentTag) {
+            await updateColor(currentTag?.id, numberedColor);
+            queryClient.invalidateQueries({
+              queryKey: ["tags", auth.user?.id],
+            });
+          }
+        }}
+      />
+    );
+  });
+
+  return (
+    <div className="h-40 w-40">
+      <p>{currentTag?.name}</p>
+      <div className={cn("grid grid-cols-5 py-1 px-4 gap-1 rounded")}>
+        {tags}
+      </div>
+    </div>
+  );
 };
 
 export default TodoTask;

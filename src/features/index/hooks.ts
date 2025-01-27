@@ -1,7 +1,7 @@
 import { extractHashtag } from "@/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { TTags, TTodos } from "@/types/tables.types";
-import {addTodos, deleteTodo, updateIsComplete} from "@/lib/supabase"
+import { addTodos, deleteTodo, updateIsComplete } from "@/lib/supabase";
 
 const useIndexMutations = (user_id: string, date: string) => {
   const queryClient = useQueryClient();
@@ -11,10 +11,10 @@ const useIndexMutations = (user_id: string, date: string) => {
       const mutationData = {
         ...data,
         user_id,
-        date
-      }
-      const res = await addTodos(mutationData)
-      return res
+        date,
+      };
+      const res = await addTodos(mutationData);
+      return res;
     },
     onMutate: async (data) => {
       const newHashtags = extractHashtag(data.todo);

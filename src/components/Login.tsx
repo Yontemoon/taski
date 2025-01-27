@@ -12,9 +12,7 @@ export function Login() {
 
   const loginMutation = useMutation({
     fn: async ({ data }: any) => {
-      console.log(data);
       const res = await auth.signIn(data.email, data.password);
-      console.log(res);
       return res;
     },
     onSuccess: async (ctx) => {

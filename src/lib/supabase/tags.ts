@@ -27,11 +27,30 @@ const getTagsByDate = async (user_id: string, date: string) => {
     if (error) {
       throw new Error(error.message);
     }
-    console.log(tags);
     return tags;
   } catch (error) {
     console.error("Error in getTags", error);
     return null;
   }
 };
-export { getAllTags, getTagsByDate };
+
+const updateColor = async (tagId: number, color: number) => {
+  try {
+    const { error } = await supabase.from("tags").update({ color: color }).eq(
+      "id",
+      tagId,
+    );
+
+    if (error) {
+      throw new Error(error.message);
+    }
+  } catch (error) {
+    console.error("Error in updateColor");
+    return {
+      status: 400,
+      message: error,
+    };
+  }
+};
+
+export { getAllTags, getTagsByDate, updateColor };

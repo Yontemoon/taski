@@ -12,7 +12,6 @@ const getTodos = async (user_id: string, date: string) => {
     if (error) {
       throw new Error(error.message);
     }
-    console.log(todos);
     return todos || [];
   } catch (error) {
     console.error("Error in getTodos", error);
@@ -125,11 +124,4 @@ const getTags = async (user_id: string) => {
   }
 };
 
-
-export {
-  addTodos,
-  deleteTodo,
-  getTags,
-  getTodos,
-  updateIsComplete,
-};
+export { addTodos, deleteTodo, getTags, getTodos, updateIsComplete };

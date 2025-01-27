@@ -33,7 +33,6 @@ function LoginComp() {
       try {
         setIsLoading(true);
         const res = await auth.signIn(value.email, value.password);
-        console.log(res);
         if (typeof res !== "string") {
           await router.invalidate();
           await navigate({

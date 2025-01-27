@@ -30,7 +30,6 @@ import { TAllTags } from "@/types/tables.types";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useOnClickOutside } from "usehooks-ts";
-// import { Trash } from "lucide-react";
 import TodoTask from "@/components/TodoTask";
 import Tag from "@/components/Tag";
 
