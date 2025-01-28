@@ -343,17 +343,20 @@ function RouteComponent() {
                           break;
                         case "ArrowUp":
                           e.preventDefault();
-                          if (state.allTags) {
-                            const tagIndex = state.allTags?.findIndex(
+                          if (state.displayedTags && state.allTags) {
+                            const tagIndex = state.displayedTags?.findIndex(
                               (tag) => tag.id === state.selectedTag?.id
                             );
+
                             if (tagIndex === 0) {
                               dispatch({
                                 type: "set-seleted-tag",
                                 payload:
-                                  state.allTags[state.allTags.length - 1],
+                                  state.displayedTags[
+                                    state.displayedTags?.length - 1
+                                  ],
                               });
-                            } else {
+                            } else if (tagIndex) {
                               const nextTag = state.allTags[tagIndex - 1];
 
                               dispatch({
