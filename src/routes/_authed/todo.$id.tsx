@@ -42,11 +42,89 @@ export const Route = createFileRoute("/_authed/todo/$id")({
   component: RouteComponent,
 });
 
-// const inputReducer = (state: {isOpen: boolean, tag: string, displayedTag: TAllTags[], }, action: string) => {
-//   switch (action) {
-//     case ""
-//   }
-// }
+type TPayloadInput = {
+  isOpen: boolean;
+  tag: string;
+  displayedTags: TAllTags[] | null;
+  selectedTag: TAllTags | null;
+  allTags: TAllTags[] | null;
+};
+
+type InputActions =
+  | {
+      type: "present-tag";
+      payload: string;
+    }
+  | {
+      type: "hide-tags";
+    }
+  | {
+      type: "set-displayed-tags";
+      payload: TAllTags[] | null;
+    }
+  | {
+      type: "set-seleted-tag";
+      payload: TAllTags | null;
+    }
+  | {
+      type: "set-allTags";
+      payload: TAllTags[];
+    }
+  | {
+      type: "set-tags";
+      payload: TAllTags;
+    };
+
+const inputReducer = (state: TPayloadInput, action: InputActions) => {
+  switch (action.type) {
+    case "set-allTags":
+      return {
+        ...state,
+        allTags: action.payload,
+      };
+    case "present-tag":
+      const currentWord = action.payload.substring(1);
+      const filteredList =
+        state.allTags?.filter((tag) =>
+          tag.name.toLowerCase().includes(currentWord.toLowerCase())
+        ) || state.allTags;
+      const firstTag = filteredList ? filteredList[0] : null;
+
+      return {
+        ...state,
+        isOpen: true,
+        tag: action.payload,
+        selectedTag: firstTag,
+        displayedTags: filteredList,
+      };
+
+    case "set-tags":
+      return {
+        ...state,
+        selectedTag: action.payload,
+      };
+
+    case "hide-tags":
+      return {
+        ...state,
+        isOpen: false,
+        tag: "",
+        displayedTags: null,
+        selectedTag: null,
+      };
+
+    case "set-displayed-tags":
+      return {
+        ...state,
+        displayedTags: action.payload,
+      };
+    case "set-seleted-tag":
+      return {
+        ...state,
+        selectedTag: action.payload,
+      };
+  }
+};
 
 function RouteComponent() {
   const context = Route.useRouteContext();
@@ -81,20 +159,22 @@ function RouteComponent() {
   const navigate = useNavigate({ from: Route.fullPath });
   const [hoveredDate, setHoveredDate] = React.useState<string | null>(null);
 
-  const [currentTag, setCurrentTag] = React.useState("");
-  const [currentTags, setCurrentTags] = React.useState<TAllTags[] | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-  const [selectedTag, setSelectedTag] = React.useState<TAllTags | null>(null);
+  const [state, dispatch] = React.useReducer(inputReducer, {
+    isOpen: false,
+    tag: "",
+    displayedTags: null,
+    selectedTag: null,
+    allTags: null,
+  });
 
-  // const [state, dispatch] = React.useReducer(inputReducer, {
-  //   isOpen: false,
-  //   tag: "",
-  //   displayedTags: [],
-  //   selectedTag: null
-  // })
+  React.useEffect(() => {
+    if (allTags) {
+      dispatch({ type: "set-allTags", payload: allTags });
+    }
+  }, [allTags]);
 
   useOnClickOutside(tagsListRef, () => {
-    setIsDialogOpen(false);
+    dispatch({ type: "hide-tags" });
   });
 
   React.useEffect(() => {
@@ -117,23 +197,6 @@ function RouteComponent() {
     }
   }, [hoveredDate]);
 
-  React.useEffect(() => {
-    const currentWord = currentTag.substring(1);
-    if (currentWord) {
-      const filteredList =
-        allTags?.filter((tag) =>
-          tag.name.toLowerCase().includes(currentWord.toLowerCase())
-        ) || allTags;
-      setCurrentTags(filteredList);
-      if (filteredList && filteredList.length > 0) {
-        const firstTag = filteredList[0];
-        setSelectedTag(firstTag);
-      }
-    } else {
-      setCurrentTags(allTags);
-    }
-  }, [currentTag]);
-
   const { addMutation, deleteMutation, isCompleteMutation } = useIndexMutations(
     context.auth?.user?.id!,
     date
@@ -144,6 +207,7 @@ function RouteComponent() {
     e.stopPropagation();
     await form.handleSubmit();
     form.reset();
+    dispatch({ type: "hide-tags" });
   };
 
   return (
@@ -213,7 +277,7 @@ function RouteComponent() {
         onKeyDown={(e) => {
           switch (e.key) {
             case "Enter":
-              if (isDialogOpen) {
+              if (state.isOpen) {
                 e.preventDefault();
 
                 const currentTodo = form.state.values.todo;
@@ -222,10 +286,9 @@ function RouteComponent() {
                 const stringifyWords = allWordsExceptLast.join(" ");
                 form.setFieldValue(
                   "todo",
-                  `${stringifyWords} #${selectedTag?.name}`
+                  `${stringifyWords} #${state.selectedTag?.name}`
                 );
-                setIsDialogOpen(false);
-                setCurrentTags([]);
+                dispatch({ type: "hide-tags" });
                 break;
               }
           }
@@ -243,46 +306,60 @@ function RouteComponent() {
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   autoComplete="off"
-                  onFocus={() => {
-                    if (
-                      !isDialogOpen &&
-                      currentTags &&
-                      currentTags.length > 0
-                    ) {
-                      setIsDialogOpen(true);
-                    }
-                  }}
+                  // onFocus={() => {
+                  //   if (
+                  //     !isDialogOpen &&
+                  //     currentTags &&
+                  //     currentTags.length > 0
+                  //   ) {
+                  //     setIsDialogOpen(true);
+                  //   }
+                  // }}
                   onKeyDown={(e) => {
-                    if (isDialogOpen) {
+                    if (state.isOpen) {
                       switch (e.key) {
                         case "ArrowDown":
                           e.preventDefault();
-                          if (currentTags) {
-                            const tagIndex = currentTags?.findIndex(
-                              (tag) => tag.id === selectedTag?.id
+
+                          if (state.displayedTags) {
+                            const tagIndex = state.displayedTags?.findIndex(
+                              (tag) => tag.id === state.selectedTag?.id
                             );
-                            if (tagIndex === currentTags.length - 1) {
-                              setSelectedTag(currentTags[0]);
+                            if (tagIndex === state.displayedTags.length - 1) {
+                              dispatch({
+                                type: "set-seleted-tag",
+                                payload: state.displayedTags[0],
+                              });
                             } else {
-                              const nextTag = currentTags[tagIndex + 1];
-                              setSelectedTag(nextTag);
+                              const nextTag = state.displayedTags[tagIndex + 1];
+
+                              dispatch({
+                                type: "set-seleted-tag",
+                                payload: nextTag,
+                              });
                             }
                           }
 
                           break;
                         case "ArrowUp":
                           e.preventDefault();
-                          if (currentTags) {
-                            const tagIndex = currentTags?.findIndex(
-                              (tag) => tag.id === selectedTag?.id
+                          if (state.allTags) {
+                            const tagIndex = state.allTags?.findIndex(
+                              (tag) => tag.id === state.selectedTag?.id
                             );
                             if (tagIndex === 0) {
-                              setSelectedTag(
-                                currentTags[currentTags.length - 1]
-                              );
+                              dispatch({
+                                type: "set-seleted-tag",
+                                payload:
+                                  state.allTags[state.allTags.length - 1],
+                              });
                             } else {
-                              const nextTag = currentTags[tagIndex - 1];
-                              setSelectedTag(nextTag);
+                              const nextTag = state.allTags[tagIndex - 1];
+
+                              dispatch({
+                                type: "set-seleted-tag",
+                                payload: nextTag,
+                              });
                             }
                           }
                           break;
@@ -301,33 +378,30 @@ function RouteComponent() {
                     const lastWord = words[words.length - 1];
 
                     if (lastWord[0] === "#") {
-                      setIsDialogOpen(true);
-
-                      setCurrentTag(lastWord);
+                      dispatch({ type: "present-tag", payload: lastWord });
                     } else {
-                      setIsDialogOpen(false);
-                      setCurrentTag("");
-                      setCurrentTags([]);
+                      dispatch({ type: "hide-tags" });
                     }
                     field.handleChange(value);
                   }}
                 />
 
-                {isDialogOpen && (
+                {state.isOpen && (
                   <Card
                     ref={tagsListRef}
                     className="absolute z-10 max-h-52 overflow-y-auto bg-background max-w-screen-lg w-full mt-1"
                   >
                     <CardContent>
-                      {currentTags?.map((tag) => {
-                        const isSelected = selectedTag?.id === tag.id;
+                      {state.displayedTags?.map((tag) => {
+                        const isSelected = state.selectedTag?.id === tag.id;
 
                         return (
                           <div
                             key={tag.id}
                             className={cn(
                               "w-full hover:cursor-pointer",
-                              selectedTag?.id === tag.id && "bg-foreground/10"
+                              state.selectedTag?.id === tag.id &&
+                                "bg-foreground/10"
                             )}
                             ref={(e) => {
                               if (isSelected) {
@@ -338,7 +412,10 @@ function RouteComponent() {
                               }
                             }}
                             onMouseEnter={(_e) => {
-                              setSelectedTag(tag);
+                              dispatch({
+                                type: "set-seleted-tag",
+                                payload: tag,
+                              });
                             }}
                             onClick={() => {
                               const currentInput = field.state.value;
@@ -352,9 +429,10 @@ function RouteComponent() {
                                 allWordsExceptLast.join(" ");
 
                               field.setValue(`${stringifyWords} #${tag.name}`);
+                              dispatch({ type: "hide-tags" });
 
-                              setIsDialogOpen(false);
-                              setCurrentTags([]);
+                              // setIsDialogOpen(false);
+                              // setCurrentTags([]);
                             }}
                             onSelect={(_e) => {
                               const currentInput = field.state.value;
@@ -368,9 +446,9 @@ function RouteComponent() {
                                 allWordsExceptLast.join(" ");
 
                               field.setValue(`${stringifyWords} #${tag.name}`);
-
-                              setIsDialogOpen(false);
-                              setCurrentTags([]);
+                              dispatch({ type: "hide-tags" });
+                              // setIsDialogOpen(false);
+                              // setCurrentTags([]);
                             }}
                           >
                             {tag.name}
