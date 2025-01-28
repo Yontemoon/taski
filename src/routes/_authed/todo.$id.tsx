@@ -63,7 +63,7 @@ type InputActions =
       payload: TAllTags[] | null;
     }
   | {
-      type: "set-seleted-tag";
+      type: "set-selected-tag";
       payload: TAllTags | null;
     }
   | {
@@ -118,7 +118,7 @@ const inputReducer = (state: TPayloadInput, action: InputActions) => {
         ...state,
         displayedTags: action.payload,
       };
-    case "set-seleted-tag":
+    case "set-selected-tag":
       return {
         ...state,
         selectedTag: action.payload,
@@ -327,14 +327,14 @@ function RouteComponent() {
                             );
                             if (tagIndex === state.displayedTags.length - 1) {
                               dispatch({
-                                type: "set-seleted-tag",
+                                type: "set-selected-tag",
                                 payload: state.displayedTags[0],
                               });
                             } else {
                               const nextTag = state.displayedTags[tagIndex + 1];
 
                               dispatch({
-                                type: "set-seleted-tag",
+                                type: "set-selected-tag",
                                 payload: nextTag,
                               });
                             }
@@ -350,7 +350,7 @@ function RouteComponent() {
 
                             if (tagIndex === 0) {
                               dispatch({
-                                type: "set-seleted-tag",
+                                type: "set-selected-tag",
                                 payload:
                                   state.displayedTags[
                                     state.displayedTags?.length - 1
@@ -360,7 +360,7 @@ function RouteComponent() {
                               const nextTag = state.allTags[tagIndex - 1];
 
                               dispatch({
-                                type: "set-seleted-tag",
+                                type: "set-selected-tag",
                                 payload: nextTag,
                               });
                             }
@@ -416,7 +416,7 @@ function RouteComponent() {
                             }}
                             onMouseEnter={(_e) => {
                               dispatch({
-                                type: "set-seleted-tag",
+                                type: "set-selected-tag",
                                 payload: tag,
                               });
                             }}
@@ -433,9 +433,6 @@ function RouteComponent() {
 
                               field.setValue(`${stringifyWords} #${tag.name}`);
                               dispatch({ type: "hide-tags" });
-
-                              // setIsDialogOpen(false);
-                              // setCurrentTags([]);
                             }}
                             onSelect={(_e) => {
                               const currentInput = field.state.value;
@@ -450,8 +447,6 @@ function RouteComponent() {
 
                               field.setValue(`${stringifyWords} #${tag.name}`);
                               dispatch({ type: "hide-tags" });
-                              // setIsDialogOpen(false);
-                              // setCurrentTags([]);
                             }}
                           >
                             {tag.name}
@@ -519,7 +514,6 @@ function RouteComponent() {
                   />
 
                   <Button
-                    // asChild
                     onClick={() => {
                       const data = {
                         todo_id: todo.id,
