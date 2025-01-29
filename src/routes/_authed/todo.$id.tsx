@@ -56,6 +56,12 @@ type InputActions =
       payload: string;
     }
   | {
+      type: "restart-tags";
+    }
+  | {
+      type: "show-vision";
+    }
+  | {
       type: "hide-tags";
     }
   | {
@@ -104,7 +110,7 @@ const inputReducer = (state: TPayloadInput, action: InputActions) => {
         selectedTag: action.payload,
       };
 
-    case "hide-tags":
+    case "restart-tags":
       return {
         ...state,
         isOpen: false,
@@ -112,7 +118,17 @@ const inputReducer = (state: TPayloadInput, action: InputActions) => {
         displayedTags: null,
         selectedTag: null,
       };
+    case "hide-tags":
+      return {
+        ...state,
+        isOpen: false,
+      };
 
+    case "show-vision":
+      return {
+        ...state,
+        isOpen: true,
+      };
     case "set-displayed-tags":
       return {
         ...state,
@@ -207,7 +223,7 @@ function RouteComponent() {
     e.stopPropagation();
     await form.handleSubmit();
     form.reset();
-    dispatch({ type: "hide-tags" });
+    dispatch({ type: "restart-tags" });
   };
 
   return (
@@ -288,7 +304,7 @@ function RouteComponent() {
                   "todo",
                   `${stringifyWords} #${state.selectedTag?.name}`
                 );
-                dispatch({ type: "hide-tags" });
+                dispatch({ type: "restart-tags" });
                 break;
               }
           }
@@ -306,15 +322,11 @@ function RouteComponent() {
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   autoComplete="off"
-                  // onFocus={() => {
-                  //   if (
-                  //     !isDialogOpen &&
-                  //     currentTags &&
-                  //     currentTags.length > 0
-                  //   ) {
-                  //     setIsDialogOpen(true);
-                  //   }
-                  // }}
+                  onFocus={(_e) => {
+                    if (state.tag.length > 0) {
+                      dispatch({ type: "show-vision" });
+                    }
+                  }}
                   onKeyDown={(e) => {
                     if (state.isOpen) {
                       switch (e.key) {
@@ -367,10 +379,11 @@ function RouteComponent() {
                           }
                           break;
                         case "ArrowRight":
-                          e.preventDefault();
+                          // e.preventDefault();
+
                           break;
                         case "ArrowLeft":
-                          e.preventDefault();
+                          // e.preventDefault();
                           break;
                       }
                     }
@@ -383,7 +396,7 @@ function RouteComponent() {
                     if (lastWord[0] === "#") {
                       dispatch({ type: "present-tag", payload: lastWord });
                     } else {
-                      dispatch({ type: "hide-tags" });
+                      dispatch({ type: "restart-tags" });
                     }
                     field.handleChange(value);
                   }}
@@ -391,6 +404,7 @@ function RouteComponent() {
 
                 {state.isOpen && (
                   <Card
+                    // open={state.isOpen}
                     ref={tagsListRef}
                     className="absolute z-10 max-h-52 overflow-y-auto bg-background max-w-screen-lg w-full mt-1"
                   >
@@ -402,7 +416,7 @@ function RouteComponent() {
                           <div
                             key={tag.id}
                             className={cn(
-                              "w-full hover:cursor-pointer",
+                              "w-full hover:cursor-pointer px-2 py-1 rounded-lg items-center",
                               state.selectedTag?.id === tag.id &&
                                 "bg-foreground/10"
                             )}
@@ -432,7 +446,7 @@ function RouteComponent() {
                                 allWordsExceptLast.join(" ");
 
                               field.setValue(`${stringifyWords} #${tag.name}`);
-                              dispatch({ type: "hide-tags" });
+                              dispatch({ type: "restart-tags" });
                             }}
                             onSelect={(_e) => {
                               const currentInput = field.state.value;
@@ -446,7 +460,7 @@ function RouteComponent() {
                                 allWordsExceptLast.join(" ");
 
                               field.setValue(`${stringifyWords} #${tag.name}`);
-                              dispatch({ type: "hide-tags" });
+                              dispatch({ type: "restart-tags" });
                             }}
                           >
                             {tag.name}
