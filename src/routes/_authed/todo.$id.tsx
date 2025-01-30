@@ -22,7 +22,10 @@ import { ArrowLeft, ArrowRight, CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { parse } from "date-fns";
 import React, { Suspense } from "react";
-import { useIndexMutations } from "@/features/index/hooks";
+import {
+  useIndexMutations,
+  useTagSelectionReducer,
+} from "@/features/index/hooks";
 import { useForm } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
@@ -31,8 +34,6 @@ import {
   todosQueryOptions,
 } from "@/lib/options";
 import { getTodos } from "@/lib/supabase/index";
-
-import { TAllTags } from "@/types/tables.types";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useOnClickOutside } from "usehooks-ts";
@@ -48,106 +49,6 @@ export const Route = createFileRoute("/_authed/todo/$id")({
   },
   component: RouteComponent,
 });
-
-type TPayloadInput = {
-  isOpen: boolean;
-  tag: string;
-  displayedTags: TAllTags[] | null;
-  selectedTag: TAllTags | null;
-  allTags: TAllTags[] | null;
-};
-
-type InputActions =
-  | {
-      type: "present-tag";
-      payload: string;
-    }
-  | {
-      type: "restart-tags";
-    }
-  | {
-      type: "show-vision";
-    }
-  | {
-      type: "hide-tags";
-    }
-  | {
-      type: "set-displayed-tags";
-      payload: TAllTags[] | null;
-    }
-  | {
-      type: "set-selected-tag";
-      payload: TAllTags | null;
-    }
-  | {
-      type: "set-allTags";
-      payload: TAllTags[];
-    }
-  | {
-      type: "set-tags";
-      payload: TAllTags;
-    };
-
-const inputReducer = (state: TPayloadInput, action: InputActions) => {
-  switch (action.type) {
-    case "set-allTags":
-      return {
-        ...state,
-        allTags: action.payload,
-      };
-    case "present-tag":
-      const currentWord = action.payload.substring(1);
-      const filteredList =
-        state.allTags?.filter((tag) =>
-          tag.name.toLowerCase().includes(currentWord.toLowerCase())
-        ) || state.allTags;
-      const firstTag = filteredList ? filteredList[0] : null;
-
-      return {
-        ...state,
-        isOpen: true,
-        tag: action.payload,
-        selectedTag: firstTag,
-        displayedTags: filteredList,
-      };
-
-    case "set-tags":
-      return {
-        ...state,
-        selectedTag: action.payload,
-      };
-
-    case "restart-tags":
-      return {
-        ...state,
-        isOpen: false,
-        tag: "",
-        displayedTags: null,
-        selectedTag: null,
-      };
-    case "hide-tags":
-      return {
-        ...state,
-        isOpen: false,
-      };
-
-    case "show-vision":
-      return {
-        ...state,
-        isOpen: true,
-      };
-    case "set-displayed-tags":
-      return {
-        ...state,
-        displayedTags: action.payload,
-      };
-    case "set-selected-tag":
-      return {
-        ...state,
-        selectedTag: action.payload,
-      };
-  }
-};
 
 function RouteComponent() {
   const context = Route.useRouteContext();
@@ -182,13 +83,7 @@ function RouteComponent() {
   const navigate = useNavigate({ from: Route.fullPath });
   const [hoveredDate, setHoveredDate] = React.useState<string | null>(null);
 
-  const [state, dispatch] = React.useReducer(inputReducer, {
-    isOpen: false,
-    tag: "",
-    displayedTags: null,
-    selectedTag: null,
-    allTags: null,
-  });
+  const { dispatch, state } = useTagSelectionReducer();
 
   React.useEffect(() => {
     if (allTags) {

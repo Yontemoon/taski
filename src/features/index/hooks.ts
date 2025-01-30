@@ -1,7 +1,8 @@
 import { extractHashtag } from "@/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { TTags, TTodos } from "@/types/tables.types";
+import type { TAllTags, TTags, TTodos } from "@/types/tables.types";
 import { addTodos, deleteTodo, updateIsComplete } from "@/lib/supabase";
+import React from "react";
 
 const useIndexMutations = (user_id: string, date: string) => {
   const queryClient = useQueryClient();
@@ -117,4 +118,116 @@ const useIndexMutations = (user_id: string, date: string) => {
   return { addMutation, isCompleteMutation, deleteMutation };
 };
 
-export { useIndexMutations };
+type TPayloadInput = {
+  isOpen: boolean;
+  tag: string;
+  displayedTags: TAllTags[] | null;
+  selectedTag: TAllTags | null;
+  allTags: TAllTags[] | null;
+};
+
+type InputActions =
+  | {
+    type: "present-tag";
+    payload: string;
+  }
+  | {
+    type: "restart-tags";
+  }
+  | {
+    type: "show-vision";
+  }
+  | {
+    type: "hide-tags";
+  }
+  | {
+    type: "set-displayed-tags";
+    payload: TAllTags[] | null;
+  }
+  | {
+    type: "set-selected-tag";
+    payload: TAllTags | null;
+  }
+  | {
+    type: "set-allTags";
+    payload: TAllTags[];
+  }
+  | {
+    type: "set-tags";
+    payload: TAllTags;
+  };
+
+const inputReducer = (state: TPayloadInput, action: InputActions) => {
+  switch (action.type) {
+    case "set-allTags":
+      return {
+        ...state,
+        allTags: action.payload,
+      };
+    case "present-tag":
+      const currentWord = action.payload.substring(1);
+      const filteredList =
+        state.allTags?.filter((tag) =>
+          tag.name.toLowerCase().includes(currentWord.toLowerCase())
+        ) || state.allTags;
+      const firstTag = filteredList ? filteredList[0] : null;
+
+      return {
+        ...state,
+        isOpen: true,
+        tag: action.payload,
+        selectedTag: firstTag,
+        displayedTags: filteredList,
+      };
+
+    case "set-tags":
+      return {
+        ...state,
+        selectedTag: action.payload,
+      };
+
+    case "restart-tags":
+      return {
+        ...state,
+        isOpen: false,
+        tag: "",
+        displayedTags: null,
+        selectedTag: null,
+      };
+    case "hide-tags":
+      return {
+        ...state,
+        isOpen: false,
+      };
+
+    case "show-vision":
+      return {
+        ...state,
+        isOpen: true,
+      };
+    case "set-displayed-tags":
+      return {
+        ...state,
+        displayedTags: action.payload,
+      };
+    case "set-selected-tag":
+      return {
+        ...state,
+        selectedTag: action.payload,
+      };
+  }
+};
+
+const useTagSelectionReducer = () => {
+  const [state, dispatch] = React.useReducer(inputReducer, {
+    isOpen: false,
+    tag: "",
+    displayedTags: null,
+    selectedTag: null,
+    allTags: null,
+  });
+
+  return { state, dispatch };
+};
+
+export { useIndexMutations, useTagSelectionReducer };
