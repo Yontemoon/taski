@@ -1,8 +1,9 @@
 import { extractHashtag } from "@/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { TAllTags, TTags, TTodos } from "@/types/tables.types";
+import type { TTags, TTodos } from "@/types/tables.types";
 import { addTodos, deleteTodo, updateIsComplete } from "@/lib/supabase";
 import React from "react";
+import { InputActions, TPayloadInput } from "./types";
 
 const useIndexMutations = (user_id: string, date: string) => {
   const queryClient = useQueryClient();
@@ -117,45 +118,6 @@ const useIndexMutations = (user_id: string, date: string) => {
 
   return { addMutation, isCompleteMutation, deleteMutation };
 };
-
-type TPayloadInput = {
-  isOpen: boolean;
-  tag: string;
-  displayedTags: TAllTags[] | null;
-  selectedTag: TAllTags | null;
-  allTags: TAllTags[] | null;
-};
-
-type InputActions =
-  | {
-    type: "present-tag";
-    payload: string;
-  }
-  | {
-    type: "restart-tags";
-  }
-  | {
-    type: "show-vision";
-  }
-  | {
-    type: "hide-tags";
-  }
-  | {
-    type: "set-displayed-tags";
-    payload: TAllTags[] | null;
-  }
-  | {
-    type: "set-selected-tag";
-    payload: TAllTags | null;
-  }
-  | {
-    type: "set-allTags";
-    payload: TAllTags[];
-  }
-  | {
-    type: "set-tags";
-    payload: TAllTags;
-  };
 
 const inputReducer = (state: TPayloadInput, action: InputActions) => {
   switch (action.type) {
