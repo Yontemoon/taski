@@ -1,6 +1,8 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { add, format, parse, sub } from "date-fns";
+import { TColorTypes } from "@/types/color.types";
+import { classColor } from "./themes";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -28,4 +30,8 @@ export function dateTomorrow(date: string) {
 export function dateYesterday(date: string) {
   const parsedDate = parse(date, "yyyy-MM-dd", new Date());
   return sub(parsedDate, { days: 1 });
+}
+
+export function getColor(colorNumber: number) {
+  return classColor[colorNumber as TColorTypes];
 }

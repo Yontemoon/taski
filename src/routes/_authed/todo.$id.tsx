@@ -5,7 +5,13 @@ import {
   useNavigate,
   useRouter,
 } from "@tanstack/react-router";
-import { cn, dateTomorrow, dateYesterday, formatDate } from "@/lib/utils";
+import {
+  cn,
+  dateTomorrow,
+  dateYesterday,
+  formatDate,
+  getColor,
+} from "@/lib/utils";
 import {
   Popover,
   PopoverContent,
@@ -32,6 +38,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useOnClickOutside } from "usehooks-ts";
 import TodoTask from "@/components/TodoTask";
 import Tag from "@/components/Tag";
+import { Trash } from "lucide-react";
 
 export const Route = createFileRoute("/_authed/todo/$id")({
   beforeLoad: async ({ context }) => {
@@ -315,108 +322,111 @@ function RouteComponent() {
           children={(field) => {
             return (
               <div className="relative w-full">
-                <Input
-                  name="todo"
-                  id="todo-input"
-                  placeholder="Do something productive!"
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  autoComplete="off"
-                  onFocus={(_e) => {
-                    if (state.tag.length > 0) {
-                      dispatch({ type: "show-vision" });
-                    }
-                  }}
-                  onKeyDown={(e) => {
-                    if (state.isOpen) {
-                      switch (e.key) {
-                        case "ArrowDown":
-                          e.preventDefault();
-
-                          if (state.displayedTags) {
-                            const tagIndex = state.displayedTags?.findIndex(
-                              (tag) => tag.id === state.selectedTag?.id
-                            );
-                            if (tagIndex === state.displayedTags.length - 1) {
-                              dispatch({
-                                type: "set-selected-tag",
-                                payload: state.displayedTags[0],
-                              });
-                            } else {
-                              const nextTag = state.displayedTags[tagIndex + 1];
-
-                              dispatch({
-                                type: "set-selected-tag",
-                                payload: nextTag,
-                              });
-                            }
-                          }
-
-                          break;
-                        case "ArrowUp":
-                          e.preventDefault();
-                          if (state.displayedTags && state.allTags) {
-                            const tagIndex = state.displayedTags?.findIndex(
-                              (tag) => tag.id === state.selectedTag?.id
-                            );
-
-                            if (tagIndex === 0) {
-                              dispatch({
-                                type: "set-selected-tag",
-                                payload:
-                                  state.displayedTags[
-                                    state.displayedTags?.length - 1
-                                  ],
-                              });
-                            } else if (tagIndex) {
-                              const nextTag = state.allTags[tagIndex - 1];
-
-                              dispatch({
-                                type: "set-selected-tag",
-                                payload: nextTag,
-                              });
-                            }
-                          }
-                          break;
-                        case "ArrowRight":
-                          // e.preventDefault();
-
-                          break;
-                        case "ArrowLeft":
-                          // e.preventDefault();
-                          break;
+                <div>
+                  <Input
+                    name="todo"
+                    id="todo-input"
+                    placeholder="Do something productive!"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    autoComplete="off"
+                    onFocus={(_e) => {
+                      if (state.tag.length > 0) {
+                        dispatch({ type: "show-vision" });
                       }
-                    }
-                  }}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    const words = value.split(" ");
-                    const lastWord = words[words.length - 1];
+                    }}
+                    onKeyDown={(e) => {
+                      if (state.isOpen) {
+                        switch (e.key) {
+                          case "ArrowDown":
+                            e.preventDefault();
 
-                    if (lastWord[0] === "#") {
-                      dispatch({ type: "present-tag", payload: lastWord });
-                    } else {
-                      dispatch({ type: "restart-tags" });
-                    }
-                    field.handleChange(value);
-                  }}
-                />
+                            if (state.displayedTags) {
+                              const tagIndex = state.displayedTags?.findIndex(
+                                (tag) => tag.id === state.selectedTag?.id
+                              );
+                              if (tagIndex === state.displayedTags.length - 1) {
+                                dispatch({
+                                  type: "set-selected-tag",
+                                  payload: state.displayedTags[0],
+                                });
+                              } else {
+                                const nextTag =
+                                  state.displayedTags[tagIndex + 1];
+
+                                dispatch({
+                                  type: "set-selected-tag",
+                                  payload: nextTag,
+                                });
+                              }
+                            }
+
+                            break;
+                          case "ArrowUp":
+                            e.preventDefault();
+                            if (state.displayedTags && state.allTags) {
+                              const tagIndex = state.displayedTags?.findIndex(
+                                (tag) => tag.id === state.selectedTag?.id
+                              );
+
+                              if (tagIndex === 0) {
+                                dispatch({
+                                  type: "set-selected-tag",
+                                  payload:
+                                    state.displayedTags[
+                                      state.displayedTags?.length - 1
+                                    ],
+                                });
+                              } else if (tagIndex) {
+                                const nextTag = state.allTags[tagIndex - 1];
+
+                                dispatch({
+                                  type: "set-selected-tag",
+                                  payload: nextTag,
+                                });
+                              }
+                            }
+                            break;
+                          case "ArrowRight":
+                            // e.preventDefault();
+
+                            break;
+                          case "ArrowLeft":
+                            // e.preventDefault();
+                            break;
+                        }
+                      }
+                    }}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const words = value.split(" ");
+                      const lastWord = words[words.length - 1];
+
+                      if (lastWord[0] === "#") {
+                        dispatch({ type: "present-tag", payload: lastWord });
+                      } else {
+                        dispatch({ type: "restart-tags" });
+                      }
+                      field.handleChange(value);
+                    }}
+                  />
+                </div>
 
                 {state.isOpen && (
                   <Card
-                    // open={state.isOpen}
                     ref={tagsListRef}
                     className="absolute z-10 max-h-52 overflow-y-auto bg-background max-w-screen-lg w-full mt-1"
                   >
-                    <CardContent>
+                    <CardContent className="p-2">
                       {state.displayedTags?.map((tag) => {
                         const isSelected = state.selectedTag?.id === tag.id;
+                        const colorsCN = getColor(tag.color);
 
                         return (
                           <div
                             key={tag.id}
                             className={cn(
-                              "w-full hover:cursor-pointer px-2 py-1 rounded-lg items-center",
+                              "w-full hover:cursor-pointer px-2 py-1 rounded-lg items-center flex gap-2",
                               state.selectedTag?.id === tag.id &&
                                 "bg-foreground/10"
                             )}
@@ -428,7 +438,7 @@ function RouteComponent() {
                                 });
                               }
                             }}
-                            onMouseEnter={(_e) => {
+                            onMouseEnter={() => {
                               dispatch({
                                 type: "set-selected-tag",
                                 payload: tag,
@@ -463,6 +473,9 @@ function RouteComponent() {
                               dispatch({ type: "restart-tags" });
                             }}
                           >
+                            <div
+                              className={cn(colorsCN, "rounded-full h-5 w-5")}
+                            />
                             {tag.name}
                           </div>
                         );
@@ -486,30 +499,29 @@ function RouteComponent() {
         />
       </form>
       <Suspense fallback={<div className="animate-spin h-5 w-5 ">loading</div>}>
-        <div>
-          <ul className="flex gap-2 my-5">
-            {tags?.map((tag) => {
-              return (
-                <li key={tag.id}>
-                  <Tag
-                    size="lg"
-                    colorNumber={tag.color}
-                    onClick={() => console.log(tag.name)}
-                  >
-                    {tag.name}
-                  </Tag>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-        <ul className="max-w-5xl w-full px-5">
+        <ul className="flex gap-2 my-5 justify-start w-full max-w-5xl ">
+          {tags?.map((tag) => {
+            return (
+              <li key={tag.id}>
+                <Tag
+                  size="lg"
+                  colorNumber={tag.color}
+                  onClick={() => console.log(tag.name)}
+                >
+                  {tag.name}
+                </Tag>
+              </li>
+            );
+          })}
+        </ul>
+
+        <ul className="max-w-5xl w-full gap-3">
           {data &&
             data?.map((todo) => {
               return (
                 <li
                   key={todo.id}
-                  className="flex justify-between gap-5 w-full mb-2"
+                  className="flex justify-between gap-5 w-full mb-2 hover:border-gray-400 px-2 py-1 rounded-lg box-border border duration-100 ease-out transition-colors hover:cursor-pointer"
                 >
                   <TodoTask
                     todo={todo}
@@ -528,6 +540,7 @@ function RouteComponent() {
                   />
 
                   <Button
+                    variant={"secondary"}
                     onClick={() => {
                       const data = {
                         todo_id: todo.id,
@@ -536,7 +549,7 @@ function RouteComponent() {
                       deleteMutation.mutate(data);
                     }}
                   >
-                    Delete
+                    <Trash />
                   </Button>
                 </li>
               );

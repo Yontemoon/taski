@@ -12,6 +12,7 @@ import "@/styles/app.css";
 import { TColorTypes } from "@/types/color.types";
 import { updateColor } from "@/lib/supabase/tags";
 import { useRouteContext } from "@tanstack/react-router";
+import { themeButtonVariants } from "@/lib/themes";
 
 type PropTypes = {
   todo: TTodos;
@@ -52,26 +53,6 @@ const TodoTask = ({ todo, tags, completionAction }: PropTypes) => {
   return <p className="flex flex-row items-center gap-1">{tasks}</p>;
 };
 
-const themeButtonVariants = {
-  1: "bg-tag-1 hover:bg-tag-1/20",
-  2: "bg-tag-2 hover:bg-tag-2/20",
-  3: "bg-tag-3 hover:bg-tag-3/20",
-  4: "bg-tag-4 hover:bg-tag-4/20",
-  5: "bg-tag-5 hover:bg-tag-5/20",
-  6: "bg-tag-6 hover:bg-tag-6/20",
-  7: "bg-tag-7 hover:bg-tag-7/20",
-  8: "bg-tag-8 hover:bg-tag-8/20",
-  9: "bg-tag-9 hover:bg-tag-9/20",
-  10: "bg-tag-10 hover:bg-tag-10/20",
-  11: "bg-tag-11 hover:bg-tag-11/20",
-  12: "bg-tag-12 hover:bg-tag-12/20",
-  13: "bg-tag-13 hover:bg-tag-13/20",
-  14: "bg-tag-14 hover:bg-tag-14/20",
-  15: "bg-tag-15 hover:bg-tag-15/20",
-  16: "bg-tag-16 hover:bg-tag-16/20",
-  17: "bg-tag-17 hover:bg-tag-17/20",
-} as const;
-
 const TagThemeSelector = ({ currentTag }: { currentTag: TAllTags | null }) => {
   const tags = Array.from({ length: 17 }, (_, index) => {
     const numberedColor = (index + 1) as TColorTypes;
@@ -84,7 +65,7 @@ const TagThemeSelector = ({ currentTag }: { currentTag: TAllTags | null }) => {
       <div
         key={numberedColor}
         className={cn(
-          `border border-solid rounded-full  hover:cursor-pointer h-4 w-4 transition-all duration-300 ease-in-out z-20`,
+          ` rounded-full hover:cursor-pointer h-4 w-4 transition-all duration-300 ease-in-out z-20`,
           theme
         )}
         onClick={async () => {
