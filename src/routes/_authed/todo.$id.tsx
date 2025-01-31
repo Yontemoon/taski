@@ -3,6 +3,7 @@ import {
   Link,
   redirect,
   useNavigate,
+  useParams,
   useRouter,
 } from "@tanstack/react-router";
 import {
@@ -53,7 +54,12 @@ export const Route = createFileRoute("/_authed/todo/$id")({
 function RouteComponent() {
   const context = Route.useRouteContext();
   const router = useRouter();
+
+  const params = Route.useParams();
   const tagsListRef = React.useRef<HTMLDivElement>(null!);
+
+  const navigate = useNavigate({ from: Route.fullPath });
+  const [hoveredDate, setHoveredDate] = React.useState<string | null>(null);
 
   const form = useForm({
     defaultValues: {
@@ -68,16 +74,37 @@ function RouteComponent() {
     },
   });
 
-  const handleKeyDown = (event: any) => {
-    console.log(event.onKeyUp);
-  };
+  const handleKeyDown = React.useCallback(
+    (event: KeyboardEvent) => {
+      switch (event.key) {
+        case "ArrowLeft": {
+          const yesterday = dateYesterday(params.id, "string") as string;
+          navigate({
+            to: "/todo/$id",
+            params: { id: yesterday },
+          });
+          break;
+        }
+        case "ArrowRight": {
+          const tomorrow = dateTomorrow(params.id, "string") as string;
+          navigate({
+            to: "/todo/$id",
+            params: { id: tomorrow },
+          });
+          break;
+        }
+      }
+    },
+    [params.id, navigate]
+  );
 
   React.useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
+
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [handleKeyDown]);
 
   const { id: date } = Route.useParams();
   const { data } = useSuspenseQuery(
@@ -90,9 +117,6 @@ function RouteComponent() {
   const { data: allTags } = useSuspenseQuery(
     tagsAllQueryOptions(context?.auth.user?.id!)
   );
-
-  const navigate = useNavigate({ from: Route.fullPath });
-  const [hoveredDate, setHoveredDate] = React.useState<string | null>(null);
 
   const { dispatch, state } = useTagSelectionReducer();
 

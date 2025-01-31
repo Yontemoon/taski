@@ -22,14 +22,27 @@ export function formatDate(date: Date | string) {
   }
 }
 
-export function dateTomorrow(date: string) {
+export function dateTomorrow(date: string, returnType?: "Date" | "string") {
+  
   const parsedDate = parse(date, "yyyy-MM-dd", new Date());
-  return add(parsedDate, { days: 1 });
+
+  const tomorrow = add(parsedDate, { days: 1 });
+  if (returnType === "string") {
+    return format(tomorrow, "yyyy-MM-dd")
+  }
+
+  return tomorrow
 }
 
-export function dateYesterday(date: string) {
+export function dateYesterday(date: string, returnType?: "Date" | "string") {
   const parsedDate = parse(date, "yyyy-MM-dd", new Date());
-  return sub(parsedDate, { days: 1 });
+  const yesterday = sub(parsedDate, { days: 1 });
+
+  if (returnType === "string") {
+    return format(yesterday, "yyyy-MM-dd")
+  }
+
+  return yesterday
 }
 
 export function getColor(colorNumber: number) {
