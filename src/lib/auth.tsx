@@ -12,7 +12,21 @@ import { supabase } from "@/lib/supabase";
 export interface AuthContextType {
   user: User | null;
   error: string | null;
-  signIn: (email: string, password: string) => Promise<User | string>;
+  signIn: (
+    email: string,
+    password: string
+  ) => Promise<
+    | {
+        error: boolean;
+        data: User;
+        message?: undefined;
+      }
+    | {
+        error: boolean;
+        message: string;
+        data?: undefined;
+      }
+  >;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
   isLoading: boolean;
@@ -53,24 +67,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
-    setError(null);
-    setIsLoading(true);
-    try {
-      const signedInUser = await supabase.auth
-        .signInWithPassword({
-          email,
-          password,
-        })
-        .then((r) => r.data.user);
-      setUser(signedInUser);
-      return signedInUser;
-    } catch (err: any) {
-      console.error("Error signing in:", err.message);
-      setError(err.message);
-      return err.message;
-    } finally {
-      setIsLoading(false);
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      console.error("Error signing in:", error);
+      return {
+        error: true,
+        message: error.message,
+      };
     }
+
+    setUser(data.user);
+    return {
+      error: false,
+      data: data.user,
+    };
   }, []);
 
   const signOut = useCallback(async () => {

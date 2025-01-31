@@ -68,6 +68,17 @@ function RouteComponent() {
     },
   });
 
+  const handleKeyDown = (event: any) => {
+    console.log(event.onKeyUp);
+  };
+
+  React.useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
   const { id: date } = Route.useParams();
   const { data } = useSuspenseQuery(
     todosQueryOptions(context?.auth.user?.id!, date)
