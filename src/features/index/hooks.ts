@@ -1,9 +1,10 @@
-import { extractHashtag } from "@/lib/utils";
+import { dateTomorrow, dateYesterday, extractHashtag } from "@/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { TTags, TTodos } from "@/types/tables.types";
 import { addTodos, deleteTodo, updateIsComplete } from "@/lib/supabase";
 import React from "react";
 import { InputActions, TPayloadInput } from "./types";
+import { useNavigate, useParams } from "@tanstack/react-router";
 
 const useIndexMutations = (user_id: string, date: string) => {
   const queryClient = useQueryClient();
@@ -192,4 +193,46 @@ const useTagSelectionReducer = () => {
   return { state, dispatch };
 };
 
-export { useIndexMutations, useTagSelectionReducer };
+const useKeybinds = () => {
+  const navigate = useNavigate();
+  const params = useParams({ from: "/_authed/todo/$id" });
+  const [isNavigational, setIsNavigational] = React.useState(true);
+
+  const handleKeyDown = React.useCallback(
+    (event: KeyboardEvent) => {
+      if (isNavigational) {
+        switch (event.key) {
+          case "ArrowLeft": {
+            const yesterday = dateYesterday(params.id, "string") as string;
+            navigate({
+              to: "/todo/$id",
+              params: { id: yesterday },
+            });
+            break;
+          }
+          case "ArrowRight": {
+            const tomorrow = dateTomorrow(params.id, "string") as string;
+            navigate({
+              to: "/todo/$id",
+              params: { id: tomorrow },
+            });
+            break;
+          }
+        }
+      }
+    },
+    [params.id, navigate, isNavigational],
+  );
+
+  React.useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleKeyDown]);
+
+  return { setIsNavigational };
+};
+
+export { useIndexMutations, useKeybinds, useTagSelectionReducer };

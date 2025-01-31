@@ -3,7 +3,6 @@ import {
   Link,
   redirect,
   useNavigate,
-  useParams,
   useRouter,
 } from "@tanstack/react-router";
 import {
@@ -25,6 +24,7 @@ import { parse } from "date-fns";
 import React, { Suspense } from "react";
 import {
   useIndexMutations,
+  useKeybinds,
   useTagSelectionReducer,
 } from "@/features/index/hooks";
 import { useForm } from "@tanstack/react-form";
@@ -55,7 +55,8 @@ function RouteComponent() {
   const context = Route.useRouteContext();
   const router = useRouter();
 
-  const params = Route.useParams();
+  // const params = Route.useParams();
+  const { setIsNavigational } = useKeybinds();
   const tagsListRef = React.useRef<HTMLDivElement>(null!);
 
   const navigate = useNavigate({ from: Route.fullPath });
@@ -73,38 +74,6 @@ function RouteComponent() {
       router.invalidate();
     },
   });
-
-  const handleKeyDown = React.useCallback(
-    (event: KeyboardEvent) => {
-      switch (event.key) {
-        case "ArrowLeft": {
-          const yesterday = dateYesterday(params.id, "string") as string;
-          navigate({
-            to: "/todo/$id",
-            params: { id: yesterday },
-          });
-          break;
-        }
-        case "ArrowRight": {
-          const tomorrow = dateTomorrow(params.id, "string") as string;
-          navigate({
-            to: "/todo/$id",
-            params: { id: tomorrow },
-          });
-          break;
-        }
-      }
-    },
-    [params.id, navigate]
-  );
-
-  React.useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [handleKeyDown]);
 
   const { id: date } = Route.useParams();
   const { data } = useSuspenseQuery(
@@ -167,7 +136,11 @@ function RouteComponent() {
     <>
       <h1>My Todos</h1>
       <h2>{formatDate(date)}</h2>
-      <Popover>
+      <Popover
+        onOpenChange={(e) => {
+          setIsNavigational(!e);
+        }}
+      >
         <PopoverTrigger asChild>
           <Button variant={"outline"}>
             <CalendarIcon size={24} />
@@ -258,9 +231,18 @@ function RouteComponent() {
                     id="todo-input"
                     placeholder="Do something productive!"
                     value={field.state.value}
-                    onBlur={field.handleBlur}
+                    onBlur={(_e) => {
+                      console.log("on blur");
+                      setIsNavigational(true);
+                      field.handleBlur();
+                    }}
+                    onBlurCapture={() => {
+                      setIsNavigational(true);
+                    }}
                     autoComplete="off"
                     onFocus={(_e) => {
+                      console.log("on focus");
+                      setIsNavigational(false);
                       if (state.tag.length > 0) {
                         dispatch({ type: "show-vision" });
                       }
