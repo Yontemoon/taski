@@ -43,10 +43,24 @@ import Tag from "@/components/Tag";
 import { Trash } from "lucide-react";
 
 export const Route = createFileRoute("/_authed/todo/$id")({
+  preload: true,
   beforeLoad: async ({ context }) => {
+    console.log("passing here");
     if (!context?.auth?.user?.id) {
       throw redirect({ to: "/login" });
     }
+  },
+
+  loader({ context, params }) {
+    const date = params.id;
+
+    const todos = todosQueryOptions(context?.auth.user?.id!, date);
+
+    const tags = tagsQueryOptions(context?.auth.user?.id!, date);
+
+    const allTags = tagsAllQueryOptions(context?.auth.user?.id!);
+
+    return { todos, tags, allTags };
   },
   component: RouteComponent,
 });
@@ -172,6 +186,7 @@ function RouteComponent() {
       </Popover>
       <div className="flex gap-5">
         <Link
+          preload="render"
           to="/todo/$id"
           params={({ id }) => {
             if (id) {
@@ -185,6 +200,7 @@ function RouteComponent() {
         </Link>
         <Link
           to="/todo/$id"
+          preload="viewport"
           params={({ id }) => {
             if (id) {
               const tomorrow = formatDate(dateTomorrow(id));
