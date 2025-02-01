@@ -27,5 +27,6 @@
       // "@supabase": ["src/lib/supabase/index.ts"]
     }
   },
-  "include": ["src"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "server"]
 }
