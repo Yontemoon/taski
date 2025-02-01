@@ -12,7 +12,6 @@ type PropTypes = {
 };
 
 const DialogTodoEdit = ({ todo, setIsNavigational, ref }: PropTypes) => {
-  // const auth = useAuth()
   const { dispatch, state } = useTagSelectionReducer();
   const { editMutation } = useTodoMutations(todo.user_id, todo.date_set);
 
@@ -24,6 +23,7 @@ const DialogTodoEdit = ({ todo, setIsNavigational, ref }: PropTypes) => {
       const data = {
         todo_id: todo.id,
         updated_todo: value.todoEdit,
+        user_id: todo.user_id,
       };
       console.log(data);
 

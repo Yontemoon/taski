@@ -13,7 +13,6 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { formatDate } from "@/lib/utils";
 import type { AuthContextType } from "@/lib/auth";
-import React from "react";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
@@ -41,18 +40,6 @@ function RootComponent() {
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   const { auth } = Route.useRouteContext();
 
-  const [test, setTest] = React.useState();
-
-  React.useEffect(() => {
-    const fetching = async () => {
-      console.log("passing");
-      const res = await fetch("/api/test");
-      const test = await res.json();
-      setTest(test);
-    };
-    fetching();
-  }, []);
-
   return (
     <>
       <div className="p-2 flex gap-2 text-lg">
@@ -70,7 +57,6 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <Link to="/calendar" activeProps={{ className: "font-bold" }}>
           Calendar
         </Link>
-        <div>{JSON.stringify(test)}</div>
 
         <div className="ml-auto">
           {auth?.user?.id ? (
