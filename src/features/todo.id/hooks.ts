@@ -1,12 +1,14 @@
 import { dateTomorrow, dateYesterday, extractHashtag } from "@/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { TTags, TTodos } from "@/types/tables.types";
+import type { TAllTags, TTags, TTodos } from "@/types/tables.types";
 import { addTodos, deleteTodo, updateIsComplete } from "@/lib/supabase";
-import React from "react";
-import { InputActions, TPayloadInput } from "./types";
+import React, { useEffect } from "react";
+import { TInputActions, TPayloadInput } from "./types";
 import { useNavigate, useParams } from "@tanstack/react-router";
+import { useAuth } from "@/lib/auth";
+import { editTodo } from "@/lib/supabase/todo";
 
-const useIndexMutations = (user_id: string, date: string) => {
+const useTodoMutations = (user_id: string, date: string) => {
   const queryClient = useQueryClient();
 
   const addMutation = useMutation({
@@ -117,10 +119,20 @@ const useIndexMutations = (user_id: string, date: string) => {
     },
   });
 
-  return { addMutation, isCompleteMutation, deleteMutation };
+
+  const editMutation = useMutation({
+    mutationFn: editTodo,
+    // onMutate: () => {}
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos", user_id, date] });
+      queryClient.invalidateQueries({ queryKey: ["tags", user_id, date] });
+    }
+  })
+
+  return { addMutation, isCompleteMutation, deleteMutation, editMutation };
 };
 
-const inputReducer = (state: TPayloadInput, action: InputActions) => {
+const inputReducer = (state: TPayloadInput, action: TInputActions) => {
   switch (action.type) {
     case "set-allTags":
       return {
@@ -182,6 +194,8 @@ const inputReducer = (state: TPayloadInput, action: InputActions) => {
 };
 
 const useTagSelectionReducer = () => {
+  const queryClient = useQueryClient()
+  const auth = useAuth()
   const [state, dispatch] = React.useReducer(inputReducer, {
     isOpen: false,
     tag: "",
@@ -189,6 +203,13 @@ const useTagSelectionReducer = () => {
     selectedTag: null,
     allTags: null,
   });
+
+  useEffect(() => {
+    if (!state.allTags) {
+      const todos = queryClient.getQueryData(["tags", auth.user?.id]) as TAllTags[]
+      dispatch({type: "set-allTags", payload: todos})
+    }
+  })
 
   return { state, dispatch };
 };
@@ -235,4 +256,4 @@ const useKeybinds = () => {
   return { setIsNavigational };
 };
 
-export { useIndexMutations, useKeybinds, useTagSelectionReducer };
+export { useTodoMutations, useKeybinds, useTagSelectionReducer };

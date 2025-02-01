@@ -78,6 +78,35 @@ const deleteTodo = async (data: { todo_id: number; user_id: string }) => {
   }
 };
 
+const editTodo = async (data: {todo_id: number, updated_todo: string }) => {
+  const { todo_id, updated_todo } = data
+  try {
+    const {error} = await supabase
+    .from("todos")
+    .update({
+      todo: updated_todo,
+      // status: isComplete,
+    })
+    .eq("id", todo_id)
+
+    if (error) {
+      throw new Error(error.message)
+    }
+
+    return {
+      success:true,
+      message: "Updated todo success"
+    }
+
+  } catch (error) {
+    console.error("Error in editTodo handler", error)
+    return {
+      success: false,
+      message: "Failed to edit todo"
+    }
+  }
+} 
+
 const updateIsComplete = async (
   data: { status: boolean; user_id: string; todo_id: number },
 ) => {
@@ -124,4 +153,4 @@ const getTags = async (user_id: string) => {
   }
 };
 
-export { addTodos, deleteTodo, getTags, getTodos, updateIsComplete };
+export { addTodos, deleteTodo, getTags, getTodos, updateIsComplete, editTodo };

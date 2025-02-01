@@ -8,7 +8,7 @@ type TPayloadInput = {
   allTags: TAllTags[] | null;
 };
 
-type InputActions =
+type TInputActions =
   | {
     type: "present-tag";
     payload: string;
@@ -38,4 +38,4 @@ type InputActions =
     type: "set-tags";
     payload: TAllTags;
   };
-export type { InputActions, TPayloadInput };
+export type { TInputActions, TPayloadInput };
