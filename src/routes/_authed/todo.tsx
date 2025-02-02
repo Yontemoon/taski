@@ -13,7 +13,7 @@ export const Route = createFileRoute("/_authed/todo")({
 function TodoComponenet() {
   return (
     <div className="flex h-screen">
-      <div className="max-w-64 w-full border-r h-full ">
+      <div className="max-w-64 w-full border-r h-full hidden md:block">
         <Sidebar />
       </div>
       <div className="flex  w-full flex-col items-center mx-4">

@@ -29,10 +29,14 @@ const TodoTask = ({ todo, tags, completionAction }: PropTypes) => {
 
       return (
         <Popover key={index}>
-          <PopoverTrigger>
+          <PopoverTrigger
+            onClick={(e) => {
+              e.stopPropagation(); // Stops from triggering the dialog
+            }}
+          >
             <Tag colorNumber={tag?.color || 1}>{removedHashtag}</Tag>
           </PopoverTrigger>
-          <PopoverContent className="mt-1 w-50 h-50" align="start">
+          <PopoverContent className="mt-1 w-50 h-50 z-20" align="start">
             <TagThemeSelector currentTag={tag} />
           </PopoverContent>
         </Popover>
@@ -41,8 +45,10 @@ const TodoTask = ({ todo, tags, completionAction }: PropTypes) => {
       return (
         <span
           key={index}
-          onClick={completionAction}
-          className={cn("hover:cursor-pointer", todo?.status && "line-through")}
+          className={cn(
+            "hover:cursor-pointer z-10",
+            todo?.status && "line-through"
+          )}
         >
           {task}{" "}
         </span>
@@ -50,7 +56,17 @@ const TodoTask = ({ todo, tags, completionAction }: PropTypes) => {
     }
   });
 
-  return <p className="flex flex-row items-center gap-1">{tasks}</p>;
+  return (
+    <p
+      className="flex flex-row items-center gap-1"
+      onClick={(e) => {
+        e.stopPropagation(); // Stops from triggering the dialog
+        completionAction();
+      }}
+    >
+      {tasks}
+    </p>
+  );
 };
 
 const TagThemeSelector = ({ currentTag }: { currentTag: TAllTags | null }) => {

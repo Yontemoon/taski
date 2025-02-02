@@ -5,6 +5,7 @@ import { formatDate } from "@/lib/utils";
 const Sidebar = () => {
   const navigate = useNavigate();
   const params = useParams({ from: "/_authed/todo/$id" });
+  console.log("passing sidebar");
 
   return (
     <nav>
@@ -14,7 +15,6 @@ const Sidebar = () => {
           return formatedDate === params.id;
         }}
         onDayClick={(e) => {
-          console.log(params);
           const date = formatDate(e);
           navigate({
             to: "/todo/$id",

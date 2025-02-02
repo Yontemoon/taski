@@ -1,8 +1,4 @@
-import {
-  Outlet,
-  ScrollRestoration,
-  createRootRouteWithContext,
-} from "@tanstack/react-router";
+import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 
 import type { ReactNode } from "react";
 import { NotFound } from "@/components/NotFound";
@@ -13,7 +9,6 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { formatDate } from "@/lib/utils";
 import type { AuthContextType } from "@/lib/auth";
-import Sidebar from "@/components/sidebar";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
@@ -73,7 +68,6 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
 
       {children}
 
-      <ScrollRestoration />
       {import.meta.env.DEV && (
         <TanStackRouterDevtools position="bottom-right" />
       )}

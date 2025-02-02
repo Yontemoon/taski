@@ -20,7 +20,6 @@ import {
   useTodoMutations,
   useKeybinds,
   useTagSelectionReducer,
-  // useTagSelectionReducer,
 } from "@/features/todo.id/hooks";
 import { useForm } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -285,11 +284,11 @@ function RouteComponent() {
             data?.map((todo) => {
               return (
                 <Dialog key={todo.id}>
-                  <DialogTrigger asChild>
+                  <DialogTrigger className="-z-10" asChild>
                     <li
                       className={cn(
                         `flex justify-between gap-5 w-full mb-2 hover:border-gray-400 px-2 py-1 rounded-lg box-border border
-                     duration-100 ease-out transition-colors hover:cursor-pointer`
+                     duration-100 ease-out transition-colors hover:cursor-pointer -z-10`
                       )}
                     >
                       <TodoTask
@@ -310,7 +309,8 @@ function RouteComponent() {
 
                       <Button
                         variant={"secondary"}
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           const data = {
                             todo_id: todo.id,
                             user_id: context.auth.user?.id!,
@@ -322,6 +322,7 @@ function RouteComponent() {
                       </Button>
                     </li>
                   </DialogTrigger>
+
                   <DialogContent>
                     <DialogHeader>
                       <DialogTitle>{todo.id}</DialogTitle>
