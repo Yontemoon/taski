@@ -14,25 +14,19 @@ export function extractHashtag(text: string) {
 }
 
 // YYYY-MM-DD
-export function formatDate(
-  date: Date | string,
+export function formatDate<T extends Date | string>(
+  date: T,
   date_format: "COMPLETE" | "PARTIAL" = "COMPLETE",
-) {
-  switch (date_format) {
-    case "COMPLETE":
-      if (date instanceof Date) {
-        return format(date, "yyyy-MM-dd");
-      } else {
-        const parsedDate = parse(date, "yyyy-MM-dd", new Date());
-        return format(parsedDate, "MMMM do, yyy");
-      }
-    case "PARTIAL":
-      if (date instanceof Date) {
-        return format(date, "yyyy-MM");
-      } else {
-        const parsedDate = parse(date, "yyyy-MM", new Date());
-        return format(parsedDate, "MMMM do, yyy");
-      }
+): T extends Date ? string : Date {
+  if (date instanceof Date) {
+    return (date_format === "COMPLETE"
+      ? format(date, "yyyy-MM-dd")
+      : format(date, "yyyy-MM")) as T extends Date ? string : Date;
+  } else {
+    const parsedDate = date_format === "COMPLETE"
+      ? parse(date, "yyyy-MM-dd", new Date())
+      : parse(date, "yyyy-MM", new Date());
+    return parsedDate as T extends Date ? string : Date;
   }
 }
 

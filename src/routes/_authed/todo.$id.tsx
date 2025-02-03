@@ -147,7 +147,7 @@ function RouteComponent() {
   return (
     <>
       <h1>My Todos</h1>
-      <h2>{formatDate(date)}</h2>
+      <h2>{date}</h2>
       <Popover
         onOpenChange={(e) => {
           setIsNavigational(!e);
@@ -188,7 +188,7 @@ function RouteComponent() {
           to="/todo/$id"
           params={({ id }) => {
             if (id) {
-              const yesterday = formatDate(dateYesterday(id));
+              const yesterday = formatDate(dateYesterday(id)) as string;
               return { id: yesterday };
             }
             return { id: formatDate(new Date()) };
@@ -201,7 +201,7 @@ function RouteComponent() {
           preload="viewport"
           params={({ id }) => {
             if (id) {
-              const tomorrow = formatDate(dateTomorrow(id));
+              const tomorrow = formatDate(dateTomorrow(id)) as string;
               return { id: tomorrow };
             }
             return { id: formatDate(new Date()) };
