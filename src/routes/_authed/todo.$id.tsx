@@ -1,20 +1,9 @@
-import {
-  createFileRoute,
-  Link,
-  redirect,
-  useNavigate,
-  useRouter,
-} from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { cn, dateTomorrow, dateYesterday, formatDate } from "@/lib/utils";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, CalendarIcon, Trash } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
-import { parse } from "date-fns";
+import { ArrowLeft, ArrowRight, Trash } from "lucide-react";
+
 import React, { Suspense } from "react";
 import {
   useTodoMutations,
@@ -28,7 +17,6 @@ import {
   tagsQueryOptions,
   todosQueryOptions,
 } from "@/lib/options";
-import { getTodos } from "@/lib/supabase/index";
 import { useOnClickOutside } from "usehooks-ts";
 import TodoTask from "@/components/TodoTask";
 import Tag from "@/components/Tag";
@@ -44,23 +32,12 @@ import InputSelector from "@/components/input-selector";
 import DialogTodoEdit from "@/features/todo.id/dialog-todo-edit";
 
 export const Route = createFileRoute("/_authed/todo/$id")({
-  preload: true,
-  beforeLoad: async ({ context }) => {
-    if (!context?.auth?.user?.id) {
-      throw redirect({ to: "/login" });
-    }
-  },
-
-  loader({ context, params }) {
+  beforeLoad: async ({ context, params }) => {
     const date = params.id;
+    const userId = context?.auth?.user?.id!;
 
-    const todos = todosQueryOptions(context?.auth.user?.id!, date);
-
-    const tags = tagsQueryOptions(context?.auth.user?.id!, date);
-
-    const allTags = tagsAllQueryOptions(context?.auth.user?.id!);
-
-    return { todos, tags, allTags };
+    context.queryClient.prefetchQuery(todosQueryOptions(userId, date));
+    context.queryClient.prefetchQuery(tagsQueryOptions(userId, date));
   },
   component: RouteComponent,
 });
@@ -69,10 +46,8 @@ function RouteComponent() {
   const context = Route.useRouteContext();
   const router = useRouter();
   const { setIsNavigational } = useKeybinds();
-  const tagsListRef = React.useRef<HTMLDivElement>(null!);
 
-  const navigate = useNavigate({ from: Route.fullPath });
-  const [hoveredDate, setHoveredDate] = React.useState<string | null>(null);
+  const tagsListRef = React.useRef<HTMLDivElement>(null!);
 
   const form = useForm({
     defaultValues: {
@@ -111,25 +86,25 @@ function RouteComponent() {
     dispatch({ type: "hide-tags" });
   });
 
-  React.useEffect(() => {
-    if (hoveredDate !== null) {
-      const cachedTodos = context.queryClient.getQueryData([
-        "todos",
-        context?.auth.user?.id!,
-        hoveredDate,
-      ]);
+  // React.useEffect(() => {
+  //   if (hoveredDate !== null) {
+  //     const cachedTodos = context.queryClient.getQueryData([
+  //       "todos",
+  //       context?.auth.user?.id!,
+  //       hoveredDate,
+  //     ]);
 
-      if (!cachedTodos) {
-        context.queryClient.prefetchQuery({
-          queryKey: ["todos", context?.auth.user?.id!, hoveredDate],
-          queryFn: async () => {
-            const todo = await getTodos(context?.auth.user?.id!, hoveredDate);
-            return todo;
-          },
-        });
-      }
-    }
-  }, [hoveredDate]);
+  //     if (!cachedTodos) {
+  //       context.queryClient.prefetchQuery({
+  //         queryKey: ["todos", context?.auth.user?.id!, hoveredDate],
+  //         queryFn: async () => {
+  //           const todo = await getTodos(context?.auth.user?.id!, hoveredDate);
+  //           return todo;
+  //         },
+  //       });
+  //     }
+  //   }
+  // }, [hoveredDate]);
 
   const { addMutation, deleteMutation, isCompleteMutation } = useTodoMutations(
     context.auth?.user?.id!,
@@ -144,11 +119,15 @@ function RouteComponent() {
     dispatch({ type: "restart-tags" });
   };
 
+  // if (todoPending || tagsPending || allTagsPending) {
+  //   return <div>Loading...</div>;
+  // }
+
   return (
     <>
       <h1>My Todos</h1>
       <h2>{date}</h2>
-      <Popover
+      {/* <Popover
         onOpenChange={(e) => {
           setIsNavigational(!e);
         }}
@@ -181,10 +160,10 @@ function RouteComponent() {
             }}
           />
         </PopoverContent>
-      </Popover>
+      </Popover> */}
       <div className="flex gap-5">
         <Link
-          preload="render"
+          preload="viewport"
           to="/todo/$id"
           params={({ id }) => {
             if (id) {
@@ -293,7 +272,7 @@ function RouteComponent() {
                     >
                       <TodoTask
                         todo={todo}
-                        tags={allTags}
+                        tags={allTags!}
                         completionAction={() => {
                           if (isCompleteMutation.isPending) {
                             return;

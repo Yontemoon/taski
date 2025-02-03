@@ -20,6 +20,7 @@ const tagsAllQueryOptions = (user_id: string) =>
   queryOptions({
     queryKey: ["tags", user_id],
     queryFn: () => getAllTags(user_id),
+    staleTime: Infinity,
   });
 
 export { todosQueryOptions, tagsQueryOptions, tagsAllQueryOptions };
