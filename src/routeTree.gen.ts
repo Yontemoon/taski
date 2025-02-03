@@ -19,7 +19,9 @@ import { Route as IndexImport } from './routes/index'
 import { Route as AuthedTodoImport } from './routes/_authed/todo'
 import { Route as AuthedCalendarImport } from './routes/_authed/calendar'
 import { Route as AuthedTodoIndexImport } from './routes/_authed/todo.index'
+import { Route as AuthedCalendarIndexImport } from './routes/_authed/calendar.index'
 import { Route as AuthedTodoIdImport } from './routes/_authed/todo.$id'
+import { Route as AuthedCalendarDateImport } from './routes/_authed/calendar.$date'
 
 // Create/Update Routes
 
@@ -70,10 +72,22 @@ const AuthedTodoIndexRoute = AuthedTodoIndexImport.update({
   getParentRoute: () => AuthedTodoRoute,
 } as any)
 
+const AuthedCalendarIndexRoute = AuthedCalendarIndexImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthedCalendarRoute,
+} as any)
+
 const AuthedTodoIdRoute = AuthedTodoIdImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => AuthedTodoRoute,
+} as any)
+
+const AuthedCalendarDateRoute = AuthedCalendarDateImport.update({
+  id: '/$date',
+  path: '/$date',
+  getParentRoute: () => AuthedCalendarRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -129,12 +143,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedTodoImport
       parentRoute: typeof AuthedImport
     }
+    '/_authed/calendar/$date': {
+      id: '/_authed/calendar/$date'
+      path: '/$date'
+      fullPath: '/calendar/$date'
+      preLoaderRoute: typeof AuthedCalendarDateImport
+      parentRoute: typeof AuthedCalendarImport
+    }
     '/_authed/todo/$id': {
       id: '/_authed/todo/$id'
       path: '/$id'
       fullPath: '/todo/$id'
       preLoaderRoute: typeof AuthedTodoIdImport
       parentRoute: typeof AuthedTodoImport
+    }
+    '/_authed/calendar/': {
+      id: '/_authed/calendar/'
+      path: '/'
+      fullPath: '/calendar/'
+      preLoaderRoute: typeof AuthedCalendarIndexImport
+      parentRoute: typeof AuthedCalendarImport
     }
     '/_authed/todo/': {
       id: '/_authed/todo/'
@@ -147,6 +175,20 @@ declare module '@tanstack/react-router' {
 }
 
 // Create and export the route tree
+
+interface AuthedCalendarRouteChildren {
+  AuthedCalendarDateRoute: typeof AuthedCalendarDateRoute
+  AuthedCalendarIndexRoute: typeof AuthedCalendarIndexRoute
+}
+
+const AuthedCalendarRouteChildren: AuthedCalendarRouteChildren = {
+  AuthedCalendarDateRoute: AuthedCalendarDateRoute,
+  AuthedCalendarIndexRoute: AuthedCalendarIndexRoute,
+}
+
+const AuthedCalendarRouteWithChildren = AuthedCalendarRoute._addFileChildren(
+  AuthedCalendarRouteChildren,
+)
 
 interface AuthedTodoRouteChildren {
   AuthedTodoIdRoute: typeof AuthedTodoIdRoute
@@ -163,12 +205,12 @@ const AuthedTodoRouteWithChildren = AuthedTodoRoute._addFileChildren(
 )
 
 interface AuthedRouteChildren {
-  AuthedCalendarRoute: typeof AuthedCalendarRoute
+  AuthedCalendarRoute: typeof AuthedCalendarRouteWithChildren
   AuthedTodoRoute: typeof AuthedTodoRouteWithChildren
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
-  AuthedCalendarRoute: AuthedCalendarRoute,
+  AuthedCalendarRoute: AuthedCalendarRouteWithChildren,
   AuthedTodoRoute: AuthedTodoRouteWithChildren,
 }
 
@@ -181,9 +223,11 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/signup': typeof SignupRoute
-  '/calendar': typeof AuthedCalendarRoute
+  '/calendar': typeof AuthedCalendarRouteWithChildren
   '/todo': typeof AuthedTodoRouteWithChildren
+  '/calendar/$date': typeof AuthedCalendarDateRoute
   '/todo/$id': typeof AuthedTodoIdRoute
+  '/calendar/': typeof AuthedCalendarIndexRoute
   '/todo/': typeof AuthedTodoIndexRoute
 }
 
@@ -193,8 +237,9 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/signup': typeof SignupRoute
-  '/calendar': typeof AuthedCalendarRoute
+  '/calendar/$date': typeof AuthedCalendarDateRoute
   '/todo/$id': typeof AuthedTodoIdRoute
+  '/calendar': typeof AuthedCalendarIndexRoute
   '/todo': typeof AuthedTodoIndexRoute
 }
 
@@ -205,9 +250,11 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/signup': typeof SignupRoute
-  '/_authed/calendar': typeof AuthedCalendarRoute
+  '/_authed/calendar': typeof AuthedCalendarRouteWithChildren
   '/_authed/todo': typeof AuthedTodoRouteWithChildren
+  '/_authed/calendar/$date': typeof AuthedCalendarDateRoute
   '/_authed/todo/$id': typeof AuthedTodoIdRoute
+  '/_authed/calendar/': typeof AuthedCalendarIndexRoute
   '/_authed/todo/': typeof AuthedTodoIndexRoute
 }
 
@@ -221,7 +268,9 @@ export interface FileRouteTypes {
     | '/signup'
     | '/calendar'
     | '/todo'
+    | '/calendar/$date'
     | '/todo/$id'
+    | '/calendar/'
     | '/todo/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -230,8 +279,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/logout'
     | '/signup'
-    | '/calendar'
+    | '/calendar/$date'
     | '/todo/$id'
+    | '/calendar'
     | '/todo'
   id:
     | '__root__'
@@ -242,7 +292,9 @@ export interface FileRouteTypes {
     | '/signup'
     | '/_authed/calendar'
     | '/_authed/todo'
+    | '/_authed/calendar/$date'
     | '/_authed/todo/$id'
+    | '/_authed/calendar/'
     | '/_authed/todo/'
   fileRoutesById: FileRoutesById
 }
@@ -301,7 +353,11 @@ export const routeTree = rootRoute
     },
     "/_authed/calendar": {
       "filePath": "_authed/calendar.tsx",
-      "parent": "/_authed"
+      "parent": "/_authed",
+      "children": [
+        "/_authed/calendar/$date",
+        "/_authed/calendar/"
+      ]
     },
     "/_authed/todo": {
       "filePath": "_authed/todo.tsx",
@@ -311,9 +367,17 @@ export const routeTree = rootRoute
         "/_authed/todo/"
       ]
     },
+    "/_authed/calendar/$date": {
+      "filePath": "_authed/calendar.$date.tsx",
+      "parent": "/_authed/calendar"
+    },
     "/_authed/todo/$id": {
       "filePath": "_authed/todo.$id.tsx",
       "parent": "/_authed/todo"
+    },
+    "/_authed/calendar/": {
+      "filePath": "_authed/calendar.index.tsx",
+      "parent": "/_authed/calendar"
     },
     "/_authed/todo/": {
       "filePath": "_authed/todo.index.tsx",

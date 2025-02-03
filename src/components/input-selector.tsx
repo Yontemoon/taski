@@ -144,7 +144,7 @@ const InputSelector = ({
                 <div
                   key={tag.id}
                   className={cn(
-                    "w-full hover:cursor-pointer px-2 py-1 rounded-lg items-center flex gap-2",
+                    "w-full hover:cursor-pointer px-2 py-1 rounded-lg items-center flex gap-2 z-50",
                     state.selectedTag?.id === tag.id && "bg-foreground/10"
                   )}
                   ref={(e) => {
@@ -182,7 +182,7 @@ const InputSelector = ({
                     dispatch({ type: "restart-tags" });
                   }}
                 >
-                  <div className={cn(colorsCN, "rounded-full h-5 w-5")} />
+                  <div className={cn(colorsCN, "rounded-full h-5 w-5 z-50")} />
                   {tag.name}
                 </div>
               );

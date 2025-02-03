@@ -13,25 +13,38 @@ export function extractHashtag(text: string) {
   return text.match(regex) || [];
 }
 
-export function formatDate(date: Date | string) {
-  if (date instanceof Date) {
-    return format(date, "yyyy-MM-dd");
-  } else {
-    const parsedDate = parse(date, "yyyy-MM-dd", new Date());
-    return format(parsedDate, "MMMM do, yyy");
+// YYYY-MM-DD
+export function formatDate(
+  date: Date | string,
+  date_format: "COMPLETE" | "PARTIAL" = "COMPLETE",
+) {
+  switch (date_format) {
+    case "COMPLETE":
+      if (date instanceof Date) {
+        return format(date, "yyyy-MM-dd");
+      } else {
+        const parsedDate = parse(date, "yyyy-MM-dd", new Date());
+        return format(parsedDate, "MMMM do, yyy");
+      }
+    case "PARTIAL":
+      if (date instanceof Date) {
+        return format(date, "yyyy-MM");
+      } else {
+        const parsedDate = parse(date, "yyyy-MM", new Date());
+        return format(parsedDate, "MMMM do, yyy");
+      }
   }
 }
 
 export function dateTomorrow(date: string, returnType?: "Date" | "string") {
-  
   const parsedDate = parse(date, "yyyy-MM-dd", new Date());
 
   const tomorrow = add(parsedDate, { days: 1 });
   if (returnType === "string") {
-    return format(tomorrow, "yyyy-MM-dd")
+    return format(tomorrow, "yyyy-MM-dd");
   }
 
-  return tomorrow
+  return tomorrow;
 }
 
 export function dateYesterday(date: string, returnType?: "Date" | "string") {
@@ -39,10 +52,10 @@ export function dateYesterday(date: string, returnType?: "Date" | "string") {
   const yesterday = sub(parsedDate, { days: 1 });
 
   if (returnType === "string") {
-    return format(yesterday, "yyyy-MM-dd")
+    return format(yesterday, "yyyy-MM-dd");
   }
 
-  return yesterday
+  return yesterday;
 }
 
 export function getColor(colorNumber: number) {

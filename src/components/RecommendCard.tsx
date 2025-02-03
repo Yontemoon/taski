@@ -14,7 +14,7 @@ const RecommendCard = ({ list, selected, onSelect, ...props }: PropTypes) => {
   return (
     <Card className="absolute top-full left-0 w-full max-h-64 overflow-auto shadow-lg z-50">
       <CardContent>
-        <ul className="space-y-2">
+        <ul className="space-y-2 ">
           {list?.map((tag, index) => {
             const isSelected = selected?.id === tag.id;
             return (

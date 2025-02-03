@@ -284,11 +284,11 @@ function RouteComponent() {
             data?.map((todo) => {
               return (
                 <Dialog key={todo.id}>
-                  <DialogTrigger className="-z-10" asChild>
+                  <DialogTrigger asChild>
                     <li
                       className={cn(
                         `flex justify-between gap-5 w-full mb-2 hover:border-gray-400 px-2 py-1 rounded-lg box-border border
-                     duration-100 ease-out transition-colors hover:cursor-pointer -z-10`
+                     duration-100 ease-out transition-colors hover:cursor-pointer`
                       )}
                     >
                       <TodoTask

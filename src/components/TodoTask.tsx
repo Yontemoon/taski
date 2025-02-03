@@ -46,7 +46,7 @@ const TodoTask = ({ todo, tags, completionAction }: PropTypes) => {
         <span
           key={index}
           className={cn(
-            "hover:cursor-pointer z-10",
+            "hover:cursor-pointer ",
             todo?.status && "line-through"
           )}
         >
@@ -81,7 +81,7 @@ const TagThemeSelector = ({ currentTag }: { currentTag: TAllTags | null }) => {
       <div
         key={numberedColor}
         className={cn(
-          ` rounded-full hover:cursor-pointer h-4 w-4 transition-all duration-300 ease-in-out z-20`,
+          ` rounded-full hover:cursor-pointer h-4 w-4 transition-all duration-300 ease-in-out`,
           theme
         )}
         onClick={async () => {
