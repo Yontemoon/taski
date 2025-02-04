@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { getAllTags, getTagsByDate } from "@/lib/supabase/tags";
 import { getTodos } from "@/lib/supabase/todo";
+import { getTodosByMonth } from "./supabase/todos";
 
 const tagsQueryOptions = (user_id: string, date: string) =>
   queryOptions({
@@ -23,4 +24,20 @@ const tagsAllQueryOptions = (user_id: string) =>
     staleTime: Infinity,
   });
 
-export { todosQueryOptions, tagsQueryOptions, tagsAllQueryOptions };
+const todosByMonthQueryOptions = (date: Date) => {
+  return queryOptions({
+    queryKey: ["calendar-todos", date],
+    queryFn: () => {
+      const data = { date: date };
+      return getTodosByMonth(data);
+    },
+    staleTime: Infinity,
+  });
+};
+
+export {
+  todosQueryOptions,
+  tagsQueryOptions,
+  tagsAllQueryOptions,
+  todosByMonthQueryOptions,
+};

@@ -21,9 +21,9 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
-      // "@components/*": ["./src/components/*"],
-      // "@assets/*": ["./src/assets/*"]
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@assets/*": ["./src/assets/*"]
       // "@supabase": ["src/lib/supabase/index.ts"]
     }
   },

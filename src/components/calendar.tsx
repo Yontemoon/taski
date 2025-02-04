@@ -15,6 +15,11 @@ import { Button } from "./ui/button";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useRouteContext } from "@tanstack/react-router";
 import { TAllTags } from "@/types/tables.types";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 type PropTypes = {
   current: Date;
@@ -46,33 +51,33 @@ export default function Calendar({ current, data }: PropTypes) {
   return (
     <div className="flex flex-col items-center justify-center h-full p-4 w-full">
       <div className="flex justify-between items-center mb-4 w-full">
-        <Button
-          asChild
-          variant={"secondary"}
-          className="text-gray-600 hover:text-black p-2"
+        <Link
+          preload={"viewport"}
+          to="/calendar/$date"
+          params={{ date: formatDate(subMonths(current, 1), "PARTIAL") }}
         >
-          <Link
-            to="/calendar/$date"
-            params={{ date: formatDate(subMonths(current, 1), "PARTIAL") }}
+          <Button
+            variant={"secondary"}
+            className="text-gray-600 hover:text-black p-2"
           >
             <ChevronLeft />
-          </Link>
-        </Button>
+          </Button>
+        </Link>
         <h2 className="text-xl font-semibold">
           {format(current, "MMMM yyyy")}
         </h2>
-        <Button
-          variant={"secondary"}
-          asChild
-          className="text-gray-600 hover:text-foreground p-2"
+        <Link
+          preload={"viewport"}
+          to="/calendar/$date"
+          params={{ date: formatDate(addMonths(current, 1), "PARTIAL") }}
         >
-          <Link
-            to="/calendar/$date"
-            params={{ date: formatDate(addMonths(current, 1), "PARTIAL") }}
+          <Button
+            variant={"secondary"}
+            className="text-gray-600 hover:text-foreground p-2"
           >
             <ChevronRight />
-          </Link>
-        </Button>
+          </Button>
+        </Link>
       </div>
 
       {/* Days of the Week */}
@@ -131,7 +136,12 @@ export default function Calendar({ current, data }: PropTypes) {
 
                         const themeCN = getColor(tagColorNumber);
                         return (
-                          <div className={cn(themeCN, "h-4 w-4")} key={tag} />
+                          <HoverCard key={tag}>
+                            <HoverCardTrigger>
+                              <div className={cn(themeCN, "h-4 w-4")} />
+                            </HoverCardTrigger>
+                            <HoverCardContent>{tag}</HoverCardContent>
+                          </HoverCard>
                         );
                       })}
                       {newSentence.join(" ")}
