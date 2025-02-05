@@ -28,8 +28,8 @@ function RouteComponent() {
     return <div>Loading...</div>;
   }
   return (
-    <div>
+    <>
       <Calendar current={dateFormat} data={data} />
-    </div>
+    </>
   );
 }

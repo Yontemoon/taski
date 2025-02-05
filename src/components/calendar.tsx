@@ -49,17 +49,14 @@ export default function Calendar({ current, data }: PropTypes) {
   const days = eachDayOfInterval({ start: startCalendar, end: endCalendar });
 
   return (
-    <div className="flex flex-col items-center justify-center h-full p-4 w-full">
-      <div className="flex justify-between items-center mb-4 w-full">
+    <div className="flex flex-col w-svw p-2 h-dvh ">
+      <div className="flex justify-between items-center w-full">
         <Link
           preload={"viewport"}
           to="/calendar/$date"
           params={{ date: formatDate(subMonths(current, 1), "PARTIAL") }}
         >
-          <Button
-            variant={"secondary"}
-            className="text-gray-600 hover:text-black p-2"
-          >
+          <Button variant={"secondary"}>
             <ChevronLeft />
           </Button>
         </Link>
@@ -71,10 +68,7 @@ export default function Calendar({ current, data }: PropTypes) {
           to="/calendar/$date"
           params={{ date: formatDate(addMonths(current, 1), "PARTIAL") }}
         >
-          <Button
-            variant={"secondary"}
-            className="text-gray-600 hover:text-foreground p-2"
-          >
+          <Button variant={"secondary"}>
             <ChevronRight />
           </Button>
         </Link>
@@ -90,7 +84,7 @@ export default function Calendar({ current, data }: PropTypes) {
       </div>
 
       {/* Calendar Days */}
-      <div className="grid grid-cols-7 gap-1 w-full h-screen min-w-[900px]">
+      <div className="grid grid-cols-7 auto-rows-fr auto-cols-fr gap-1 min-w-[900px] w-full h-full max-w-dvw min-h-[500px]">
         {days.map((day, index) => {
           const stringDate = formatDate(day);
           const todos = (data && data[stringDate]) || [];
@@ -101,13 +95,14 @@ export default function Calendar({ current, data }: PropTypes) {
                 console.log(day);
               }}
               className={cn(
-                "p-4 rounded-lg transition-all  duration-150 ease-linear hover:cursor-pointer h-56 text-xs w-full min-w-0 ",
-                isToday(day) ? "bg-ring " : "bg-muted"
+                "p-1 rounded-lg transition-all duration-150 ease-linear hover:cursor-pointer text-xs  overflow-hidden  w-full",
+                isToday(day) ? "bg-muted/80" : "bg-muted"
+
                 //   day.getMonth() !== currentMonth.getMonth() && "opacity-50"
               )}
             >
               <p className="text-center">{format(day, "d")}</p>
-              <div className="gap-y-1 flex flex-col overflow-hidden">
+              <div className="gap-y-1 flex flex-col overflow-hidden ">
                 {todos.map((todo) => {
                   const tags = extractHashtag(todo.todo).map((tag) =>
                     tag.slice(1)
@@ -123,7 +118,7 @@ export default function Calendar({ current, data }: PropTypes) {
 
                   return (
                     <div
-                      className="bg-background rounded-md line-clamp-1 truncate p-1 flex gap-1"
+                      className="bg-background rounded-md line-clamp-1 truncate p-0.5 flex gap-1 overflow-hidden"
                       key={todo.id}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -136,7 +131,7 @@ export default function Calendar({ current, data }: PropTypes) {
 
                         const themeCN = getColor(tagColorNumber);
                         return (
-                          <HoverCard key={tag}>
+                          <HoverCard key={tag} openDelay={3}>
                             <HoverCardTrigger>
                               <div className={cn(themeCN, "h-4 w-4")} />
                             </HoverCardTrigger>
