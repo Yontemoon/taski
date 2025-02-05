@@ -34,40 +34,9 @@ function RootComponent() {
 }
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
-  const { auth } = Route.useRouteContext();
-
   return (
     <>
-      <div className="p-2 flex gap-2 text-lg">
-        <Link
-          to="/todo/$id"
-          params={{ id: formatDate(new Date()) }}
-          activeProps={{
-            className: "font-bold",
-          }}
-          // activeOptions={{ exact: false }}
-        >
-          Home
-        </Link>
-
-        <Link to="/calendar" activeProps={{ className: "font-bold" }}>
-          Calendar
-        </Link>
-
-        <div className="ml-auto">
-          {auth?.user?.id ? (
-            <>
-              <span className="mr-2">{auth.user.email}</span>
-              <Link to="/logout">Logout</Link>
-            </>
-          ) : (
-            <Link to="/login">Login</Link>
-          )}
-        </div>
-      </div>
-
       {children}
-
       {import.meta.env.DEV && (
         <TanStackRouterDevtools position="bottom-right" />
       )}
