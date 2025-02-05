@@ -3,11 +3,9 @@ import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { NotFound } from "@/components/NotFound";
 import { DefaultCatchBoundary } from "@/components/DefaultCatchBoundary";
-import { Link } from "@tanstack/react-router";
 import { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
-import { formatDate } from "@/lib/utils";
 import type { AuthContextType } from "@/lib/auth";
 
 export const Route = createRootRouteWithContext<{
