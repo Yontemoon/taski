@@ -9,8 +9,8 @@ export const Route = createFileRoute("/_authed/calendar")({
 
 function RouteComponent() {
   return (
-    <div className="flex">
-      <div className="w-52 max-w-52 md:flex flex-col gap-2 hidden ">
+    <div className="flex ">
+      <div className="w-40 lg:block  gap-2 hidden ">
         <Link to="/todo/$id" params={{ id: formatDate(new Date()) }}>
           Todos
         </Link>

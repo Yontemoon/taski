@@ -49,8 +49,8 @@ export default function Calendar({ current, data }: PropTypes) {
   const days = eachDayOfInterval({ start: startCalendar, end: endCalendar });
 
   return (
-    <div className="flex flex-col w-svw p-2 h-dvh ">
-      <div className="flex justify-between items-center w-full">
+    <div className="flex flex-col p-2 w-full h-dvh">
+      <div className="flex justify-between items-center w-full p-4">
         <Link
           preload={"viewport"}
           to="/calendar/$date"
@@ -75,7 +75,7 @@ export default function Calendar({ current, data }: PropTypes) {
       </div>
 
       {/* Days of the Week */}
-      <div className="grid grid-cols-7 text-center font-semibold text-gray-600 w-full min-w-[900px]">
+      <div className="grid grid-cols-7 text-center auto-rows-fr  font-semibold text-gray-600 w-full ">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
           <div key={day} className="p-2">
             {day}
@@ -84,7 +84,7 @@ export default function Calendar({ current, data }: PropTypes) {
       </div>
 
       {/* Calendar Days */}
-      <div className="grid grid-cols-7 auto-rows-fr auto-cols-fr gap-1 min-w-[900px] w-full h-full max-w-dvw min-h-[500px]">
+      <div className="grid grid-cols-7 auto-rows-fr auto-cols-fr gap-1  w-full flex-grow min-h-0">
         {days.map((day, index) => {
           const stringDate = formatDate(day);
           const todos = (data && data[stringDate]) || [];
@@ -95,7 +95,7 @@ export default function Calendar({ current, data }: PropTypes) {
                 console.log(day);
               }}
               className={cn(
-                "p-1 rounded-lg transition-all duration-150 ease-linear hover:cursor-pointer text-xs  overflow-hidden  w-full",
+                "p-1 rounded-lg transition-all duration-150 ease-linear hover:cursor-pointer text-xs overflow-hidden w-full",
                 isToday(day) ? "bg-muted/80" : "bg-muted"
 
                 //   day.getMonth() !== currentMonth.getMonth() && "opacity-50"
