@@ -101,7 +101,19 @@ export default function Calendar({ current, data }: PropTypes) {
                 //   day.getMonth() !== currentMonth.getMonth() && "opacity-50"
               )}
             >
-              <p className="text-center">{format(day, "d")}</p>
+              <Link
+                to="/todo/$id"
+                params={() => {
+                  const formattedDate = formatDate(day);
+                  return {
+                    id: formattedDate,
+                  };
+                }}
+              >
+                <p className="text-center hover:underline">
+                  {format(day, "d")}
+                </p>
+              </Link>
               <div className="gap-y-1 flex flex-col overflow-hidden ">
                 {todos.map((todo) => {
                   const tags = extractHashtag(todo.todo).map((tag) =>
