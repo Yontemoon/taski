@@ -151,7 +151,9 @@ export default function Calendar({ current, data }: PropTypes) {
                           </HoverCard>
                         );
                       })}
-                      {newSentence.join(" ")}
+                      <span className={cn(todo.status && "line-through")}>
+                        {newSentence.join(" ")}
+                      </span>
                     </div>
                   );
                 })}
