@@ -49,8 +49,8 @@ export default function Calendar({ current, data }: PropTypes) {
   const days = eachDayOfInterval({ start: startCalendar, end: endCalendar });
 
   return (
-    <div className="flex flex-col p-2 w-full h-dvh">
-      <div className="flex justify-between items-center w-full p-4">
+    <>
+      <div className="flex justify-between items-center w-full ">
         <Link
           preload={"viewport"}
           to="/calendar/$date"
@@ -77,7 +77,7 @@ export default function Calendar({ current, data }: PropTypes) {
       {/* Days of the Week */}
       <div className="grid grid-cols-7 text-center auto-rows-fr  font-semibold text-gray-600 w-full ">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-          <div key={day} className="p-2">
+          <div key={day} className="p-0.5">
             {day}
           </div>
         ))}
@@ -162,6 +162,6 @@ export default function Calendar({ current, data }: PropTypes) {
           );
         })}
       </div>
-    </div>
+    </>
   );
 }

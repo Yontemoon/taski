@@ -38,7 +38,8 @@ function Home() {
           )}
         </div>
       </div>
-      <h1>My Todos</h1>
+      <h1>Temporary Home page</h1>
+      <p>What should i put here???</p>
     </div>
   );
 }
