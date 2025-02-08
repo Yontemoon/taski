@@ -95,7 +95,7 @@ export default function Calendar({ current, data }: PropTypes) {
                 console.log(day);
               }}
               className={cn(
-                "p-1 rounded-lg transition-all duration-150 ease-linear hover:cursor-pointer text-xs overflow-hidden w-full",
+                "p-1 rounded-lg transition-all duration-150 ease-linear hover:cursor-pointer text-sm overflow-hidden w-full",
                 isToday(day) ? "bg-muted/80" : "bg-muted"
 
                 //   day.getMonth() !== currentMonth.getMonth() && "opacity-50"
