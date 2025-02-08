@@ -2,6 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { getAllTags, getTagsByDate } from "@/lib/supabase/tags";
 import { getTodos } from "@/lib/supabase/todo";
 import { getTodosByMonth } from "./supabase/todos";
+import { formatDate } from "./utils";
 
 const tagsQueryOptions = (user_id: string, date: string) =>
   queryOptions({
@@ -25,8 +26,10 @@ const tagsAllQueryOptions = (user_id: string) =>
   });
 
 const todosByMonthQueryOptions = (date: Date) => {
+  const yyyyMM = formatDate(date, "PARTIAL");
+
   return queryOptions({
-    queryKey: ["calendar-todos", date],
+    queryKey: ["calendar-todos", yyyyMM],
     queryFn: () => {
       const data = { date: date };
       return getTodosByMonth(data);

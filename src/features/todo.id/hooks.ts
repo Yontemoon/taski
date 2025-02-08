@@ -7,6 +7,7 @@ import { TInputActions, TPayloadInput } from "./types";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth";
 import { editTodo } from "@/lib/supabase/todo";
+import { format } from "date-fns";
 
 const useTodoMutations = (user_id: string, date: string) => {
   const queryClient = useQueryClient();
@@ -61,7 +62,17 @@ const useTodoMutations = (user_id: string, date: string) => {
     onError: (_err, _newTodo, context) => {
       queryClient.setQueryData(["todos", user_id, date], context);
     },
-    onSettled: () => {
+    onSettled: async () => {
+      // const yyyyMM = formatDate(date, "PARTIAL");
+      const yyyyMM = format(date, "yyyy-MM");
+      const qc = queryClient;
+      const calendarKey = ["calendar-todos", yyyyMM];
+      const calendarData = await qc.getQueryData(calendarKey);
+      if (calendarData) {
+        qc.refetchQueries({
+          queryKey: calendarKey,
+        });
+      }
       queryClient.invalidateQueries({ queryKey: ["todos", user_id, date] });
       queryClient.invalidateQueries({ queryKey: ["tags", user_id, date] });
     },
@@ -94,7 +105,17 @@ const useTodoMutations = (user_id: string, date: string) => {
     onError: (_err, _todo_id, context) => {
       queryClient.setQueryData(["todos", user_id, date], context);
     },
-    onSettled: () => {
+    onSettled: async () => {
+      const yyyyMM = format(date, "yyyy-MM");
+      const qc = queryClient;
+      const calendarKey = ["calendar-todos", yyyyMM];
+      const calendarData = await qc.getQueryData(calendarKey);
+      if (calendarData) {
+        qc.refetchQueries({
+          queryKey: calendarKey,
+        });
+      }
+      queryClient.invalidateQueries({ queryKey: ["calendar-todos", yyyyMM] });
       queryClient.invalidateQueries({ queryKey: ["todos", user_id, date] });
     },
   });
@@ -113,21 +134,40 @@ const useTodoMutations = (user_id: string, date: string) => {
     onError: (_err, _data, context) => {
       queryClient.setQueryData(["todos", user_id, date], context);
     },
-    onSettled: () => {
+    onSettled: async () => {
+      const yyyyMM = format(date, "yyyy-MM");
+      const qc = queryClient;
+      const calendarKey = ["calendar-todos", yyyyMM];
+      const calendarData = await qc.getQueryData(calendarKey);
+      if (calendarData) {
+        qc.refetchQueries({
+          queryKey: calendarKey,
+        });
+      }
       queryClient.invalidateQueries({ queryKey: ["todos", user_id, date] });
       queryClient.invalidateQueries({ queryKey: ["tags", user_id, date] });
     },
   });
 
-
   const editMutation = useMutation({
     mutationFn: editTodo,
+    // ! ADD onMutate
+    // ! ADD onError
     // onMutate: () => {}
-    onSettled: () => {
+    onSettled: async () => {
+      const yyyyMM = format(date, "yyyy-MM");
+      const qc = queryClient;
+      const calendarKey = ["calendar-todos", yyyyMM];
+      const calendarData = await qc.getQueryData(calendarKey);
+      if (calendarData) {
+        qc.refetchQueries({
+          queryKey: calendarKey,
+        });
+      }
       queryClient.invalidateQueries({ queryKey: ["todos", user_id, date] });
       queryClient.invalidateQueries({ queryKey: ["tags", user_id, date] });
-    }
-  })
+    },
+  });
 
   return { addMutation, isCompleteMutation, deleteMutation, editMutation };
 };
@@ -194,8 +234,8 @@ const inputReducer = (state: TPayloadInput, action: TInputActions) => {
 };
 
 const useTagSelectionReducer = () => {
-  const queryClient = useQueryClient()
-  const auth = useAuth()
+  const queryClient = useQueryClient();
+  const auth = useAuth();
   const [state, dispatch] = React.useReducer(inputReducer, {
     isOpen: false,
     tag: "",
@@ -206,10 +246,13 @@ const useTagSelectionReducer = () => {
 
   useEffect(() => {
     if (!state.allTags) {
-      const todos = queryClient.getQueryData(["tags", auth.user?.id]) as TAllTags[]
-      dispatch({type: "set-allTags", payload: todos})
+      const todos = queryClient.getQueryData([
+        "tags",
+        auth.user?.id,
+      ]) as TAllTags[];
+      dispatch({ type: "set-allTags", payload: todos });
     }
-  })
+  });
 
   return { state, dispatch };
 };
@@ -256,4 +299,4 @@ const useKeybinds = () => {
   return { setIsNavigational };
 };
 
-export { useTodoMutations, useKeybinds, useTagSelectionReducer };
+export { useKeybinds, useTagSelectionReducer, useTodoMutations };
