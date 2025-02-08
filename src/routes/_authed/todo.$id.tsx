@@ -1,9 +1,7 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { cn, dateTomorrow, dateYesterday, formatDate } from "@/lib/utils";
-
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Trash } from "lucide-react";
-
 import React, { Suspense } from "react";
 import {
   useTodoMutations,
@@ -242,21 +240,20 @@ function RouteComponent() {
         />
       </form>
       <Suspense fallback={<div className="animate-spin h-5 w-5 ">loading</div>}>
-        <ul className="flex gap-2 my-5 justify-start w-full max-w-5xl ">
+        <div className="flex gap-1 my-5 justify-start w-full max-w-5xl flex-wrap">
           {tags?.map((tag) => {
             return (
-              <li key={tag.id}>
-                <Tag
-                  size="lg"
-                  colorNumber={tag.color}
-                  onClick={() => console.log(tag.name)}
-                >
-                  {tag.name}
-                </Tag>
-              </li>
+              <Tag
+                size="lg"
+                key={tag.id}
+                colorNumber={tag.color}
+                onClick={() => console.log(tag.name)}
+              >
+                {tag.name}
+              </Tag>
             );
           })}
-        </ul>
+        </div>
 
         <ul className="max-w-5xl w-full gap-3">
           {data &&
