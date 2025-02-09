@@ -1,18 +1,24 @@
+import React from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import Calendar from "@/components/calendar";
-import { extractHashtag, formatDate } from "@/lib/utils";
+import {
+  cn,
+  extractHashtag,
+  formatDate,
+  getColorFill,
+  getColorStroke,
+} from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { tagsAllQueryOptions, todosByMonthQueryOptions } from "@/lib/options";
 import { Link } from "@tanstack/react-router";
-import React from "react";
 import {
   BarChart,
   Bar,
   XAxis,
   YAxis,
   Tooltip,
-  Legend,
   ResponsiveContainer,
+  Cell,
 } from "recharts";
 
 export const Route = createFileRoute("/_authed/calendar/$date")({
@@ -54,6 +60,7 @@ function RouteComponent() {
           color,
           total: 0,
           complete: 0,
+          difference: 0,
         };
       });
 
@@ -70,6 +77,8 @@ function RouteComponent() {
             if (isComplete) {
               arrayData[tagIndex].complete += 1;
             }
+            arrayData[tagIndex].difference =
+              arrayData[tagIndex].total - arrayData[tagIndex].complete;
           });
 
           setBarData(arrayData);
@@ -98,14 +107,46 @@ function RouteComponent() {
 
         {/* BAR CHART */}
         <ResponsiveContainer className={"max-h-[600px]"}>
-          <BarChart data={barData} layout="vertical">
+          <BarChart
+            data={barData}
+            layout="vertical"
+            margin={{ top: 5, right: 10, left: 20, bottom: 5 }}
+          >
             {/* <CartesianGrid strokeDasharray="5 5" />{" "} */}
             <YAxis dataKey={"name"} type="category" />
-            <XAxis type="number" />
+            <XAxis type="number" allowDecimals={false} />
             <Tooltip />
-            <Legend />
-            <Bar dataKey={"total"} stackId="a" fill="#8884d8" />
-            <Bar dataKey={"complete"} stackId="a" fill="#82ca9d" />
+            {/* <Legend /> */}
+
+            <Bar dataKey={"complete"} stackId="a">
+              {barData?.map((entry, index) => {
+                const filledColor = getColorFill(entry.color);
+                const strokeColor = getColorStroke(entry.color);
+                return (
+                  <Cell
+                    key={index}
+                    // fill="#EF4343"
+                    strokeWidth={2}
+                    className={cn(filledColor, strokeColor)}
+                  />
+                );
+              })}
+            </Bar>
+            <Bar dataKey={"difference"} stackId="a">
+              {barData?.map((entry, index) => {
+                const filledColor = getColorStroke(entry.color);
+
+                return (
+                  <Cell
+                    key={index}
+                    strokeWidth={2}
+                    // stroke="#EF4343"
+                    // fill="#EF4343"
+                    className={cn("fill-white box-border", filledColor)}
+                  />
+                );
+              })}
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </div>

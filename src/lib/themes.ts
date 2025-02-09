@@ -38,4 +38,44 @@ const classColor = {
   17: "bg-tag-17/20 hover:bg-tag-17/40 border-tag-17/40",
 };
 
-export { classColor, themeButtonVariants };
+const classColorFill = {
+  1: "fill-tag-1/20 hover:bg-tag-1/40",
+  2: "fill-tag-2/20 hover:bg-tag-2/40",
+  3: "fill-tag-3/20 hover:bg-tag-3/40",
+  4: "fill-tag-4/20 hover:bg-tag-4/40",
+  5: "fill-tag-5/20 hover:bg-tag-5/40",
+  6: "fill-tag-6/20 hover:bg-tag-6/40",
+  7: "fill-tag-7/20 hover:bg-tag-7/40",
+  8: "fill-tag-8/20 hover:bg-tag-8/40",
+  9: "fill-tag-9/20 hover:bg-tag-9/40",
+  10: "fill-tag-10/20 hover:bg-tag-10/40",
+  11: "fill-tag-11/20 hover:bg-tag-11/40",
+  12: "fill-tag-12/20 hover:bg-tag-12/40",
+  13: "fill-tag-13/20 hover:bg-tag-13/40",
+  14: "fill-tag-14/20 hover:bg-tag-14/40",
+  15: "fill-tag-15/20 hover:bg-tag-15/40",
+  16: "fill-tag-16/20 hover:bg-tag-16/40",
+  17: "fill-tag-17/20 hover:bg-tag-17/40",
+};
+
+const classColorStroke = {
+  1: "stroke-tag-1/20",
+  2: "stroke-tag-2/20",
+  3: "stroke-tag-3/20",
+  4: "stroke-tag-4/20",
+  5: "stroke-tag-5/20",
+  6: "stroke-tag-6/20",
+  7: "stroke-tag-7/20",
+  8: "stroke-tag-8/20",
+  9: "stroke-tag-9/20",
+  10: "stroke-tag-10/20",
+  11: "stroke-tag-11/20",
+  12: "stroke-tag-12/20",
+  13: "stroke-tag-13/20",
+  14: "stroke-tag-14/20",
+  15: "stroke-tag-15/20",
+  16: "stroke-tag-16/20",
+  17: "stroke-tag-17/20",
+};
+
+export { classColor, classColorFill, classColorStroke, themeButtonVariants };

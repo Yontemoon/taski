@@ -31,12 +31,16 @@ const TodoTask = ({ todo, tags, completionAction }: PropTypes) => {
         <Popover key={index}>
           <PopoverTrigger
             onClick={(e) => {
-              e.stopPropagation(); // Stops from triggering the dialog
+              e.stopPropagation();
             }}
           >
             <Tag colorNumber={tag?.color || 1}>{removedHashtag}</Tag>
           </PopoverTrigger>
-          <PopoverContent className="mt-1 w-50 h-50 z-20" align="start">
+          <PopoverContent
+            className="mt-1 w-50 h-50 z-20"
+            align="start"
+            onClick={(e) => e.stopPropagation()}
+          >
             <TagThemeSelector currentTag={tag} />
           </PopoverContent>
         </Popover>
@@ -84,7 +88,8 @@ const TagThemeSelector = ({ currentTag }: { currentTag: TAllTags | null }) => {
           ` rounded-full hover:cursor-pointer h-4 w-4 transition-all duration-300 ease-in-out`,
           theme
         )}
-        onClick={async () => {
+        onClick={async (e) => {
+          e.stopPropagation();
           const isSameColor = currentTag?.color === numberedColor;
           if (!isSameColor && currentTag) {
             await updateColor(currentTag?.id, numberedColor);
@@ -98,9 +103,12 @@ const TagThemeSelector = ({ currentTag }: { currentTag: TAllTags | null }) => {
   });
 
   return (
-    <div className="h-40 w-40">
+    <div className="h-40 w-40" onClick={(e) => e.stopPropagation()}>
       <p>{currentTag?.name}</p>
-      <div className={cn("grid grid-cols-5 py-1 px-4 gap-1 rounded")}>
+      <div
+        className={cn("grid grid-cols-5 py-1 px-4 gap-1 rounded")}
+        onClick={(e) => e.stopPropagation()}
+      >
         {tags}
       </div>
     </div>
