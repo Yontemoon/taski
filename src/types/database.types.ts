@@ -65,6 +65,7 @@ export type Database = {
       }
       todos: {
         Row: {
+          additional_info: string | null
           created_at: string | null
           date_set: string
           id: number
@@ -74,6 +75,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          additional_info?: string | null
           created_at?: string | null
           date_set?: string
           id?: number
@@ -83,6 +85,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          additional_info?: string | null
           created_at?: string | null
           date_set?: string
           id?: number
