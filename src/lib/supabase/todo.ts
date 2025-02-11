@@ -79,9 +79,14 @@ const deleteTodo = async (data: { todo_id: number; user_id: string }) => {
 };
 
 const editTodo = async (
-  data: { todo_id: number; updated_todo: string; user_id: string },
+  data: {
+    todo_id: number;
+    updated_todo: string;
+    user_id: string;
+    updated_additional_info: string;
+  },
 ) => {
-  const { todo_id, updated_todo, user_id } = data;
+  const { todo_id, updated_todo, user_id, updated_additional_info } = data;
   try {
     const { data: deletedTodo, error: deleteTodoError } = await supabase
       .from("todos")
@@ -101,6 +106,7 @@ const editTodo = async (
         user_id: user_id,
         date_set: deletedTodo.date_set,
         id: todo_id,
+        additional_info: updated_additional_info,
       });
 
       if (error) {

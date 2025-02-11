@@ -24,7 +24,18 @@ type PropTypes = {
         undefined,
         undefined,
         string
+      >
+    | FieldApi<
+        {
+          todoEdit: string;
+          todoEditAdditional: string;
+        },
+        "todoEdit",
+        undefined,
+        undefined,
+        string
       >;
+
   ref: React.RefObject<HTMLDivElement>;
   setIsNavigational: React.Dispatch<React.SetStateAction<boolean>>;
   name: string;

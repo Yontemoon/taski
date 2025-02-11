@@ -4,6 +4,8 @@ import InputSelector from "@/components/input-selector";
 import { useTagSelectionReducer } from "./hooks";
 import { Button } from "@/components/ui/button";
 import { useTodoMutations } from "./hooks";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 type PropTypes = {
   todo: TTodos;
@@ -18,11 +20,13 @@ const DialogTodoEdit = ({ todo, setIsNavigational, ref }: PropTypes) => {
   const form = useForm({
     defaultValues: {
       todoEdit: todo.todo,
+      todoEditAdditional: todo.additional_info || "",
     },
     onSubmit: async ({ value }) => {
       const data = {
         todo_id: todo.id,
         updated_todo: value.todoEdit,
+        updated_additional_info: value.todoEditAdditional,
         user_id: todo.user_id,
       };
       console.log(data);
@@ -52,6 +56,24 @@ const DialogTodoEdit = ({ todo, setIsNavigational, ref }: PropTypes) => {
               dispatch={dispatch}
               state={state}
             />
+          );
+        }}
+      />
+      <form.Field
+        name="todoEditAdditional"
+        children={(field) => {
+          return (
+            <>
+              <Label>Additional Info</Label>
+              <Textarea
+                rows={5}
+                name="todoEditAdditional"
+                id={field.name}
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+              />
+            </>
           );
         }}
       />
