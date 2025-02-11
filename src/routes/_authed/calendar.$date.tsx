@@ -20,8 +20,15 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import { z } from "zod";
+
+const calendarSearchParams = z.object({
+  tag: z.string().optional(),
+  is_complete: z.boolean().optional(),
+});
 
 export const Route = createFileRoute("/_authed/calendar/$date")({
+  validateSearch: calendarSearchParams,
   component: RouteComponent,
   beforeLoad: ({ context, params }) => {
     const userId = context.auth.user?.id as string;
@@ -35,6 +42,7 @@ export const Route = createFileRoute("/_authed/calendar/$date")({
 function RouteComponent() {
   const date = Route.useParams().date;
   const context = Route.useRouteContext();
+  const navigate = Route.useNavigate();
   const [barData, setBarData] = React.useState<
     | {
         id: number;
@@ -111,6 +119,17 @@ function RouteComponent() {
             data={barData}
             layout="vertical"
             margin={{ top: 5, right: 10, left: 20, bottom: 5 }}
+            onClick={(e) => {
+              console.log(e);
+              const tag = e.activeLabel;
+              navigate({
+                search: (_prev) => {
+                  return {
+                    tag,
+                  };
+                },
+              });
+            }}
           >
             {/* <CartesianGrid strokeDasharray="5 5" />{" "} */}
             <YAxis dataKey={"name"} type="category" />
@@ -128,6 +147,18 @@ function RouteComponent() {
                     // fill="#EF4343"
                     strokeWidth={2}
                     className={cn(filledColor, strokeColor)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate({
+                        search: (prev) => {
+                          return {
+                            ...prev,
+                            is_complete: true,
+                            tag: entry.name,
+                          };
+                        },
+                      });
+                    }}
                   />
                 );
               })}
@@ -140,6 +171,18 @@ function RouteComponent() {
                   <Cell
                     key={index}
                     strokeWidth={2}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate({
+                        search: (prev) => {
+                          return {
+                            ...prev,
+                            is_complete: false,
+                            tag: entry.name,
+                          };
+                        },
+                      });
+                    }}
                     // stroke="#EF4343"
                     // fill="#EF4343"
                     className={cn("fill-white box-border", filledColor)}
