@@ -44,13 +44,13 @@ function RouteComponent() {
   const context = Route.useRouteContext();
   const navigate = Route.useNavigate();
   const [barData, setBarData] = React.useState<
-    | {
-        id: number;
-        name: string;
-        color: number;
-        total: number;
-        complete: number;
-      }[]
+    {
+      id: number;
+      name: string;
+      color: number;
+      total: number;
+      complete: number;
+    }[]
   >();
   const dateFormat = formatDate(date, "PARTIAL");
   const { data, isPending } = useQuery(todosByMonthQueryOptions(dateFormat));
