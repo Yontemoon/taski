@@ -282,20 +282,21 @@ function RouteComponent() {
                           isCompleteMutation.mutate(data);
                         }}
                       />
-
-                      <Button
-                        variant={"secondary"}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const data = {
-                            todo_id: todo.id,
-                            user_id: context.auth.user?.id!,
-                          };
-                          deleteMutation.mutate(data);
-                        }}
-                      >
-                        <Trash />
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant={"secondary"}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const data = {
+                              todo_id: todo.id,
+                              user_id: context.auth.user?.id!,
+                            };
+                            deleteMutation.mutate(data);
+                          }}
+                        >
+                          <Trash />
+                        </Button>
+                      </div>
                     </li>
                   </DialogTrigger>
 

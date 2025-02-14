@@ -3,6 +3,7 @@ import type { TAllTags } from "@/types/tables.types";
 import Tag from "@/components/Tag";
 import type { TTodos } from "@/types/tables.types";
 import { cn } from "@/lib/utils";
+import { BookPlus } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -47,15 +48,17 @@ const TodoTask = ({ todo, tags, completionAction }: PropTypes) => {
       );
     } else {
       return (
-        <span
-          key={index}
-          className={cn(
-            "hover:cursor-pointer ",
-            todo?.status && "line-through"
-          )}
-        >
-          {task}{" "}
-        </span>
+        <>
+          <span
+            key={index}
+            className={cn(
+              "hover:cursor-pointer ",
+              todo?.status && "line-through"
+            )}
+          >
+            {task}{" "}
+          </span>
+        </>
       );
     }
   });
@@ -64,11 +67,12 @@ const TodoTask = ({ todo, tags, completionAction }: PropTypes) => {
     <p
       className="flex flex-row items-center gap-1"
       onClick={(e) => {
-        e.stopPropagation(); // Stops from triggering the dialog
+        e.stopPropagation();
         completionAction();
       }}
     >
       {tasks}
+      {todo.additional_info && <BookPlus strokeWidth={2} />}
     </p>
   );
 };
