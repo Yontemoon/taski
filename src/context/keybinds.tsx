@@ -11,10 +11,6 @@ const KeybindsContext = React.createContext<{
   setIsNavigational: React.Dispatch<React.SetStateAction<boolean>>;
 } | null>(null);
 
-// const KeybindsCalendarContext = React.createContext<{
-//   setIsNavigational: React.Dispatch<React.SetStateAction<boolean>>;
-// } | null>(null);
-
 const KeybindsTodoProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const params = useParams({ from: "/_authed/todo/$id" });

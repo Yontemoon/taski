@@ -12,11 +12,11 @@ import {
   todosQueryOptions,
 } from "@/lib/options";
 import TodoTask from "@/components/todo-task";
-import Tag from "@/components/tag";
 import InputSelector from "@/components/input-selector";
 import DialogEditTodo from "@/components/dialog/edit-todo";
 import { DialogProvider } from "@/context/dialog";
 import { useTagSelector } from "@/hooks/use-tag-selector";
+import Tag from "@/components/tag";
 
 export const Route = createFileRoute("/_authed/todo/$id")({
   beforeLoad: async ({ context, params }) => {

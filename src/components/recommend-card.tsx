@@ -1,5 +1,4 @@
 import React from "react";
-
 import { Card, CardContent } from "./ui/card";
 import type { TAllTags } from "@/types/tables.types";
 import { cn } from "@/lib/utils";
