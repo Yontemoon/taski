@@ -36,8 +36,6 @@ const getTodosByMonth = async (data: {
       }
     }
 
-    console.log(Object.fromEntries(dateMap));
-
     return Object.fromEntries(dateMap);
   } catch (error) {
     console.error("Error in getTodosyByMonth", error);

@@ -44,12 +44,22 @@ export function dateTomorrow(date: string, returnType?: "Date" | "string") {
 export function dateYesterday(date: string, returnType?: "Date" | "string") {
   const parsedDate = parse(date, "yyyy-MM-dd", new Date());
   const yesterday = sub(parsedDate, { days: 1 });
-
   if (returnType === "string") {
     return format(yesterday, "yyyy-MM-dd");
   }
-
   return yesterday;
+}
+
+export function dateNextMonth(date: string) {
+  const parseDate = parse(date, "yyyy-MM", new Date());
+  const nextMonth = add(parseDate, { months: 1 });
+  return formatDate(nextMonth, "PARTIAL");
+}
+
+export function datePrevMonth(date: string) {
+  const parseDate = parse(date, "yyyy-MM", new Date());
+  const nextMonth = sub(parseDate, { months: 1 });
+  return formatDate(nextMonth, "PARTIAL");
 }
 
 export function getColor(colorNumber: number) {

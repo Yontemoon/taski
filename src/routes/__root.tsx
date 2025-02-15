@@ -6,7 +6,7 @@ import { DefaultCatchBoundary } from "@/components/DefaultCatchBoundary";
 import { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
-import type { AuthContextType } from "@/lib/auth";
+import type { AuthContextType } from "@/context/auth";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;

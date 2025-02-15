@@ -4,6 +4,9 @@ import { Card, CardContent } from "./ui/card";
 import { cn, getColor } from "@/lib/utils";
 import type { FieldApi } from "@tanstack/react-form";
 import { TInputActions, TPayloadInput } from "@/features/todo.id/types";
+import { useOnClickOutside } from "usehooks-ts";
+import { TAllTags } from "@/types/tables.types";
+import { useKeybinds } from "@/context/keybinds";
 
 type PropTypes = {
   field:
@@ -35,9 +38,7 @@ type PropTypes = {
         undefined,
         string
       >;
-
-  ref: React.RefObject<HTMLDivElement>;
-  setIsNavigational: React.Dispatch<React.SetStateAction<boolean>>;
+  allTags: TAllTags[] | null;
   name: string;
   dispatch: React.ActionDispatch<[action: TInputActions]>;
   state: TPayloadInput;
@@ -45,12 +46,23 @@ type PropTypes = {
 
 const InputSelector = ({
   field,
-  ref,
-  setIsNavigational,
+  allTags,
   name,
   dispatch,
   state,
 }: PropTypes) => {
+  const tagsListRef = React.useRef<HTMLDivElement>(null!);
+  const { setIsNavigational } = useKeybinds();
+  React.useEffect(() => {
+    if (allTags) {
+      dispatch({ type: "set-allTags", payload: allTags });
+    }
+  }, [allTags]);
+
+  useOnClickOutside(tagsListRef, () => {
+    dispatch({ type: "hide-tags" });
+  });
+
   return (
     <div className="relative w-full">
       <div>
@@ -68,7 +80,6 @@ const InputSelector = ({
           }}
           autoComplete="off"
           onFocus={(_e) => {
-            console.log("on focus");
             setIsNavigational(false);
             if (state.tag.length > 0) {
               dispatch({ type: "show-vision" });
@@ -143,7 +154,7 @@ const InputSelector = ({
 
       {state.isOpen && (
         <Card
-          ref={ref}
+          ref={tagsListRef}
           className="absolute z-10 max-h-52 overflow-y-auto bg-background max-w-screen-lg w-full mt-1"
         >
           <CardContent className="p-2">

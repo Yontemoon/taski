@@ -1,24 +1,33 @@
-// import React from "react";
-import { TTodos } from "@/types/tables.types";
+import { TAllTags, TTodos } from "@/types/tables.types";
 import { useForm } from "@tanstack/react-form";
-// import InputSelector from "@/components/input-selector";
-// import { useTagSelectionReducer } from "./hooks";
 import { Button } from "@/components/ui/button";
-
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Input } from "../ui/input";
 import { useTodoMutations } from "@/features/todo.id/hooks";
 import { useDialog } from "@/context/dialog";
-import { DialogDescription, DialogTitle } from "../ui/dialog";
+import { DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import InputSelector from "../input-selector";
+// import {
+//   useLocation,
+//   useRouteContext,
+//   useRouterState,
+// } from "@tanstack/react-router";
+import { useTagSelector } from "@/hooks/use-tag-selector";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/context/auth";
 
 type PropTypes = {
   todo: TTodos;
 };
 
 const DialogEditTodo = ({ todo }: PropTypes) => {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const allTags = queryClient.getQueryData(["tags", user?.id]) as TAllTags[];
+
   const { setIsOpen } = useDialog();
   const { editMutation } = useTodoMutations(todo.user_id, todo.date_set);
+  const { dispatch, state } = useTagSelector();
   const form = useForm({
     defaultValues: {
       todoEdit: todo.todo,
@@ -53,18 +62,12 @@ const DialogEditTodo = ({ todo }: PropTypes) => {
             name="todoEdit"
             children={(field) => {
               return (
-                <Input
+                <InputSelector
                   name="todoEdit"
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => {
-                    field.handleChange(e.target.value);
-                  }}
-                  // field={field}
-                  // setIsNavigational={setIsNavigational}
-                  // ref={ref}
-                  // dispatch={dispatch}
-                  // state={state}
+                  field={field}
+                  dispatch={dispatch}
+                  state={state}
+                  allTags={allTags}
                 />
               );
             }}

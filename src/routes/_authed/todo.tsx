@@ -1,8 +1,9 @@
 import Sidebar from "@/components/sidebar";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/context/auth";
 import { formatDate } from "@/lib/utils";
+import { KeybindsTodoProvider } from "@/context/keybinds";
 
 export const Route = createFileRoute("/_authed/todo")({
   beforeLoad: async ({ context }) => {
@@ -27,7 +28,6 @@ function TodoComponenet() {
         >
           Home
         </Link>
-
         <Link to="/calendar" activeProps={{ className: "font-bold" }}>
           Calendar
         </Link>
@@ -47,9 +47,11 @@ function TodoComponenet() {
         <div className="max-w-64 w-full border-r h-full hidden md:block">
           <Sidebar />
         </div>
-        <div className="flex  w-full flex-col items-center mx-4">
-          <Outlet />
-        </div>
+        <KeybindsTodoProvider>
+          <div className="flex  w-full flex-col items-center mx-4">
+            <Outlet />
+          </div>
+        </KeybindsTodoProvider>
       </div>
     </div>
   );

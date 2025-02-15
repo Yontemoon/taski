@@ -3,11 +3,7 @@ import { cn, dateTomorrow, dateYesterday, formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Trash } from "lucide-react";
 import React, { Suspense } from "react";
-import {
-  useTodoMutations,
-  useKeybinds,
-  useTagSelectionReducer,
-} from "@/features/todo.id/hooks";
+import { useTodoMutations } from "@/features/todo.id/hooks";
 import { useForm } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
@@ -15,12 +11,12 @@ import {
   tagsQueryOptions,
   todosQueryOptions,
 } from "@/lib/options";
-import { useOnClickOutside } from "usehooks-ts";
 import TodoTask from "@/components/todo-task";
 import Tag from "@/components/tag";
 import InputSelector from "@/components/input-selector";
 import DialogEditTodo from "@/components/dialog/edit-todo";
 import { DialogProvider } from "@/context/dialog";
+import { useTagSelector } from "@/hooks/use-tag-selector";
 
 export const Route = createFileRoute("/_authed/todo/$id")({
   beforeLoad: async ({ context, params }) => {
@@ -36,9 +32,6 @@ export const Route = createFileRoute("/_authed/todo/$id")({
 function RouteComponent() {
   const context = Route.useRouteContext();
   const router = useRouter();
-  const { setIsNavigational } = useKeybinds();
-
-  const tagsListRef = React.useRef<HTMLDivElement>(null!);
 
   const form = useForm({
     defaultValues: {
@@ -60,22 +53,10 @@ function RouteComponent() {
   const { data: tags } = useSuspenseQuery(
     tagsQueryOptions(context?.auth.user?.id!, date)
   );
-
   const { data: allTags } = useSuspenseQuery(
     tagsAllQueryOptions(context?.auth.user?.id!)
   );
-
-  const { dispatch, state } = useTagSelectionReducer();
-
-  React.useEffect(() => {
-    if (allTags) {
-      dispatch({ type: "set-allTags", payload: allTags });
-    }
-  }, [allTags]);
-
-  useOnClickOutside(tagsListRef, () => {
-    dispatch({ type: "hide-tags" });
-  });
+  const { dispatch, state } = useTagSelector();
 
   const { addMutation, deleteMutation, isCompleteMutation } = useTodoMutations(
     context.auth?.user?.id!,
@@ -155,8 +136,7 @@ function RouteComponent() {
                 <InputSelector
                   name="todo"
                   field={field}
-                  ref={tagsListRef}
-                  setIsNavigational={setIsNavigational}
+                  allTags={allTags}
                   dispatch={dispatch}
                   state={state}
                 />

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
 import { formatDate } from "@/lib/utils";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/context/auth";
 
 export const Route = createFileRoute("/")({
   component: Home,
