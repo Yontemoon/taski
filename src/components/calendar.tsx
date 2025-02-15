@@ -14,26 +14,20 @@ import { Link } from "@tanstack/react-router";
 import { Button } from "./ui/button";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useRouteContext } from "@tanstack/react-router";
-import { TAllTags } from "@/types/tables.types";
+import { TAllTags, TTodos } from "@/types/tables.types";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { DialogProvider } from "@/context/dialog";
+import DialogEditTodo from "./dialog/edit-todo";
 
 type PropTypes = {
   current: Date;
   data:
     | {
-        [k: string]: {
-          created_at: string | null;
-          date_set: string;
-          id: number;
-          status: boolean;
-          todo: string;
-          updated_at: string | null;
-          user_id: string;
-        }[];
+        [k: string]: TTodos[];
       }
     | undefined;
 };
@@ -136,32 +130,37 @@ export default function Calendar({ current, data }: PropTypes) {
                   ]) as TAllTags[];
 
                   return (
-                    <div
-                      className="bg-background rounded-md line-clamp-1 truncate p-0.5 flex gap-1 overflow-hidden"
+                    <DialogProvider
+                      DialogComponent={<DialogEditTodo todo={todo} />}
                       key={todo.id}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                      }}
                     >
-                      {tags.map((tag) => {
-                        const tagColorNumber = allTags.find(
-                          (aTag) => aTag.name === tag
-                        )?.color as number;
+                      <div
+                        className="bg-background rounded-md line-clamp-1 truncate p-0.5 flex gap-1 overflow-hidden"
+                        key={todo.id}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                      >
+                        {tags.map((tag) => {
+                          const tagColorNumber = allTags.find(
+                            (aTag) => aTag.name === tag
+                          )?.color as number;
 
-                        const themeCN = getColor(tagColorNumber);
-                        return (
-                          <HoverCard key={tag} openDelay={3}>
-                            <HoverCardTrigger>
-                              <div className={cn(themeCN, "h-4 w-4")} />
-                            </HoverCardTrigger>
-                            <HoverCardContent>{tag}</HoverCardContent>
-                          </HoverCard>
-                        );
-                      })}
-                      <span className={cn(todo.status && "line-through")}>
-                        {newSentence.join(" ")}
-                      </span>
-                    </div>
+                          const themeCN = getColor(tagColorNumber);
+                          return (
+                            <HoverCard key={tag} openDelay={3}>
+                              <HoverCardTrigger>
+                                <div className={cn(themeCN, "h-4 w-4")} />
+                              </HoverCardTrigger>
+                              <HoverCardContent>{tag}</HoverCardContent>
+                            </HoverCard>
+                          );
+                        })}
+                        <span className={cn(todo.status && "line-through")}>
+                          {newSentence.join(" ")}
+                        </span>
+                      </div>
+                    </DialogProvider>
                   );
                 })}
               </div>

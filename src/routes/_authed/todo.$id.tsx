@@ -18,16 +18,9 @@ import {
 import { useOnClickOutside } from "usehooks-ts";
 import TodoTask from "@/components/TodoTask";
 import Tag from "@/components/Tag";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import InputSelector from "@/components/input-selector";
-import DialogTodoEdit from "@/features/todo.id/dialog-todo-edit";
+import DialogEditTodo from "@/components/dialog/edit-todo";
+import { DialogProvider } from "@/context/dialog";
 
 export const Route = createFileRoute("/_authed/todo/$id")({
   beforeLoad: async ({ context, params }) => {
@@ -84,26 +77,6 @@ function RouteComponent() {
     dispatch({ type: "hide-tags" });
   });
 
-  // React.useEffect(() => {
-  //   if (hoveredDate !== null) {
-  //     const cachedTodos = context.queryClient.getQueryData([
-  //       "todos",
-  //       context?.auth.user?.id!,
-  //       hoveredDate,
-  //     ]);
-
-  //     if (!cachedTodos) {
-  //       context.queryClient.prefetchQuery({
-  //         queryKey: ["todos", context?.auth.user?.id!, hoveredDate],
-  //         queryFn: async () => {
-  //           const todo = await getTodos(context?.auth.user?.id!, hoveredDate);
-  //           return todo;
-  //         },
-  //       });
-  //     }
-  //   }
-  // }, [hoveredDate]);
-
   const { addMutation, deleteMutation, isCompleteMutation } = useTodoMutations(
     context.auth?.user?.id!,
     date
@@ -117,48 +90,11 @@ function RouteComponent() {
     dispatch({ type: "restart-tags" });
   };
 
-  // if (todoPending || tagsPending || allTagsPending) {
-  //   return <div>Loading...</div>;
-  // }
-
   return (
     <>
       <h1>My Todos</h1>
       <h2>{date}</h2>
-      {/* <Popover
-        onOpenChange={(e) => {
-          setIsNavigational(!e);
-        }}
-      >
-        <PopoverTrigger asChild>
-          <Button variant={"outline"}>
-            <CalendarIcon size={24} />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-            mode="single"
-            selected={parse(date, "yyyy-MM-dd", new Date())}
-            onDayPointerEnter={(hoveredDate) => {
-              const parsedDate = formatDate(hoveredDate);
-              setHoveredDate(parsedDate);
-            }}
-            onDayPointerLeave={(prevDate) => {
-              if (!prevDate) return;
-              else setHoveredDate(null);
-            }}
-            onSelect={(date) => {
-              if (date) {
-                const formatedDate = formatDate(date);
-                navigate({
-                  to: "/todo/$id",
-                  params: { id: formatedDate },
-                });
-              }
-            }}
-          />
-        </PopoverContent>
-      </Popover> */}
+
       <div className="flex gap-5">
         <Link
           preload="viewport"
@@ -259,59 +195,50 @@ function RouteComponent() {
           {data &&
             data?.map((todo) => {
               return (
-                <Dialog key={todo.id}>
-                  <DialogTrigger asChild>
-                    <li
-                      className={cn(
-                        `flex justify-between gap-5 w-full mb-2 hover:border-gray-400 px-2 py-1 rounded-lg box-border border
+                <DialogProvider
+                  DialogComponent={<DialogEditTodo todo={todo} />}
+                  key={todo.id}
+                >
+                  <li
+                    className={cn(
+                      `flex justify-between gap-5 w-full mb-2 hover:border-gray-400 px-2 py-1 rounded-lg box-border border
                      duration-100 ease-out transition-colors hover:cursor-pointer`
-                      )}
-                    >
-                      <TodoTask
-                        todo={todo}
-                        tags={allTags!}
-                        completionAction={() => {
-                          if (isCompleteMutation.isPending) {
-                            return;
-                          }
-                          const data = {
-                            user_id: context.auth.user?.id!,
-                            todo_id: todo.id,
-                            status: !todo?.status,
-                          };
-                          isCompleteMutation.mutate(data);
-                        }}
-                      />
-                      <div className="flex gap-2">
-                        <Button
-                          variant={"secondary"}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const data = {
-                              todo_id: todo.id,
-                              user_id: context.auth.user?.id!,
-                            };
-                            deleteMutation.mutate(data);
-                          }}
-                        >
-                          <Trash />
-                        </Button>
-                      </div>
-                    </li>
-                  </DialogTrigger>
-
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>{todo.id}</DialogTitle>
-                      <DialogDescription>{todo.todo}</DialogDescription>
-                    </DialogHeader>
-                    <DialogTodoEdit
-                      setIsNavigational={setIsNavigational}
+                    )}
+                  >
+                    <TodoTask
+                      key={todo.id}
                       todo={todo}
-                      ref={tagsListRef}
+                      tags={allTags!}
+                      completionAction={() => {
+                        if (isCompleteMutation.isPending) {
+                          return;
+                        }
+                        const data = {
+                          user_id: context.auth.user?.id!,
+                          todo_id: todo.id,
+                          status: !todo?.status,
+                        };
+                        isCompleteMutation.mutate(data);
+                      }}
                     />
-                  </DialogContent>
-                </Dialog>
+
+                    <div className="flex gap-2">
+                      <Button
+                        variant={"secondary"}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const data = {
+                            todo_id: todo.id,
+                            user_id: context.auth.user?.id!,
+                          };
+                          deleteMutation.mutate(data);
+                        }}
+                      >
+                        <Trash />
+                      </Button>
+                    </div>
+                  </li>
+                </DialogProvider>
               );
             })}
         </ul>

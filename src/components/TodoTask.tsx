@@ -29,7 +29,7 @@ const TodoTask = ({ todo, tags, completionAction }: PropTypes) => {
       const tag = tags?.find((tag) => tag.name === removedHashtag) || null;
 
       return (
-        <Popover key={index}>
+        <Popover key={`${task}_${index}`}>
           <PopoverTrigger
             onClick={(e) => {
               e.stopPropagation();
@@ -48,17 +48,15 @@ const TodoTask = ({ todo, tags, completionAction }: PropTypes) => {
       );
     } else {
       return (
-        <>
-          <span
-            key={index}
-            className={cn(
-              "hover:cursor-pointer ",
-              todo?.status && "line-through"
-            )}
-          >
-            {task}{" "}
-          </span>
-        </>
+        <span
+          key={`${task}_${index}`}
+          className={cn(
+            "hover:cursor-pointer ",
+            todo?.status && "line-through"
+          )}
+        >
+          {task}{" "}
+        </span>
       );
     }
   });
@@ -79,6 +77,7 @@ const TodoTask = ({ todo, tags, completionAction }: PropTypes) => {
 
 const TagThemeSelector = ({ currentTag }: { currentTag: TAllTags | null }) => {
   const tags = Array.from({ length: 17 }, (_, index) => {
+    console.log(index);
     const numberedColor = (index + 1) as TColorTypes;
     const theme = themeButtonVariants[numberedColor];
     const { queryClient, auth } = useRouteContext({
@@ -87,7 +86,7 @@ const TagThemeSelector = ({ currentTag }: { currentTag: TAllTags | null }) => {
 
     return (
       <div
-        key={numberedColor}
+        key={index}
         className={cn(
           ` rounded-full hover:cursor-pointer h-4 w-4 transition-all duration-300 ease-in-out`,
           theme

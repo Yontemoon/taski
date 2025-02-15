@@ -1,13 +1,19 @@
 import React from "react";
 import { useOnClickOutside } from "usehooks-ts";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
 const DialogContext = React.createContext<{
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 } | null>(null);
 
-const DialogProvider = ({ children }: { children: React.ReactNode }) => {
+const DialogProvider = ({
+  children,
+  DialogComponent,
+}: {
+  children: React.ReactNode;
+  DialogComponent: React.JSX.Element;
+}) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const ref = React.useRef<HTMLDivElement>(null!);
 
@@ -15,9 +21,9 @@ const DialogProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <DialogContext.Provider value={{ isOpen, setIsOpen }}>
-      {children}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent ref={ref}>testing</DialogContent>
+        <DialogTrigger asChild>{children}</DialogTrigger>
+        <DialogContent ref={ref}>{DialogComponent}</DialogContent>
       </Dialog>
     </DialogContext.Provider>
   );
