@@ -16,8 +16,8 @@ import {
   todosQueryOptions,
 } from "@/lib/options";
 import { useOnClickOutside } from "usehooks-ts";
-import TodoTask from "@/components/TodoTask";
-import Tag from "@/components/Tag";
+import TodoTask from "@/components/todo-task";
+import Tag from "@/components/tag";
 import InputSelector from "@/components/input-selector";
 import DialogEditTodo from "@/components/dialog/edit-todo";
 import { DialogProvider } from "@/context/dialog";

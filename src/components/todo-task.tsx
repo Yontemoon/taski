@@ -1,6 +1,6 @@
 // import React from "react";
 import type { TAllTags } from "@/types/tables.types";
-import Tag from "@/components/Tag";
+import Tag from "@/components/tag";
 import type { TTodos } from "@/types/tables.types";
 import { cn } from "@/lib/utils";
 import { BookPlus } from "lucide-react";
