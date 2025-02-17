@@ -2,10 +2,11 @@ import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { cn, dateTomorrow, dateYesterday, formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Trash } from "lucide-react";
-import React, { Suspense } from "react";
+import React from "react";
 import { useTodoMutations } from "@/features/todo.id/hooks";
 import { useForm } from "@tanstack/react-form";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
+
 import {
   tagsAllQueryOptions,
   tagsQueryOptions,
@@ -17,12 +18,12 @@ import DialogEditTodo from "@/components/dialog/edit-todo";
 import { DialogProvider } from "@/context/dialog";
 import { useTagSelector } from "@/hooks/use-tag-selector";
 import Tag from "@/components/tag";
+import Loader from "@/components/loader";
 
 export const Route = createFileRoute("/_authed/todo/$id")({
   beforeLoad: async ({ context, params }) => {
     const date = params.id;
     const userId = context?.auth?.user?.id!;
-
     context.queryClient.prefetchQuery(todosQueryOptions(userId, date));
     context.queryClient.prefetchQuery(tagsQueryOptions(userId, date));
   },
@@ -47,15 +48,18 @@ function RouteComponent() {
   });
 
   const { id: date } = Route.useParams();
-  const { data } = useSuspenseQuery(
-    todosQueryOptions(context?.auth.user?.id!, date)
-  );
-  const { data: tags } = useSuspenseQuery(
-    tagsQueryOptions(context?.auth.user?.id!, date)
-  );
-  const { data: allTags } = useSuspenseQuery(
+  const results = useQueries({
+    queries: [
+      todosQueryOptions(context?.auth.user?.id!, date),
+      tagsQueryOptions(context?.auth.user?.id!, date),
+    ],
+  });
+  const { data: allTags } = useQuery(
     tagsAllQueryOptions(context?.auth.user?.id!)
   );
+  const data = results[0].data;
+  const tags = results[1].data;
+
   const { dispatch, state } = useTagSelector();
 
   const { addMutation, deleteMutation, isCompleteMutation } = useTodoMutations(
@@ -136,7 +140,7 @@ function RouteComponent() {
                 <InputSelector
                   name="todo"
                   field={field}
-                  allTags={allTags}
+                  allTags={allTags!}
                   dispatch={dispatch}
                   state={state}
                 />
@@ -155,22 +159,23 @@ function RouteComponent() {
           }}
         />
       </form>
-      <Suspense fallback={<div className="animate-spin h-5 w-5 ">loading</div>}>
-        <div className="flex gap-1 my-5 justify-start w-full max-w-5xl flex-wrap">
-          {tags?.map((tag) => {
-            return (
-              <Tag
-                size="lg"
-                key={tag.id}
-                colorNumber={tag.color}
-                onClick={() => console.log(tag.name)}
-              >
-                {tag.name}
-              </Tag>
-            );
-          })}
-        </div>
 
+      <div className="flex gap-1 my-5 justify-start w-full max-w-5xl flex-wrap">
+        {tags?.map((tag) => {
+          return (
+            <Tag
+              size="lg"
+              key={tag.id}
+              colorNumber={tag.color}
+              onClick={() => console.log(tag.name)}
+            >
+              {tag.name}
+            </Tag>
+          );
+        })}
+      </div>
+      {!data || (!tags && <Loader />)}
+      {data && tags && (
         <ul className="max-w-5xl w-full gap-3">
           {data &&
             data?.map((todo) => {
@@ -222,7 +227,7 @@ function RouteComponent() {
               );
             })}
         </ul>
-      </Suspense>
+      )}
     </>
   );
 }

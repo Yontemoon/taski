@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import Calendar from "@/components/calendar";
 import {
@@ -8,7 +8,7 @@ import {
   getColorFill,
   getColorStroke,
 } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
+import { useQueries } from "@tanstack/react-query";
 import { tagsAllQueryOptions, todosByMonthQueryOptions } from "@/lib/options";
 import { Link } from "@tanstack/react-router";
 import {
@@ -21,6 +21,7 @@ import {
   Cell,
 } from "recharts";
 import { z } from "zod";
+import Loader from "@/components/loader";
 
 const calendarSearchParams = z.object({
   tag: z.string().optional(),
@@ -53,10 +54,14 @@ function RouteComponent() {
     }[]
   >();
   const dateFormat = formatDate(date, "PARTIAL");
-  const { data, isPending } = useQuery(todosByMonthQueryOptions(dateFormat));
-  const { data: tagsData, isPending: tagsLoading } = useQuery(
-    tagsAllQueryOptions(context.auth.user?.id!)
-  );
+  const results = useQueries({
+    queries: [
+      todosByMonthQueryOptions(dateFormat),
+      tagsAllQueryOptions(context.auth.user?.id!),
+    ],
+  });
+  const data = results[0].data;
+  const tagsData = results[1].data;
 
   React.useMemo(() => {
     if (data && tagsData) {
@@ -95,9 +100,6 @@ function RouteComponent() {
     }
   }, [data, tagsData]);
 
-  if (isPending || tagsLoading) {
-    return <div>Loading...</div>;
-  }
   return (
     <>
       <div className="w-72 lg:block gap-2 hidden h-dvh">
@@ -114,84 +116,88 @@ function RouteComponent() {
         </div>
 
         {/* BAR CHART */}
-        <ResponsiveContainer className={"max-h-[600px]"}>
-          <BarChart
-            data={barData}
-            layout="vertical"
-            margin={{ top: 5, right: 10, left: 20, bottom: 5 }}
-            onClick={(e) => {
-              console.log(e);
-              const tag = e.activeLabel;
-              navigate({
-                search: (_prev) => {
-                  return {
-                    tag,
-                  };
-                },
-              });
-            }}
-          >
-            {/* <CartesianGrid strokeDasharray="5 5" />{" "} */}
-            <YAxis dataKey={"name"} type="category" />
-            <XAxis type="number" allowDecimals={false} />
-            <Tooltip />
-            {/* <Legend /> */}
+        {data ? (
+          <ResponsiveContainer className={"max-h-[600px]"}>
+            <BarChart
+              data={barData}
+              layout="vertical"
+              margin={{ top: 5, right: 10, left: 20, bottom: 5 }}
+              onClick={(e) => {
+                console.log(e);
+                const tag = e.activeLabel;
+                navigate({
+                  search: (_prev) => {
+                    return {
+                      tag,
+                    };
+                  },
+                });
+              }}
+            >
+              {/* <CartesianGrid strokeDasharray="5 5" />{" "} */}
+              <YAxis dataKey={"name"} type="category" />
+              <XAxis type="number" allowDecimals={false} />
+              <Tooltip />
+              {/* <Legend /> */}
 
-            <Bar dataKey={"complete"} stackId="a">
-              {barData?.map((entry, index) => {
-                const filledColor = getColorFill(entry.color);
-                const strokeColor = getColorStroke(entry.color);
-                return (
-                  <Cell
-                    key={index}
-                    // fill="#EF4343"
-                    strokeWidth={2}
-                    className={cn(filledColor, strokeColor)}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate({
-                        search: (prev) => {
-                          return {
-                            ...prev,
-                            is_complete: true,
-                            tag: entry.name,
-                          };
-                        },
-                      });
-                    }}
-                  />
-                );
-              })}
-            </Bar>
-            <Bar dataKey={"difference"} stackId="a">
-              {barData?.map((entry, index) => {
-                const filledColor = getColorStroke(entry.color);
+              <Bar dataKey={"complete"} stackId="a">
+                {barData?.map((entry, index) => {
+                  const filledColor = getColorFill(entry.color);
+                  const strokeColor = getColorStroke(entry.color);
+                  return (
+                    <Cell
+                      key={index}
+                      // fill="#EF4343"
+                      strokeWidth={2}
+                      className={cn(filledColor, strokeColor)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate({
+                          search: (prev) => {
+                            return {
+                              ...prev,
+                              is_complete: true,
+                              tag: entry.name,
+                            };
+                          },
+                        });
+                      }}
+                    />
+                  );
+                })}
+              </Bar>
+              <Bar dataKey={"difference"} stackId="a">
+                {barData?.map((entry, index) => {
+                  const filledColor = getColorStroke(entry.color);
 
-                return (
-                  <Cell
-                    key={index}
-                    strokeWidth={2}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate({
-                        search: (prev) => {
-                          return {
-                            ...prev,
-                            is_complete: false,
-                            tag: entry.name,
-                          };
-                        },
-                      });
-                    }}
-                    // stroke="#EF4343"
-                    // fill="#EF4343"
-                    className={cn("fill-white box-border", filledColor)}
-                  />
-                );
-              })}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+                  return (
+                    <Cell
+                      key={index}
+                      strokeWidth={2}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate({
+                          search: (prev) => {
+                            return {
+                              ...prev,
+                              is_complete: false,
+                              tag: entry.name,
+                            };
+                          },
+                        });
+                      }}
+                      // stroke="#EF4343"
+                      // fill="#EF4343"
+                      className={cn("fill-white box-border", filledColor)}
+                    />
+                  );
+                })}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <Loader />
+        )}
       </div>
       <div className="flex flex-col p-5 w-full h-dvh">
         <Calendar current={dateFormat} data={data} />

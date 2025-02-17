@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/hover-card";
 import { DialogProvider } from "@/context/dialog";
 import DialogEditTodo from "./dialog/edit-todo";
+// import { Suspense } from "react";
+import Loader from "./loader";
 
 type PropTypes = {
   current: Date;
@@ -78,96 +80,100 @@ export default function Calendar({ current, data }: PropTypes) {
       </div>
 
       {/* Calendar Days */}
-      <div className="grid grid-cols-7 auto-rows-fr auto-cols-fr gap-1  w-full flex-grow min-h-0">
-        {days.map((day, index) => {
-          const stringDate = formatDate(day);
-          const todos = (data && data[stringDate]) || [];
-          return (
-            <div
-              key={index}
-              onClick={(_e) => {
-                console.log(day);
-              }}
-              className={cn(
-                "p-1 rounded-lg transition-all duration-150 ease-linear hover:cursor-pointer text-sm overflow-hidden w-full",
-                isToday(day) ? "bg-muted/80" : "bg-muted"
+      {data ? (
+        <div className="grid grid-cols-7 auto-rows-fr auto-cols-fr gap-1  w-full flex-grow min-h-0">
+          {days.map((day, index) => {
+            const stringDate = formatDate(day);
+            const todos = (data && data[stringDate]) || [];
+            return (
+              <div
+                key={index}
+                onClick={(_e) => {
+                  console.log(day);
+                }}
+                className={cn(
+                  "p-1 rounded-lg transition-all duration-150 ease-linear hover:cursor-pointer text-sm overflow-hidden w-full",
+                  isToday(day) ? "bg-muted/80" : "bg-muted"
 
-                //   day.getMonth() !== currentMonth.getMonth() && "opacity-50"
-              )}
-            >
-              <div className="flex justify-center">
-                <Link
-                  to="/todo/$id"
-                  params={() => {
-                    const formattedDate = formatDate(day);
-                    return {
-                      id: formattedDate,
-                    };
-                  }}
-                >
-                  <p
-                    className={cn(
-                      "hover:underline rounded-full w-10 text-center box-border mb-1",
-                      isToday(day) && "bg-foreground/90 text-background"
-                    )}
+                  //   day.getMonth() !== currentMonth.getMonth() && "opacity-50"
+                )}
+              >
+                <div className="flex justify-center">
+                  <Link
+                    to="/todo/$id"
+                    params={() => {
+                      const formattedDate = formatDate(day);
+                      return {
+                        id: formattedDate,
+                      };
+                    }}
                   >
-                    {format(day, "d")}
-                  </p>
-                </Link>
-              </div>
-              <div className="gap-y-1 flex flex-col overflow-hidden ">
-                {todos.map((todo) => {
-                  const tags = extractHashtag(todo.todo).map((tag) =>
-                    tag.slice(1)
-                  );
-                  const todoArray = todo.todo.trim().split(" ");
-                  const newSentence = todoArray.filter(
-                    (word) => word[0] !== "#"
-                  );
-                  const allTags = context.queryClient.getQueryData([
-                    "tags",
-                    context.auth.user?.id,
-                  ]) as TAllTags[];
-
-                  return (
-                    <DialogProvider
-                      DialogComponent={<DialogEditTodo todo={todo} />}
-                      key={todo.id}
+                    <p
+                      className={cn(
+                        "hover:underline rounded-full w-10 text-center box-border mb-1",
+                        isToday(day) && "bg-foreground/90 text-background"
+                      )}
                     >
-                      <div
-                        className="bg-background rounded-md line-clamp-1 truncate p-0.5 flex gap-1 overflow-hidden"
-                        key={todo.id}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                        }}
-                      >
-                        {tags.map((tag) => {
-                          const tagColorNumber = allTags.find(
-                            (aTag) => aTag.name === tag
-                          )?.color as number;
+                      {format(day, "d")}
+                    </p>
+                  </Link>
+                </div>
+                <div className="gap-y-1 flex flex-col overflow-hidden ">
+                  {todos.map((todo) => {
+                    const tags = extractHashtag(todo.todo).map((tag) =>
+                      tag.slice(1)
+                    );
+                    const todoArray = todo.todo.trim().split(" ");
+                    const newSentence = todoArray.filter(
+                      (word) => word[0] !== "#"
+                    );
+                    const allTags = context.queryClient.getQueryData([
+                      "tags",
+                      context.auth.user?.id,
+                    ]) as TAllTags[];
 
-                          const themeCN = getColor(tagColorNumber);
-                          return (
-                            <HoverCard key={tag} openDelay={3}>
-                              <HoverCardTrigger>
-                                <div className={cn(themeCN, "h-4 w-4")} />
-                              </HoverCardTrigger>
-                              <HoverCardContent>{tag}</HoverCardContent>
-                            </HoverCard>
-                          );
-                        })}
-                        <span className={cn(todo.status && "line-through")}>
-                          {newSentence.join(" ")}
-                        </span>
-                      </div>
-                    </DialogProvider>
-                  );
-                })}
+                    return (
+                      <DialogProvider
+                        DialogComponent={<DialogEditTodo todo={todo} />}
+                        key={todo.id}
+                      >
+                        <div
+                          className="bg-background rounded-md line-clamp-1 truncate p-0.5 flex gap-1 overflow-hidden"
+                          key={todo.id}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                          }}
+                        >
+                          {tags.map((tag) => {
+                            const tagColorNumber = allTags.find(
+                              (aTag) => aTag.name === tag
+                            )?.color as number;
+
+                            const themeCN = getColor(tagColorNumber);
+                            return (
+                              <HoverCard key={tag} openDelay={3}>
+                                <HoverCardTrigger>
+                                  <div className={cn(themeCN, "h-4 w-4")} />
+                                </HoverCardTrigger>
+                                <HoverCardContent>{tag}</HoverCardContent>
+                              </HoverCard>
+                            );
+                          })}
+                          <span className={cn(todo.status && "line-through")}>
+                            {newSentence.join(" ")}
+                          </span>
+                        </div>
+                      </DialogProvider>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      ) : (
+        <Loader />
+      )}
     </>
   );
 }
