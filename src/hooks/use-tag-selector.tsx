@@ -3,7 +3,7 @@ import { TAllTags } from "@/types/tables.types";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/context/auth";
 
-type TPayloadInput = {
+export type TPayloadInput = {
   isOpen: boolean;
   tag: string;
   displayedTags: TAllTags[] | null;
@@ -11,7 +11,7 @@ type TPayloadInput = {
   allTags: TAllTags[] | null;
 };
 
-type TInputActions =
+export type TInputActions =
   | {
       type: "present-tag";
       payload: string;

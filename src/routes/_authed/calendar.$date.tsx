@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import Calendar from "@/components/calendar";
 import {
@@ -104,6 +104,7 @@ function RouteComponent() {
     <>
       <div className="w-72 lg:block gap-2 hidden h-dvh">
         <div>
+          <Link to="/home">Home</Link>
           <Link to="/todo/$id" params={{ id: formatDate(new Date()) }}>
             Todos
           </Link>

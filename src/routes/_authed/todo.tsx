@@ -20,13 +20,21 @@ function TodoComponenet() {
     <div>
       <div className=" flex gap-2 text-lg p-2">
         <Link
+          to="/home"
+          activeProps={{
+            className: "font-bold",
+          }}
+        >
+          Home
+        </Link>
+        <Link
           to="/todo/$id"
           params={{ id: formatDate(new Date()) }}
           activeProps={{
             className: "font-bold",
           }}
         >
-          Home
+          Todos
         </Link>
         <Link to="/calendar" activeProps={{ className: "font-bold" }}>
           Calendar

@@ -3,7 +3,7 @@ import { Input } from "./ui/input";
 import { Card, CardContent } from "./ui/card";
 import { cn, getColor } from "@/lib/utils";
 import type { FieldApi } from "@tanstack/react-form";
-import { TInputActions, TPayloadInput } from "@/features/todo.id/types";
+import { TInputActions, TPayloadInput } from "@/hooks/use-tag-selector";
 import { useOnClickOutside } from "usehooks-ts";
 import { TAllTags } from "@/types/tables.types";
 import { useKeybinds } from "@/context/keybinds";
