@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { getAllTags, getTagsByDate } from "@/lib/supabase/tags";
 import { getTodos } from "@/lib/supabase/todo";
-import { getTodosByMonth } from "./supabase/todos";
+import { getTodosByCreatedBy, getTodosByMonth } from "./supabase/todos";
 import { formatDate } from "./utils";
 
 const tagsQueryOptions = (user_id: string, date: string) =>
@@ -38,9 +38,19 @@ const todosByMonthQueryOptions = (date: Date) => {
   });
 };
 
+const todosByCreatedAtOptions = (date: number) => {
+  return queryOptions({
+    queryKey: ["create-at-todos", date],
+    queryFn: () => {
+      const data = { year: date };
+      return getTodosByCreatedBy(data);
+    },
+  });
+};
 export {
   todosQueryOptions,
   tagsQueryOptions,
   tagsAllQueryOptions,
   todosByMonthQueryOptions,
+  todosByCreatedAtOptions,
 };

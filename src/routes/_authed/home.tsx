@@ -1,12 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
 import { formatDate } from "@/lib/utils";
+import YearGrid from "@/components/year-grid";
+import { useQuery } from "@tanstack/react-query";
+import { todosByCreatedAtOptions } from "@/lib/options";
+import Loader from "@/components/loader";
 
 export const Route = createFileRoute("/_authed/home")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
+  const { data, isLoading } = useQuery(todosByCreatedAtOptions(2025));
+
   return (
     <div>
       <div>
@@ -21,7 +27,8 @@ function RouteComponent() {
           Calendar
         </Link>
       </div>
-      <div>This is a home page for authenicated users!</div>
+      {isLoading && <Loader />}
+      {data && <YearGrid data={data!} />}
     </div>
   );
 }
