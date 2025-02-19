@@ -43,6 +43,7 @@ const getUser = () => {
 };
 
 // ! Does this need be a provider? We're passing into context so it's technically available everywhere.
+// TODO: Use Zustand instead?
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(getUser());
