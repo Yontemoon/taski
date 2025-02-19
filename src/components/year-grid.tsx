@@ -8,27 +8,34 @@ import {
 } from "@/components/ui/hover-card";
 import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { todosByCreatedAtOptions, todosByTagOptions } from "@/lib/options";
 
 type PropTypes = {
-  data: { [k: string]: { count: number } };
+  tag?: string | undefined;
 };
 
-const YearGrid = ({ data }: PropTypes) => {
+const YearGrid = ({ tag }: PropTypes) => {
   const start = startOfYear(new Date());
   const end = endOfYear(new Date());
   const days = eachDayOfInterval({ start, end });
   const year = getYear(new Date());
+  const { data } = useSuspenseQuery(
+    tag ? todosByTagOptions(tag, 2025) : todosByCreatedAtOptions(2025)
+  );
 
   return (
     <div className="max-w-sm w-full">
       <h1>{year}</h1>
-      <div className="grid grid-rows-7 grid-flow-col gap-0.5 ">
-        {days.map((day, index) => {
-          const dateString = formatDate(day);
-          const dateCount = data[dateString];
-          return <DaySquare date={day} key={index} count={dateCount} />;
-        })}
-      </div>
+      {data && (
+        <div className="grid grid-rows-7 grid-flow-col gap-0.5 ">
+          {days.map((day, index) => {
+            const dateString = formatDate(day);
+            const dateCount = data[dateString];
+            return <DaySquare date={day} key={index} count={dateCount} />;
+          })}
+        </div>
+      )}
     </div>
   );
 };
