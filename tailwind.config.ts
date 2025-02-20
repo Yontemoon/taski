@@ -38,25 +38,16 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        tag: {
-          1: "hsl(var(--tag-color-1))",
-          2: "hsl(var(--tag-color-2))",
-          3: "hsl(var(--tag-color-3))",
-          4: "hsl(var(--tag-color-4))",
-          5: "hsl(var(--tag-color-5))",
-          6: "hsl(var(--tag-color-6))",
-          7: "hsl(var(--tag-color-7))",
-          8: "hsl(var(--tag-color-8))",
-          9: "hsl(var(--tag-color-9))",
-          10: "hsl(var(--tag-color-10))",
-          11: "hsl(var(--tag-color-11))",
-          12: "hsl(var(--tag-color-12))",
-          13: "hsl(var(--tag-color-13))",
-          14: "hsl(var(--tag-color-14))",
-          15: "hsl(var(--tag-color-15))",
-          16: "hsl(var(--tag-color-16))",
-          17: "hsl(var(--tag-color-17))",
-        },
+        tag: Object.fromEntries(
+          Array.from({ length: 17 }, (_, i) => [
+            i + 1,
+            {
+              background: `hsl(var(--tag-${i + 1}-background))`,
+              border: `hsl(var(--tag-${i + 1}-border))`, 
+              text: `hsl(var(--tag-${i + 1}-text))`, 
+            },
+          ])
+        ),
       },
       borderRadius: {
         lg: `var(--radius)`,

@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authed")({
 
 function RouteComponent() {
   return (
-    <div className="overflow-auto block w-full h-screen">
+    <div className="overflow-auto block w-full h-screen ">
       <div className="flex w-full h-screen">
         <aside className=" gap-2 relative z-10 flex flex-grow-0 flex-shrink-0 flex-col items-center w-20 border border-r-1">
           <nav>

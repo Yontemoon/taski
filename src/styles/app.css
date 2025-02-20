@@ -25,23 +25,74 @@
     --ring: 215 20.2% 65.1%;
     --radius: 0.5rem;
 
-    --tag-color-1: 0 84% 60%;
-    --tag-color-2: 25 95% 53%;
-    --tag-color-3: 38 92% 50%;
-    --tag-color-4: 53 79% 64%;
-    --tag-color-5: 84 81% 44%;
-    --tag-color-6: 142 71% 45%;
-    --tag-color-7: 160 84% 39%;
-    --tag-color-8: 173 80% 40%;
-    --tag-color-9: 189 94% 43%;
-    --tag-color-10: 199 89% 48%;
-    --tag-color-11: 217 91% 60%;
-    --tag-color-12: 239 84% 67%;
-    --tag-color-13: 258 90% 66%;
-    --tag-color-14: 271 91% 65%;
-    --tag-color-15: 292 84% 61%;
-    --tag-color-16: 330 81% 64%;
-    --tag-color-17: 350 89% 60%;
+    /* Tag colors */
+    --tag-1-background: 0 85% 40%;
+    --tag-1-border: 0 90% 50%;
+    --tag-1-text: 0 100% 95%;
+
+    --tag-2-background: 25 85% 45%;
+    --tag-2-border: 25 95% 55%;
+    --tag-2-text: 25 100% 95%;
+
+    --tag-3-background: 38 82% 45%;
+    --tag-3-border: 38 92% 55%;
+    --tag-3-text: 38 100% 95%;
+
+    --tag-4-background: 53 70% 45%;
+    --tag-4-border: 53 79% 55%;
+    --tag-4-text: 53 100% 95%;
+
+    --tag-5-background: 84 75% 40%;
+    --tag-5-border: 84 85% 50%;
+    --tag-5-text: 84 100% 95%;
+
+    --tag-6-background: 142 70% 40%;
+    --tag-6-border: 142 80% 50%;
+    --tag-6-text: 142 100% 95%;
+
+    --tag-7-background: 160 75% 40%;
+    --tag-7-border: 160 85% 50%;
+    --tag-7-text: 160 100% 95%;
+
+    --tag-8-background: 173 78% 40%;
+    --tag-8-border: 173 88% 50%;
+    --tag-8-text: 173 100% 95%;
+
+    --tag-9-background: 189 85% 40%;
+    --tag-9-border: 189 95% 50%;
+    --tag-9-text: 189 100% 95%;
+
+    --tag-10-background: 199 83% 40%;
+    --tag-10-border: 199 92% 50%;
+    --tag-10-text: 199 100% 95%;
+
+    --tag-11-background: 217 85% 40%;
+    --tag-11-border: 217 94% 50%;
+    --tag-11-text: 217 100% 95%;
+
+    --tag-12-background: 239 80% 45%;
+    --tag-12-border: 239 90% 55%;
+    --tag-12-text: 239 100% 95%;
+
+    --tag-13-background: 258 85% 45%;
+    --tag-13-border: 258 95% 55%;
+    --tag-13-text: 258 100% 95%;
+
+    --tag-14-background: 271 85% 45%;
+    --tag-14-border: 271 95% 55%;
+    --tag-14-text: 271 100% 95%;
+
+    --tag-15-background: 292 82% 45%;
+    --tag-15-border: 292 92% 55%;
+    --tag-15-text: 292 100% 95%;
+
+    --tag-16-background: 330 80% 45%;
+    --tag-16-border: 330 90% 55%;
+    --tag-16-text: 330 100% 95%;
+
+    --tag-17-background: 350 85% 45%;
+    --tag-17-border: 350 95% 55%;
+    --tag-17-text: 350 100% 95%;
   }
 
   .dark {
@@ -65,26 +116,48 @@
     --destructive-foreground: 210 40% 98%;
     --ring: 216 34% 17%;
 
-    --tag-color-1: 0 58% 50%;
-    --tag-color-2: 25 65% 40%;
-    --tag-color-3: 38 60% 40%;
-    --tag-color-4: 53 50% 50%;
-    --tag-color-5: 84 48% 35%;
-    --tag-color-6: 142 45% 40%;
-    --tag-color-7: 160 54% 35%;
-    --tag-color-8: 173 52% 35%;
-    --tag-color-9: 189 60% 38%;
-    --tag-color-10: 199 55% 42%;
-    --tag-color-11: 217 60% 50%;
-    --tag-color-12: 239 50% 55%;
-    --tag-color-13: 258 55% 55%;
-    --tag-color-14: 271 60% 54%;
-    --tag-color-15: 292 58% 50%;
-    --tag-color-16: 330 55% 52%;
-    --tag-color-17: 350 60% 50%;
+    /* Dark mode tag colors */
+    --tag-1-background: 0 50% 20%;
+    --tag-1-border: 0 58% 40%;
+    --tag-1-text: 0 100% 85%;
+
+    --tag-2-background: 25 55% 20%;
+    --tag-2-border: 25 65% 35%;
+    --tag-2-text: 25 100% 85%;
+
+    --tag-3-background: 38 50% 20%;
+    --tag-3-border: 38 60% 35%;
+    --tag-3-text: 38 100% 85%;
+
+    --tag-4-background: 53 40% 25%;
+    --tag-4-border: 53 50% 40%;
+    --tag-4-text: 53 100% 85%;
+
+    --tag-5-background: 84 42% 20%;
+    --tag-5-border: 84 48% 35%;
+    --tag-5-text: 84 100% 85%;
+
+    --tag-6-background: 142 38% 20%;
+    --tag-6-border: 142 45% 35%;
+    --tag-6-text: 142 100% 85%;
+
+    --tag-7-background: 160 45% 20%;
+    --tag-7-border: 160 54% 35%;
+    --tag-7-text: 160 100% 85%;
+
+    --tag-8-background: 173 42% 20%;
+    --tag-8-border: 173 52% 35%;
+    --tag-8-text: 173 100% 85%;
+
+    --tag-9-background: 189 50% 20%;
+    --tag-9-border: 189 60% 35%;
+    --tag-9-text: 189 100% 85%;
+
+    --tag-10-background: 199 48% 20%;
+    --tag-10-border: 199 55% 35%;
+    --tag-10-text: 199 100% 85%;
   }
 }
-
 @layer base {
   * {
     @apply border-border;
