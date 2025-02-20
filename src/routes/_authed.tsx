@@ -17,8 +17,8 @@ function RouteComponent() {
   return (
     <div className="overflow-auto block w-full h-screen ">
       <div className="flex w-full h-screen">
-        <aside className=" gap-2 relative z-10 flex flex-grow-0 flex-shrink-0 flex-col items-center w-20 border border-r-1">
-          <nav>
+        <aside className=" gap-2 fixed z-10 flex flex-grow-0 flex-shrink-0 flex-col items-center w-20 border border-r-1 h-screen top-0 left-0 overflow-x-hidden">
+          <nav className="block">
             <LinkIcon to={"/home"}>
               <House />
             </LinkIcon>
@@ -31,12 +31,12 @@ function RouteComponent() {
             >
               <Calendar />
             </LinkIcon>
-          </nav>
-          <nav>
+
             <ThemeToggle />
           </nav>
         </aside>
-        <div className="flex flex-grow h-full items-stretch">
+        {/* Odd solution ml-20 */}
+        <div className="flex flex-grow h-full items-stretch ml-20">
           <Outlet />
         </div>
       </div>
