@@ -10,7 +10,7 @@ import {
 } from "@/lib/utils";
 import { useQueries } from "@tanstack/react-query";
 import { tagsAllQueryOptions, todosByMonthQueryOptions } from "@/lib/options";
-import { Link } from "@tanstack/react-router";
+
 import {
   BarChart,
   Bar,
@@ -103,19 +103,6 @@ function RouteComponent() {
   return (
     <>
       <div className="w-72 lg:block gap-2 hidden h-dvh">
-        <div>
-          <Link to="/home">Home</Link>
-          <Link to="/todo/$id" params={{ id: formatDate(new Date()) }}>
-            Todos
-          </Link>
-          <Link
-            to={"/calendar/$date"}
-            params={{ date: formatDate(new Date(), "PARTIAL") }}
-          >
-            Calendar
-          </Link>
-        </div>
-
         {/* BAR CHART */}
         {data ? (
           <ResponsiveContainer className={"max-h-[600px]"}>

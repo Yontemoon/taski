@@ -76,7 +76,7 @@ function RouteComponent() {
   };
 
   return (
-    <>
+    <div className="flex flex-col align-middle w-full items-center">
       <h1>My Todos</h1>
       <h2>{date}</h2>
 
@@ -228,6 +228,6 @@ function RouteComponent() {
             })}
         </ul>
       )}
-    </>
+    </div>
   );
 }

@@ -1,9 +1,10 @@
 import React from "react";
-import { createFileRoute } from "@tanstack/react-router";
-import { Link } from "@tanstack/react-router";
-import { formatDate } from "@/lib/utils";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+
 import YearGrid from "@/components/year-grid";
 import Loader from "@/components/loader";
+import { tagsAllQueryOptions } from "@/lib/options";
+import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_authed/home")({
   component: RouteComponent,
@@ -13,24 +14,18 @@ export const Route = createFileRoute("/_authed/home")({
 // Each grid being displayed should be based on what the user chooses.
 
 function RouteComponent() {
+  const { auth } = Route.useRouteContext();
+  if (!auth.user) {
+    throw redirect({ to: "/login" });
+  }
+  const { data: tags } = useQuery(tagsAllQueryOptions(auth.user?.id));
   return (
-    <div>
-      <div>
-        <Link to="/home">Home</Link>
-        <Link to="/todo/$id" params={{ id: formatDate(new Date()) }}>
-          Todos
-        </Link>
-        <Link
-          to={"/calendar/$date"}
-          params={{ date: formatDate(new Date(), "PARTIAL") }}
-        >
-          Calendar
-        </Link>
-      </div>
+    <div className=" w-full items-center flex flex-col align-middle">
       <React.Suspense fallback={<Loader />}>
         <YearGrid />
-        <YearGrid tag={"Coding"} />
-        <YearGrid tag={"Work"} />
+        {tags?.map((tag) => {
+          return <YearGrid tag={tag.name} key={tag.id} />;
+        })}
       </React.Suspense>
     </div>
   );
