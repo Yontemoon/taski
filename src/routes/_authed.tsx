@@ -18,7 +18,7 @@ function RouteComponent() {
     <div className="overflow-auto block w-full h-screen ">
       <div className="flex w-full h-screen">
         <aside className=" gap-2 fixed z-10 flex flex-grow-0 flex-shrink-0 flex-col items-center w-20 border border-r-1 h-screen top-0 left-0 overflow-x-hidden">
-          <nav className="block">
+          <nav className="">
             <LinkIcon to={"/home"}>
               <House />
             </LinkIcon>
