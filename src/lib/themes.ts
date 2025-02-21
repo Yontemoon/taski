@@ -1,23 +1,30 @@
 const classColor = {
-  1: "bg-tag-1-background hover:bg-tag-1-background/90 border-tag-1-border text-tag-1-text",
-  2: "bg-tag-2-background hover:bg-tag-2-background/90 border-tag-2-border text-tag-2-text",
-  3: "bg-tag-3-background hover:bg-tag-3-background/90 border-tag-3-border text-tag-3-text",
-  4: "bg-tag-4-background hover:bg-tag-4-background/90 border-tag-4-border text-tag-4-text",
-  5: "bg-tag-5-background hover:bg-tag-5-background/90 border-tag-5-border text-tag-5-text",
-  6: "bg-tag-6-background hover:bg-tag-6-background/90 border-tag-6-border text-tag-6-text",
-  7: "bg-tag-7-background hover:bg-tag-7-background/90 border-tag-7-border text-tag-7-text",
-  8: "bg-tag-8-background hover:bg-tag-8-background/90 border-tag-8-border text-tag-8-text",
-  9: "bg-tag-9-background hover:bg-tag-9-background/90 border-tag-9-border text-tag-9-text",
-  10: "bg-tag-10-background hover:bg-tag-10-background/90 border-tag-10-border text-tag-10-text",
-  11: "bg-tag-11-background hover:bg-tag-11-background/90 border-tag-11-border text-tag-11-text",
-  12: "bg-tag-12-background hover:bg-tag-12-background/90 border-tag-12-border text-tag-12-text",
-  13: "bg-tag-13-background hover:bg-tag-13-background/90 border-tag-13-border text-tag-13-text",
-  14: "bg-tag-14-background hover:bg-tag-14-background/90 border-tag-14-border text-tag-14-text",
-  15: "bg-tag-15-background hover:bg-tag-15-background/90 border-tag-15-border text-tag-15-text",
-  16: "bg-tag-16-background hover:bg-tag-16-background/90 border-tag-16-border text-tag-16-text",
-  17: "bg-tag-17-background hover:bg-tag-17-background/90 border-tag-17-border text-tag-17-text",
+  1: "bg-tag-1-background hover:bg-tag-1-background/90 border-tag-1-border text-tag-1-text border",
+  2: "bg-tag-2-background hover:bg-tag-2-background/90 border-tag-2-border text-tag-2-text border",
+  3: "bg-tag-3-background hover:bg-tag-3-background/90 border-tag-3-border text-tag-3-text border",
+  4: "bg-tag-4-background hover:bg-tag-4-background/90 border-tag-4-border text-tag-4-text border",
+  5: "bg-tag-5-background hover:bg-tag-5-background/90 border-tag-5-border text-tag-5-text border",
+  6: "bg-tag-6-background hover:bg-tag-6-background/90 border-tag-6-border text-tag-6-text border",
+  7: "bg-tag-7-background hover:bg-tag-7-background/90 border-tag-7-border text-tag-7-text border",
+  8: "bg-tag-8-background hover:bg-tag-8-background/90 border-tag-8-border text-tag-8-text border",
+  9: "bg-tag-9-background hover:bg-tag-9-background/90 border-tag-9-border text-tag-9-text border",
+  10:
+    "bg-tag-10-background hover:bg-tag-10-background/90 border-tag-10-border text-tag-10-text border",
+  11:
+    "bg-tag-11-background hover:bg-tag-11-background/90 border-tag-11-border text-tag-11-text border",
+  12:
+    "bg-tag-12-background hover:bg-tag-12-background/90 border-tag-12-border text-tag-12-text border",
+  13:
+    "bg-tag-13-background hover:bg-tag-13-background/90 border-tag-13-border text-tag-13-text border",
+  14:
+    "bg-tag-14-background hover:bg-tag-14-background/90 border-tag-14-border text-tag-14-text border",
+  15:
+    "bg-tag-15-background hover:bg-tag-15-background/90 border-tag-15-border text-tag-15-text border",
+  16:
+    "bg-tag-16-background hover:bg-tag-16-background/90 border-tag-16-border text-tag-16-text border",
+  17:
+    "bg-tag-17-background hover:bg-tag-17-background/90 border-tag-17-border text-tag-17-text border",
 };
-
 
 const themeButtonVariants = {
   1: "bg-tag-1-background hover:bg-tag-1-background/90",
@@ -38,8 +45,6 @@ const themeButtonVariants = {
   16: "bg-tag-16-background hover:bg-tag-16-background/90",
   17: "bg-tag-17-background hover:bg-tag-17-background/90",
 } as const;
-
-
 
 const classColorFill = {
   1: "fill-tag-1-background hover:fill-tag-1-background/90",
@@ -80,6 +85,5 @@ const classColorStroke = {
   16: "stroke-tag-16-border hover:stroke-tag-16-border/90",
   17: "stroke-tag-17-border hover:stroke-tag-17-border/90",
 };
-
 
 export { classColor, classColorFill, classColorStroke, themeButtonVariants };
