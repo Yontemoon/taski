@@ -9,7 +9,7 @@ export const Route = createFileRoute("/_authed/calendar")({
 function RouteComponent() {
   return (
     <KeybindsCalendarProvider>
-      <div className="flex h-screen">
+      <div className="flex w-full">
         <Outlet />
       </div>
     </KeybindsCalendarProvider>

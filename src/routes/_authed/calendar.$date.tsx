@@ -187,9 +187,9 @@ function RouteComponent() {
           <Loader />
         )}
       </div>
-      <div className="flex flex-col p-5 w-full h-dvh">
+      <>
         <Calendar current={dateFormat} data={data} />
-      </div>
+      </>
     </>
   );
 }
