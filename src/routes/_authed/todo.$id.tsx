@@ -19,6 +19,7 @@ import { DialogProvider } from "@/context/dialog";
 import { useTagSelector } from "@/hooks/use-tag-selector";
 import Tag from "@/components/tag";
 import Loader from "@/components/loader";
+import { useWindowSize } from "usehooks-ts";
 
 export const Route = createFileRoute("/_authed/todo/$id")({
   beforeLoad: async ({ context, params }) => {
@@ -33,6 +34,8 @@ export const Route = createFileRoute("/_authed/todo/$id")({
 function RouteComponent() {
   const context = Route.useRouteContext();
   const router = useRouter();
+  const { height } = useWindowSize();
+  console.log(height);
 
   const form = useForm({
     defaultValues: {
@@ -76,7 +79,7 @@ function RouteComponent() {
   };
 
   return (
-    <div className="flex flex-col align-middle w-full items-center">
+    <div className="flex flex-col align-middle w-full items-center mx-3">
       <h1>My Todos</h1>
       <h2>{date}</h2>
 
