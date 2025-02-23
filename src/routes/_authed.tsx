@@ -1,6 +1,6 @@
 import LinkIcon from "@/components/link-icon";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { House, Calendar, ListTodo } from "lucide-react";
+import { House, Calendar, ListTodo, Logs } from "lucide-react";
 import ThemeToggle from "@/components/theme-toggle";
 
 export const Route = createFileRoute("/_authed")({
@@ -27,6 +27,9 @@ function RouteComponent() {
               </LinkIcon>
               <LinkIcon to={"/calendar"}>
                 <Calendar />
+              </LinkIcon>
+              <LinkIcon to={"/schedule"}>
+                <Logs />
               </LinkIcon>
             </nav>
             <ThemeToggle />

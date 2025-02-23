@@ -17,6 +17,7 @@ import { Route as LoginImport } from './routes/login'
 import { Route as AuthedImport } from './routes/_authed'
 import { Route as IndexImport } from './routes/index'
 import { Route as AuthedTodoImport } from './routes/_authed/todo'
+import { Route as AuthedScheduleImport } from './routes/_authed/schedule'
 import { Route as AuthedHomeImport } from './routes/_authed/home'
 import { Route as AuthedCalendarImport } from './routes/_authed/calendar'
 import { Route as AuthedTodoIndexImport } from './routes/_authed/todo.index'
@@ -58,6 +59,12 @@ const IndexRoute = IndexImport.update({
 const AuthedTodoRoute = AuthedTodoImport.update({
   id: '/todo',
   path: '/todo',
+  getParentRoute: () => AuthedRoute,
+} as any)
+
+const AuthedScheduleRoute = AuthedScheduleImport.update({
+  id: '/schedule',
+  path: '/schedule',
   getParentRoute: () => AuthedRoute,
 } as any)
 
@@ -150,6 +157,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedHomeImport
       parentRoute: typeof AuthedImport
     }
+    '/_authed/schedule': {
+      id: '/_authed/schedule'
+      path: '/schedule'
+      fullPath: '/schedule'
+      preLoaderRoute: typeof AuthedScheduleImport
+      parentRoute: typeof AuthedImport
+    }
     '/_authed/todo': {
       id: '/_authed/todo'
       path: '/todo'
@@ -221,12 +235,14 @@ const AuthedTodoRouteWithChildren = AuthedTodoRoute._addFileChildren(
 interface AuthedRouteChildren {
   AuthedCalendarRoute: typeof AuthedCalendarRouteWithChildren
   AuthedHomeRoute: typeof AuthedHomeRoute
+  AuthedScheduleRoute: typeof AuthedScheduleRoute
   AuthedTodoRoute: typeof AuthedTodoRouteWithChildren
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedCalendarRoute: AuthedCalendarRouteWithChildren,
   AuthedHomeRoute: AuthedHomeRoute,
+  AuthedScheduleRoute: AuthedScheduleRoute,
   AuthedTodoRoute: AuthedTodoRouteWithChildren,
 }
 
@@ -241,6 +257,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/calendar': typeof AuthedCalendarRouteWithChildren
   '/home': typeof AuthedHomeRoute
+  '/schedule': typeof AuthedScheduleRoute
   '/todo': typeof AuthedTodoRouteWithChildren
   '/calendar/$date': typeof AuthedCalendarDateRoute
   '/todo/$id': typeof AuthedTodoIdRoute
@@ -255,6 +272,7 @@ export interface FileRoutesByTo {
   '/logout': typeof LogoutRoute
   '/signup': typeof SignupRoute
   '/home': typeof AuthedHomeRoute
+  '/schedule': typeof AuthedScheduleRoute
   '/calendar/$date': typeof AuthedCalendarDateRoute
   '/todo/$id': typeof AuthedTodoIdRoute
   '/calendar': typeof AuthedCalendarIndexRoute
@@ -270,6 +288,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/_authed/calendar': typeof AuthedCalendarRouteWithChildren
   '/_authed/home': typeof AuthedHomeRoute
+  '/_authed/schedule': typeof AuthedScheduleRoute
   '/_authed/todo': typeof AuthedTodoRouteWithChildren
   '/_authed/calendar/$date': typeof AuthedCalendarDateRoute
   '/_authed/todo/$id': typeof AuthedTodoIdRoute
@@ -287,6 +306,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/calendar'
     | '/home'
+    | '/schedule'
     | '/todo'
     | '/calendar/$date'
     | '/todo/$id'
@@ -300,6 +320,7 @@ export interface FileRouteTypes {
     | '/logout'
     | '/signup'
     | '/home'
+    | '/schedule'
     | '/calendar/$date'
     | '/todo/$id'
     | '/calendar'
@@ -313,6 +334,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/_authed/calendar'
     | '/_authed/home'
+    | '/_authed/schedule'
     | '/_authed/todo'
     | '/_authed/calendar/$date'
     | '/_authed/todo/$id'
@@ -362,6 +384,7 @@ export const routeTree = rootRoute
       "children": [
         "/_authed/calendar",
         "/_authed/home",
+        "/_authed/schedule",
         "/_authed/todo"
       ]
     },
@@ -384,6 +407,10 @@ export const routeTree = rootRoute
     },
     "/_authed/home": {
       "filePath": "_authed/home.tsx",
+      "parent": "/_authed"
+    },
+    "/_authed/schedule": {
+      "filePath": "_authed/schedule.tsx",
       "parent": "/_authed"
     },
     "/_authed/todo": {
