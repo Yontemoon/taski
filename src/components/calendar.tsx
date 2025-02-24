@@ -25,6 +25,7 @@ import { DialogProvider } from "@/context/dialog";
 import DialogEditTodo from "./dialog/edit-todo";
 import Loader from "./loader";
 import { useInView } from "react-intersection-observer";
+import { TodoWrapperProvider, useTodo } from "@/context/todo";
 
 type PropTypes = {
   current: Date;
@@ -85,7 +86,7 @@ export default function Calendar({ current, data }: PropTypes) {
               const stringDate = formatDate(day);
               const todos = (data && data[stringDate]) || [];
               return (
-                <div
+                <TodoWrapperProvider
                   key={day.toString()}
                   id="todo-wrapper"
                   onClick={(_e) => {
@@ -120,7 +121,7 @@ export default function Calendar({ current, data }: PropTypes) {
                       return <TodoLine todo={todo} key={todo.id} />;
                     })}
                   </div>
-                </div>
+                </TodoWrapperProvider>
               );
             })}
           </div>
@@ -134,6 +135,7 @@ export default function Calendar({ current, data }: PropTypes) {
 
 const TodoLine = ({ todo }: { todo: TTodos }) => {
   const context = useRouteContext({ from: "/_authed/calendar/$date" });
+  const { numberTodos, setNumberTodos } = useTodo();
 
   const tags = extractHashtag(todo.todo).map((tag) => tag.slice(1));
   const [show, setShow] = React.useState(true);
@@ -145,12 +147,26 @@ const TodoLine = ({ todo }: { todo: TTodos }) => {
     context.auth.user?.id,
   ]) as TAllTags[];
 
-  const { ref } = useInView({
+  const { ref: inViewRef } = useInView({
     threshold: 1,
     onChange(inView) {
       setShow(inView);
+
+      if (!inView) {
+        setNumberTodos(numberTodos + 1);
+      } else {
+        setNumberTodos(numberTodos - 1);
+      }
     },
   });
+
+  React.useEffect(() => {
+    if (show) {
+      setNumberTodos(numberTodos - 1);
+    } else {
+      setNumberTodos(numberTodos + 1);
+    }
+  }, []);
 
   return (
     <DialogProvider
@@ -159,7 +175,7 @@ const TodoLine = ({ todo }: { todo: TTodos }) => {
     >
       {
         <div
-          ref={ref}
+          ref={inViewRef}
           id="todo"
           className={cn(
             "bg-foreground/5 rounded-md line-clamp-1 truncate p-0.5 gap-1 flex",

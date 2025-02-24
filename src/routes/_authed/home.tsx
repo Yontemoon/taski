@@ -10,9 +10,6 @@ export const Route = createFileRoute("/_authed/home")({
   component: RouteComponent,
 });
 
-// TODO: Best way to add these yeargrids?
-// Each grid being displayed should be based on what the user chooses.
-
 function RouteComponent() {
   const { auth } = Route.useRouteContext();
   if (!auth.user) {
