@@ -24,6 +24,7 @@ import {
 import { DialogProvider } from "@/context/dialog";
 import DialogEditTodo from "./dialog/edit-todo";
 import Loader from "./loader";
+import { useInView } from "react-intersection-observer";
 
 type PropTypes = {
   current: Date;
@@ -39,9 +40,6 @@ export default function Calendar({ current, data }: PropTypes) {
   const endMonth = endOfMonth(current);
   const startCalendar = startOfWeek(startMonth);
   const endCalendar = endOfWeek(endMonth);
-
-  const context = useRouteContext({ from: "/_authed/calendar/$date" });
-
   const days = eachDayOfInterval({ start: startCalendar, end: endCalendar });
 
   return (
@@ -82,20 +80,19 @@ export default function Calendar({ current, data }: PropTypes) {
 
         {/* Calendar Days */}
         {data ? (
-          <div className="grid grid-cols-7 auto-rows-fr auto-cols-fr  w-full flex-grow min-h-0 ">
-            {days.map((day, index) => {
+          <div className="grid grid-cols-7 auto-rows-fr auto-cols-fr w-full flex-grow min-h-0 ">
+            {days.map((day) => {
               const stringDate = formatDate(day);
               const todos = (data && data[stringDate]) || [];
               return (
                 <div
-                  key={index}
+                  key={day.toString()}
+                  id="todo-wrapper"
                   onClick={(_e) => {
                     console.log(day);
                   }}
                   className={cn(
-                    "p-1  transition-all duration-150 ease-linear hover:cursor-pointer text-sm overflow-hidden w-full grow border"
-
-                    //   day.getMonth() !== currentMonth.getMonth() && "opacity-50"
+                    "p-1 transition-all duration-150 ease-linear hover:cursor-pointer text-sm overflow-hidden w-full grow border"
                   )}
                 >
                   <div className="flex justify-center">
@@ -120,60 +117,7 @@ export default function Calendar({ current, data }: PropTypes) {
                   </div>
                   <div className="gap-y-1 flex flex-col overflow-hidden ">
                     {todos.map((todo) => {
-                      const tags = extractHashtag(todo.todo).map((tag) =>
-                        tag.slice(1)
-                      );
-                      const isComplete = todo.status;
-                      const todoArray = todo.todo.trim().split(" ");
-                      const newSentence = todoArray.filter(
-                        (word) => word[0] !== "#"
-                      );
-                      const allTags = context.queryClient.getQueryData([
-                        "tags",
-                        context.auth.user?.id,
-                      ]) as TAllTags[];
-
-                      return (
-                        <DialogProvider
-                          DialogComponent={<DialogEditTodo todo={todo} />}
-                          key={todo.id}
-                        >
-                          <div
-                            className="bg-foreground/5 rounded-md line-clamp-1 truncate p-0.5 flex gap-1 overflow-hidden"
-                            key={todo.id}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                            }}
-                          >
-                            {/* <TodoWrapper> */}
-                            {tags.map((tag) => {
-                              const tagColorNumber = allTags.find(
-                                (aTag) => aTag.name === tag
-                              )?.color as number;
-
-                              const themeCN = getColor(tagColorNumber);
-                              return (
-                                <HoverCard key={tag} openDelay={3}>
-                                  <HoverCardTrigger>
-                                    <div
-                                      className={cn(
-                                        themeCN,
-                                        "h-4 w-4",
-                                        !isComplete && "bg-background"
-                                      )}
-                                    />
-                                  </HoverCardTrigger>
-                                  <HoverCardContent>{tag}</HoverCardContent>
-                                </HoverCard>
-                              );
-                            })}
-                            <span className={cn(todo.status && "line-through")}>
-                              {newSentence.join(" ")}
-                            </span>
-                            {/* </TodoWrapper> */}
-                          </div>
-                        </DialogProvider>
-                      );
+                      return <TodoLine todo={todo} key={todo.id} />;
                     })}
                   </div>
                 </div>
@@ -188,32 +132,69 @@ export default function Calendar({ current, data }: PropTypes) {
   );
 }
 
-const TodoWrapper = ({ children }: { children: React.ReactNode }) => {
-  const refWrapper = React.useRef<HTMLDivElement>(null);
-  const [isOverflow, setIsOverflow] = React.useState<boolean>(false);
+const TodoLine = ({ todo }: { todo: TTodos }) => {
+  const context = useRouteContext({ from: "/_authed/calendar/$date" });
 
-  React.useEffect(() => {
-    console.log(refWrapper.current);
-    const checkIsOverflow = () => {
-      const wrapper = refWrapper.current;
-      if (wrapper) {
-        const hasOverflow =
-          wrapper.scrollWidth > wrapper.clientWidth ||
-          wrapper.scrollHeight > wrapper.clientHeight;
-        setIsOverflow(hasOverflow);
-      }
-    };
-    checkIsOverflow();
-    window.addEventListener("resize", checkIsOverflow); // Check on resize too
+  const tags = extractHashtag(todo.todo).map((tag) => tag.slice(1));
+  const [show, setShow] = React.useState(true);
+  const isComplete = todo.status;
+  const todoArray = todo.todo.trim().split(" ");
+  const newSentence = todoArray.filter((word) => word[0] !== "#");
+  const allTags = context.queryClient.getQueryData([
+    "tags",
+    context.auth.user?.id,
+  ]) as TAllTags[];
 
-    return () => {
-      window.removeEventListener("resize", checkIsOverflow);
-    };
-  }, []);
+  const { ref } = useInView({
+    threshold: 1,
+    onChange(inView) {
+      setShow(inView);
+    },
+  });
 
   return (
-    <div ref={refWrapper} className="flex">
-      {!isOverflow ? children : null}
-    </div>
+    <DialogProvider
+      DialogComponent={<DialogEditTodo todo={todo} />}
+      key={todo.id}
+    >
+      {
+        <div
+          ref={ref}
+          id="todo"
+          className={cn(
+            "bg-foreground/5 rounded-md line-clamp-1 truncate p-0.5 gap-1 flex",
+            show ? "flex" : "invisible"
+          )}
+          key={todo.id}
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
+          {tags.map((tag) => {
+            const tagColorNumber = allTags.find((aTag) => aTag.name === tag)
+              ?.color as number;
+
+            const themeCN = getColor(tagColorNumber);
+            return (
+              <HoverCard key={tag} openDelay={3}>
+                <HoverCardTrigger>
+                  <div
+                    className={cn(
+                      themeCN,
+                      "h-4 w-4",
+                      !isComplete && "bg-background"
+                    )}
+                  />
+                </HoverCardTrigger>
+                <HoverCardContent>{tag}</HoverCardContent>
+              </HoverCard>
+            );
+          })}
+          <span className={cn(todo.status && "line-through")}>
+            {newSentence.join(" ")}
+          </span>
+        </div>
+      }
+    </DialogProvider>
   );
 };
