@@ -129,12 +129,12 @@ function RouteComponent() {
               {/* <Legend /> */}
 
               <Bar dataKey={"complete"} stackId="a">
-                {barData?.map((entry, index) => {
+                {barData?.map((entry) => {
                   const filledColor = getColorFill(entry.color);
                   const strokeColor = getColorStroke(entry.color);
                   return (
                     <Cell
-                      key={index}
+                      key={entry.id}
                       // fill="#EF4343"
                       strokeWidth={2}
                       className={cn(filledColor, strokeColor)}

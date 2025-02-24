@@ -14,11 +14,11 @@ const RecommendCard = ({ list, selected, onSelect, ...props }: PropTypes) => {
     <Card className="absolute top-full left-0 w-full max-h-64 overflow-auto shadow-lg z-50">
       <CardContent>
         <ul className="space-y-2 ">
-          {list?.map((tag, index) => {
+          {list?.map((tag) => {
             const isSelected = selected?.id === tag.id;
             return (
               <li
-                key={index}
+                key={tag.id}
                 className={cn(
                   `p-2 cursor-pointer ${
                     selected?.id === tag.id ? "bg-gray-200" : ""
