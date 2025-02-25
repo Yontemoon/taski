@@ -18,7 +18,6 @@ const TodoWrapperProvider = ({
   ...props
 }: TodoProviderProps) => {
   const [numberTodos, setNumberTodos] = React.useState<number>(0);
-  // const dayRef = React.useRef<HTMLDivElement>(null!);
 
   const set = React.useCallback((number: number) => {
     setNumberTodos(number);

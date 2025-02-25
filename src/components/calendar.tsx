@@ -163,10 +163,8 @@ const TodoLine = ({ todo }: { todo: TTodos }) => {
   const { decrease, increase } = useTodo();
 
   const tags = extractHashtag(todo.todo).map((tag) => tag.slice(1));
-  // const [show, setShow] = React.useState(false);
   const isComplete = todo.status;
   const todoArray = todo.todo.trim().split(" ");
-  // const inViewRef = React.useRef<HTMLDivElement>(null!);
   const newSentence = todoArray.filter((word) => word[0] !== "#");
   const allTags = context.queryClient.getQueryData([
     "tags",
@@ -178,7 +176,6 @@ const TodoLine = ({ todo }: { todo: TTodos }) => {
   });
 
   React.useEffect(() => {
-    // console.log("passing");
     if (inView) {
       decrease();
     } else {
