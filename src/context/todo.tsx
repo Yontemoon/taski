@@ -24,21 +24,21 @@ const TodoWrapperProvider = ({
     setNumberTodos(number);
   }, []);
 
-  const increase = () => {
-    setNumberTodos(numberTodos + 1);
-  };
+  const increase = React.useCallback(() => {
+    setNumberTodos((prev) => prev + 1);
+  }, []);
 
-  const decrease = () => {
-    setNumberTodos(numberTodos - 1);
-  };
+  const decrease = React.useCallback(() => {
+    setNumberTodos((prev) => prev - 1);
+  }, []);
 
   return (
     <TodoContext.Provider value={{ set, increase, decrease }}>
       <div {...props} className={cn("relative ", className)}>
         {children}
         {numberTodos > 0 && (
-          <div className="absolute bottom-0 left-0 z-20 bg-foreground w-full text-background rounded-sm p-1 text-center">
-            <p>{numberTodos}</p>
+          <div className="absolute bottom-0 left-0 z-20 bg-foreground/5 rounded-md w-full text-foreground p-0.5 hover:bg-background mx-1">
+            <p>{numberTodos} more</p>
           </div>
         )}
       </div>

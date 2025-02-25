@@ -142,18 +142,18 @@ const DayWrapper = ({
   const ref = React.useRef<HTMLDivElement>(null);
 
   // console.log("passing here");
-  React.useLayoutEffect(() => {
+  React.useEffect(() => {
     let initInvis = 0;
     console.log(ref.current?.childNodes);
     ref.current?.childNodes.forEach((node) => {
       const child = node.firstChild as HTMLDivElement;
-      if (child && child.hidden === true) {
+      if (child && child.className.includes("invisible")) {
         initInvis++;
       }
     });
     console.log(initInvis);
     set(initInvis);
-  }, [ref]);
+  }, []);
 
   return <div ref={ref}>{children}</div>;
 };
@@ -178,7 +178,7 @@ const TodoLine = ({ todo }: { todo: TTodos }) => {
   });
 
   React.useEffect(() => {
-    console.log("passing");
+    // console.log("passing");
     if (inView) {
       decrease();
     } else {
@@ -190,7 +190,7 @@ const TodoLine = ({ todo }: { todo: TTodos }) => {
     <div ref={ref}>
       <DialogProvider DialogComponent={<DialogEditTodo todo={todo} />}>
         <div
-          hidden={!inView}
+          hidden={inView}
           id="todo"
           className={cn(
             "bg-foreground/5 rounded-md line-clamp-1 truncate p-0.5 gap-1  w-full",
