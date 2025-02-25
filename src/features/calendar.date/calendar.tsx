@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ComponentProps } from "react";
 import {
   format,
   startOfMonth,
@@ -12,7 +12,7 @@ import {
 } from "date-fns";
 import { cn, extractHashtag, formatDate, getColor } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useRouteContext } from "@tanstack/react-router";
 import { TAllTags, TTodos } from "@/types/tables.types";
@@ -22,9 +22,9 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { DialogProvider } from "@/context/dialog";
-import DialogEditTodo from "./dialog/edit-todo";
-import Loader from "./loader";
-import { useInView } from "react-intersection-observer";
+import DialogEditTodo from "@/components/dialog/edit-todo";
+import Loader from "@/components/loader";
+import { InView } from "react-intersection-observer";
 import { TodoWrapperProvider, useTodo } from "@/context/todo";
 
 type PropTypes = {
@@ -116,13 +116,15 @@ export default function Calendar({ current, data }: PropTypes) {
                       </p>
                     </Link>
                   </div>
-                  <div className="gap-y-1 flex flex-col overflow-hidden">
-                    <DayWrapper>
-                      {todos.map((todo) => {
-                        return <TodoLine todo={todo} key={todo.id} />;
-                      })}
-                    </DayWrapper>
-                  </div>
+                  <DayWrapper className="gap-y-1 flex flex-col overflow-hidden ">
+                    {todos.map((todo) => {
+                      return (
+                        <>
+                          <TodoLine todo={todo} key={todo.id} />
+                        </>
+                      );
+                    })}
+                  </DayWrapper>
                 </TodoWrapperProvider>
               );
             })}
@@ -137,33 +139,23 @@ export default function Calendar({ current, data }: PropTypes) {
 
 const DayWrapper = ({
   children,
-}: { children: React.ReactNode } & React.ComponentProps<"div">) => {
-  const { set } = useTodo();
+}: { children: React.ReactNode } & ComponentProps<"div">) => {
+  //   const { set } = useTodo();
   const ref = React.useRef<HTMLDivElement>(null);
-
-  // console.log("passing here");
-  React.useLayoutEffect(() => {
-    let initInvis = 0;
-    console.log(ref.current?.childNodes);
-    ref.current?.childNodes.forEach((node) => {
-      const child = node.firstChild as HTMLDivElement;
-      if (child && child.hidden === true) {
-        initInvis++;
-      }
-    });
-    console.log(initInvis);
-    set(initInvis);
-  }, [ref]);
+  console.log("passing here");
+  React.useEffect(() => {
+    console.log(ref.current);
+  }, []);
 
   return <div ref={ref}>{children}</div>;
 };
 
 const TodoLine = ({ todo }: { todo: TTodos }) => {
   const context = useRouteContext({ from: "/_authed/calendar/$date" });
-  const { decrease, increase } = useTodo();
+  const { numberTodos, setNumberTodos } = useTodo();
 
   const tags = extractHashtag(todo.todo).map((tag) => tag.slice(1));
-  // const [show, setShow] = React.useState(false);
+  const [show, setShow] = React.useState(true);
   const isComplete = todo.status;
   const todoArray = todo.todo.trim().split(" ");
   // const inViewRef = React.useRef<HTMLDivElement>(null!);
@@ -173,60 +165,58 @@ const TodoLine = ({ todo }: { todo: TTodos }) => {
     context.auth.user?.id,
   ]) as TAllTags[];
 
-  const { ref, inView } = useInView({
-    threshold: 1,
-  });
-
-  React.useEffect(() => {
-    console.log("passing");
-    if (inView) {
-      decrease();
-    } else {
-      increase();
-    }
-  }, [inView]);
-
   return (
-    <div ref={ref}>
-      <DialogProvider DialogComponent={<DialogEditTodo todo={todo} />}>
-        <div
-          hidden={!inView}
-          id="todo"
-          className={cn(
-            "bg-foreground/5 rounded-md line-clamp-1 truncate p-0.5 gap-1  w-full",
-            inView ? "inline-flex " : "invisible"
-          )}
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-        >
-          <>
-            {tags.map((tag) => {
-              const tagColorNumber = allTags.find((aTag) => aTag.name === tag)
-                ?.color as number;
+    <DialogProvider
+      DialogComponent={<DialogEditTodo todo={todo} />}
+      key={todo.id}
+    >
+      <InView
+        id="todo"
+        className={cn(
+          "bg-foreground/5 rounded-md line-clamp-1 truncate p-0.5 gap-1",
+          show ? "inline-flex" : "invisible"
+        )}
+        key={todo.id}
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+        threshold={1}
+        onChange={(inView, _entry) => {
+          setShow(inView);
 
-              const themeCN = getColor(tagColorNumber);
-              return (
-                <HoverCard key={tag} openDelay={3}>
-                  <HoverCardTrigger>
-                    <div
-                      className={cn(
-                        themeCN,
-                        "h-4 w-4",
-                        !isComplete && "bg-background"
-                      )}
-                    />
-                  </HoverCardTrigger>
-                  <HoverCardContent>{tag}</HoverCardContent>
-                </HoverCard>
-              );
-            })}
-            <span className={cn(todo.status && "line-through")}>
-              {newSentence.join(" ")}
-            </span>
-          </>
-        </div>
-      </DialogProvider>
-    </div>
+          if (!inView) {
+            setNumberTodos(numberTodos + 1);
+          } else {
+            setNumberTodos(numberTodos - 1);
+          }
+        }}
+      >
+        <>
+          {tags.map((tag) => {
+            const tagColorNumber = allTags.find((aTag) => aTag.name === tag)
+              ?.color as number;
+
+            const themeCN = getColor(tagColorNumber);
+            return (
+              <HoverCard key={tag} openDelay={3}>
+                <HoverCardTrigger>
+                  <div
+                    className={cn(
+                      themeCN,
+                      "h-4 w-4",
+                      !isComplete && "bg-background"
+                    )}
+                  />
+                </HoverCardTrigger>
+                <HoverCardContent>{tag}</HoverCardContent>
+              </HoverCard>
+            );
+          })}
+          <span className={cn(todo.status && "line-through")}>
+            {newSentence.join(" ")}
+          </span>
+        </>
+      </InView>
+    </DialogProvider>
   );
 };
