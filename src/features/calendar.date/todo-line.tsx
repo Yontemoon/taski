@@ -1,4 +1,4 @@
-import { TTodos, TAllTags } from "@/types/tables.types";
+import { TTodos } from "@/types/tables.types";
 import { cn } from "@/lib/utils";
 import { extractHashtag } from "@/lib/utils";
 import { useRouteContext } from "@tanstack/react-router";
@@ -30,35 +30,33 @@ const TodoLine = ({
     <div
       id="todo"
       className={cn(
-        "bg-foreground/5 rounded-md line-clamp-1 truncate px-1 py-1 gap-1 w-full text-xs hover:bg-foreground/10 -z-10 relative",
+        "bg-foreground/5 rounded-md line-clamp-1 truncate px-1 py-1 gap-1 w-full text-xs hover:bg-foreground/10 z-0 relative",
         className
       )}
     >
-      <>
-        {tags.map((tag) => {
-          const tagColorNumber = allTags?.find((aTag) => aTag.name === tag)
-            ?.color as number;
+      {tags.map((tag) => {
+        const tagColorNumber = allTags?.find((aTag) => aTag.name === tag)
+          ?.color as number;
 
-          const themeCN = getColor(tagColorNumber);
-          return (
-            <HoverCard key={tag}>
-              <HoverCardTrigger>
-                <div
-                  className={cn(
-                    themeCN,
-                    "h-4 w-4",
-                    !isComplete && "bg-background"
-                  )}
-                />
-              </HoverCardTrigger>
-              <HoverCardContent>{tag}</HoverCardContent>
-            </HoverCard>
-          );
-        })}
-        <span className={cn(todo.status && "line-through")}>
-          {newSentence.join(" ")}
-        </span>
-      </>
+        const themeCN = getColor(tagColorNumber);
+        return (
+          <HoverCard key={tag}>
+            <HoverCardTrigger>
+              <div
+                className={cn(
+                  themeCN,
+                  "h-4 w-4",
+                  !isComplete && "bg-background"
+                )}
+              />
+            </HoverCardTrigger>
+            <HoverCardContent>{tag}</HoverCardContent>
+          </HoverCard>
+        );
+      })}
+      <span className={cn(todo.status && "line-through")}>
+        {newSentence.join(" ")}
+      </span>
     </div>
   );
 };

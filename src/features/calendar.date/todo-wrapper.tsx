@@ -24,12 +24,12 @@ const TodoWrapper = ({ todo }: { todo: TTodos }) => {
 
   return (
     <DialogProvider DialogComponent={<DialogEditTodo todo={todo} />}>
-      <div ref={ref}>
+      <span ref={ref}>
         <TodoLine
           className={cn(inView ? "inline-flex " : "invisible")}
           todo={todo}
         />
-      </div>
+      </span>
     </DialogProvider>
   );
 };
