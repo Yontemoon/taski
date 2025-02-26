@@ -87,7 +87,9 @@ export default function Calendar({ current, data }: PropTypes) {
               const todos = (data && data[stringDate]) || [];
               return (
                 <TodoWrapperProvider
+                  todos={todos}
                   key={day.toString()}
+                  date={stringDate}
                   id="day-wrapper"
                   onClick={(_e) => {
                     console.log(day);
@@ -119,7 +121,7 @@ export default function Calendar({ current, data }: PropTypes) {
                   <div className="gap-y-1 flex flex-col overflow-hidden">
                     <DayWrapper>
                       {todos.map((todo) => {
-                        return <TodoLine todo={todo} key={todo.id} />;
+                        return <TodoWrapper todo={todo} key={todo.id} />;
                       })}
                     </DayWrapper>
                   </div>
@@ -140,8 +142,6 @@ const DayWrapper = ({
 }: { children: React.ReactNode } & React.ComponentProps<"div">) => {
   const { set } = useTodo();
   const ref = React.useRef<HTMLDivElement>(null);
-
-  // console.log("passing here");
   React.useEffect(() => {
     let initInvis = 0;
     console.log(ref.current?.childNodes);
@@ -158,18 +158,8 @@ const DayWrapper = ({
   return <div ref={ref}>{children}</div>;
 };
 
-const TodoLine = ({ todo }: { todo: TTodos }) => {
-  const context = useRouteContext({ from: "/_authed/calendar/$date" });
+export const TodoWrapper = ({ todo }: { todo: TTodos }) => {
   const { decrease, increase } = useTodo();
-
-  const tags = extractHashtag(todo.todo).map((tag) => tag.slice(1));
-  const isComplete = todo.status;
-  const todoArray = todo.todo.trim().split(" ");
-  const newSentence = todoArray.filter((word) => word[0] !== "#");
-  const allTags = context.queryClient.getQueryData([
-    "tags",
-    context.auth.user?.id,
-  ]) as TAllTags[];
 
   const { ref, inView } = useInView({
     threshold: 1,
@@ -186,44 +176,67 @@ const TodoLine = ({ todo }: { todo: TTodos }) => {
   return (
     <div ref={ref}>
       <DialogProvider DialogComponent={<DialogEditTodo todo={todo} />}>
-        <div
-          hidden={inView}
-          id="todo"
-          className={cn(
-            "bg-foreground/5 rounded-md line-clamp-1 truncate p-0.5 gap-1  w-full",
-            inView ? "inline-flex " : "invisible"
-          )}
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-        >
-          <>
-            {tags.map((tag) => {
-              const tagColorNumber = allTags.find((aTag) => aTag.name === tag)
-                ?.color as number;
-
-              const themeCN = getColor(tagColorNumber);
-              return (
-                <HoverCard key={tag} openDelay={3}>
-                  <HoverCardTrigger>
-                    <div
-                      className={cn(
-                        themeCN,
-                        "h-4 w-4",
-                        !isComplete && "bg-background"
-                      )}
-                    />
-                  </HoverCardTrigger>
-                  <HoverCardContent>{tag}</HoverCardContent>
-                </HoverCard>
-              );
-            })}
-            <span className={cn(todo.status && "line-through")}>
-              {newSentence.join(" ")}
-            </span>
-          </>
-        </div>
+        <TodoLine
+          className={cn(inView ? "inline-flex " : "invisible")}
+          todo={todo}
+        />
       </DialogProvider>
+    </div>
+  );
+};
+
+export const TodoLine = ({
+  todo,
+  className,
+}: {
+  todo: TTodos;
+  className?: string;
+}) => {
+  const context = useRouteContext({ from: "/_authed/calendar/$date" });
+  const tags = extractHashtag(todo.todo).map((tag) => tag.slice(1));
+  const isComplete = todo.status;
+  const todoArray = todo.todo.trim().split(" ");
+  const newSentence = todoArray.filter((word) => word[0] !== "#");
+  const allTags = context.queryClient.getQueryData([
+    "tags",
+    context.auth.user?.id,
+  ]) as TAllTags[];
+  return (
+    <div
+      id="todo"
+      className={cn(
+        "bg-foreground/5 rounded-md line-clamp-1 truncate p-0.5 gap-1 w-full text-xs",
+        className
+      )}
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
+    >
+      <>
+        {tags.map((tag) => {
+          const tagColorNumber = allTags.find((aTag) => aTag.name === tag)
+            ?.color as number;
+
+          const themeCN = getColor(tagColorNumber);
+          return (
+            <HoverCard key={tag}>
+              <HoverCardTrigger>
+                <div
+                  className={cn(
+                    themeCN,
+                    "h-4 w-4",
+                    !isComplete && "bg-background"
+                  )}
+                />
+              </HoverCardTrigger>
+              <HoverCardContent>{tag}</HoverCardContent>
+            </HoverCard>
+          );
+        })}
+        <span className={cn(todo.status && "line-through")}>
+          {newSentence.join(" ")}
+        </span>
+      </>
     </div>
   );
 };

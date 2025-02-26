@@ -1,5 +1,13 @@
 import React from "react";
 import { cn } from "@/lib/utils";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { TodoLine } from "@/components/calendar";
+
+import { TTodos } from "@/types/tables.types";
 
 const TodoContext = React.createContext<{
   set: (number: number) => void;
@@ -10,11 +18,15 @@ const TodoContext = React.createContext<{
 type TodoProviderProps = {
   children: React.ReactNode;
   className: string;
+  date: string;
+  todos: TTodos[];
 } & React.ComponentProps<"div">;
 
 const TodoWrapperProvider = ({
   children,
   className,
+  date,
+  todos,
   ...props
 }: TodoProviderProps) => {
   const [numberTodos, setNumberTodos] = React.useState<number>(0);
@@ -36,9 +48,22 @@ const TodoWrapperProvider = ({
       <div {...props} className={cn("relative ", className)}>
         {children}
         {numberTodos > 0 && (
-          <div className="absolute bottom-0 left-0 z-20 bg-foreground/5 rounded-md w-full text-foreground p-0.5 hover:bg-background mx-1">
-            <p>{numberTodos} more</p>
-          </div>
+          <Popover>
+            <PopoverTrigger
+              className="absolute bottom-0 left-0 z-20 bg-foreground/5 rounded-md w-full text-foreground p-0.5 hover:bg-background mx-1"
+              asChild
+            >
+              <p>{numberTodos} more</p>
+            </PopoverTrigger>
+            <PopoverContent>
+              <h1>{date}</h1>
+              {todos.map((todo) => {
+                return (
+                  <TodoLine todo={todo} key={todo.id} className="inline-flex" />
+                );
+              })}
+            </PopoverContent>
+          </Popover>
         )}
       </div>
     </TodoContext.Provider>
