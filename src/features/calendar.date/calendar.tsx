@@ -1,4 +1,3 @@
-import React from "react";
 import {
   format,
   startOfMonth,
@@ -10,22 +9,15 @@ import {
   subMonths,
   isToday,
 } from "date-fns";
-import { cn, extractHashtag, formatDate, getColor } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import { ChevronRight, ChevronLeft } from "lucide-react";
-import { useRouteContext } from "@tanstack/react-router";
-import { TAllTags, TTodos } from "@/types/tables.types";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
-import { DialogProvider } from "@/context/dialog";
-import DialogEditTodo from "./dialog/edit-todo";
-import Loader from "./loader";
-import { useInView } from "react-intersection-observer";
-import { TodoWrapperProvider, useTodo } from "@/context/todo";
+import { TTodos } from "@/types/tables.types";
+import Loader from "@/components/loader";
+import { TodoWrapperProvider } from "@/context/todo";
+import DayWrapper from "./day-wrapper";
+import TodoWrapper from "./todo-wrapper";
 
 type PropTypes = {
   current: Date;
@@ -132,106 +124,3 @@ export default function Calendar({ current, data }: PropTypes) {
     </div>
   );
 }
-
-const DayWrapper = ({
-  children,
-}: { children: React.ReactNode } & React.ComponentProps<"div">) => {
-  const { set } = useTodo();
-  const ref = React.useRef<HTMLDivElement>(null);
-  React.useEffect(() => {
-    let initInvis = 0;
-    ref.current?.childNodes.forEach((node) => {
-      const child = node.firstChild as HTMLDivElement;
-      if (child && child.className.includes("invisible")) {
-        initInvis++;
-      }
-    });
-    set(initInvis);
-  }, []);
-
-  return (
-    <div ref={ref} className="gap-y-1 flex flex-col overflow-hidden max-h-52">
-      {children}
-    </div>
-  );
-};
-
-export const TodoWrapper = ({ todo }: { todo: TTodos }) => {
-  const { decrease, increase } = useTodo();
-
-  const { ref, inView } = useInView({
-    threshold: 1,
-  });
-
-  React.useEffect(() => {
-    if (inView) {
-      decrease();
-    } else {
-      increase();
-    }
-  }, [inView]);
-
-  return (
-    <DialogProvider DialogComponent={<DialogEditTodo todo={todo} />}>
-      <div ref={ref}>
-        <TodoLine
-          className={cn(inView ? "inline-flex " : "invisible")}
-          todo={todo}
-        />
-      </div>
-    </DialogProvider>
-  );
-};
-
-export const TodoLine = ({
-  todo,
-  className,
-}: {
-  todo: TTodos;
-  className?: string;
-}) => {
-  const context = useRouteContext({ from: "/_authed/calendar/$date" });
-  const tags = extractHashtag(todo.todo).map((tag) => tag.slice(1));
-  const isComplete = todo.status;
-  const todoArray = todo.todo.trim().split(" ");
-  const newSentence = todoArray.filter((word) => word[0] !== "#");
-  const allTags = context.queryClient.getQueryData([
-    "tags",
-    context.auth.user?.id,
-  ]) as TAllTags[];
-  return (
-    <div
-      id="todo"
-      className={cn(
-        "bg-foreground/5 rounded-md line-clamp-1 truncate px-1 py-1 gap-1 w-full text-xs hover:bg-foreground/10",
-        className
-      )}
-    >
-      <>
-        {tags.map((tag) => {
-          const tagColorNumber = allTags.find((aTag) => aTag.name === tag)
-            ?.color as number;
-
-          const themeCN = getColor(tagColorNumber);
-          return (
-            <HoverCard key={tag}>
-              <HoverCardTrigger>
-                <div
-                  className={cn(
-                    themeCN,
-                    "h-4 w-4",
-                    !isComplete && "bg-background"
-                  )}
-                />
-              </HoverCardTrigger>
-              <HoverCardContent>{tag}</HoverCardContent>
-            </HoverCard>
-          );
-        })}
-        <span className={cn(todo.status && "line-through")}>
-          {newSentence.join(" ")}
-        </span>
-      </>
-    </div>
-  );
-};

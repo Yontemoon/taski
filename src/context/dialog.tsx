@@ -21,8 +21,10 @@ const DialogProvider = ({
 
   return (
     <DialogContext.Provider value={{ isOpen, setIsOpen }}>
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogTrigger asChild>{children}</DialogTrigger>
+      <Dialog open={isOpen} onOpenChange={() => setIsOpen((prev) => !prev)}>
+        <DialogTrigger id="dialog-trigger" asChild>
+          {children}
+        </DialogTrigger>
         <DialogContent ref={ref}>{DialogComponent}</DialogContent>
       </Dialog>
     </DialogContext.Provider>

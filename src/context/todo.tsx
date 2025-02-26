@@ -49,11 +49,10 @@ const TodoWrapperProvider = ({
         {children}
         {numberTodos > 0 && (
           <Popover>
-            <PopoverTrigger
-              className="absolute bottom-0 left-0 z-20 bg-foreground/5 rounded-md w-full text-foreground p-0.5 hover:bg-background mx-1"
-              asChild
-            >
-              <p>{numberTodos} more</p>
+            <PopoverTrigger asChild>
+              <div className="absolute bottom-0 left-0 z-40 bg-foreground/5 rounded-md w-full text-foreground px-1 py-1 mx-1 text-xs hover:bg-foreground/10 ">
+                {numberTodos} more
+              </div>
             </PopoverTrigger>
             <PopoverContent>
               <h1>{date}</h1>
