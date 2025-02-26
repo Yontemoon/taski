@@ -8,6 +8,8 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { getColor } from "@/lib/utils";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { tagsAllQueryOptions } from "@/lib/options";
 
 const TodoLine = ({
   todo,
@@ -21,10 +23,9 @@ const TodoLine = ({
   const isComplete = todo.status;
   const todoArray = todo.todo.trim().split(" ");
   const newSentence = todoArray.filter((word) => word[0] !== "#");
-  const allTags = context.queryClient.getQueryData([
-    "tags",
-    context.auth.user?.id,
-  ]) as TAllTags[];
+  const { data: allTags } = useSuspenseQuery(
+    tagsAllQueryOptions(context.auth.user?.id!)
+  );
   return (
     <div
       id="todo"
@@ -35,7 +36,7 @@ const TodoLine = ({
     >
       <>
         {tags.map((tag) => {
-          const tagColorNumber = allTags.find((aTag) => aTag.name === tag)
+          const tagColorNumber = allTags?.find((aTag) => aTag.name === tag)
             ?.color as number;
 
           const themeCN = getColor(tagColorNumber);

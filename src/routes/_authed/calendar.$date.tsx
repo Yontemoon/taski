@@ -1,6 +1,6 @@
 import React from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import Calendar from "@/components/calendar";
+import Calendar from "@/features/calendar.date/calendar";
 import {
   cn,
   extractHashtag,

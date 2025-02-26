@@ -5,8 +5,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { TodoLine } from "@/components/calendar";
-
+import TodoLine from "@/features/calendar.date/todo-line";
 import { TTodos } from "@/types/tables.types";
 
 const TodoContext = React.createContext<{
