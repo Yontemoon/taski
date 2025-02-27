@@ -30,7 +30,7 @@ const TodoLine = ({
     <div
       id="todo"
       className={cn(
-        "bg-foreground/5 rounded-md line-clamp-1 truncate px-1 py-1 gap-1 w-full text-xs hover:bg-foreground/10 z-0 relative",
+        "bg-foreground/5 rounded-md line-clamp-1 truncate px-2 py-1 gap-1 w-full text-xs hover:bg-foreground/10 z-0 relative ",
         className
       )}
     >
@@ -54,7 +54,9 @@ const TodoLine = ({
           </HoverCard>
         );
       })}
-      <span className={cn(todo.status && "line-through")}>
+      <span
+        className={cn(todo.status && "line-through", "overflow-hidden mr-1")}
+      >
         {newSentence.join(" ")}
       </span>
     </div>

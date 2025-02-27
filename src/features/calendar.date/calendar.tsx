@@ -84,7 +84,7 @@ export default function Calendar({ current, data }: PropTypes) {
                   date={stringDate}
                   id="day-wrapper"
                   className={cn(
-                    "p-1 transition-all duration-150 ease-linear hover:cursor-pointer text-sm overflow-hidden w-full grow border"
+                    "p-2 transition-all duration-150 ease-linear hover:cursor-pointer text-sm overflow-hidden w-full grow border"
                   )}
                 >
                   <div className="flex justify-center">
