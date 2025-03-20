@@ -1,4 +1,4 @@
-import { queryOptions } from "@tanstack/react-query";
+import { queryOptions, infiniteQueryOptions } from "@tanstack/react-query";
 import { getAllTags, getTagsByDate } from "@/lib/supabase/tags";
 import { getTodos } from "@/lib/supabase/todo";
 import {
@@ -7,6 +7,7 @@ import {
   getTodosByTag,
 } from "./supabase/todos";
 import { formatDate } from "./utils";
+import { getSchedule } from "./supabase";
 
 const tagsQueryOptions = (user_id: string, date: string) =>
   queryOptions({
@@ -21,6 +22,17 @@ const todosQueryOptions = (user_id: string, date: string) =>
     queryFn: () => getTodos(user_id, date),
     staleTime: Infinity,
   });
+
+  const scheduleQueryOptions = () => {
+    return infiniteQueryOptions ({
+      queryKey: ["schedule"],
+      queryFn: getSchedule,
+      initialPageParam: 0,
+      getNextPageParam: (lastPage, _pages) => {
+        return lastPage?.data.length ? lastPage.nextPage : undefined
+      },
+    })
+  }
 
 const tagsAllQueryOptions = (user_id: string) =>
   queryOptions({
@@ -69,4 +81,5 @@ export {
   todosByMonthQueryOptions,
   todosByCreatedAtOptions,
   todosByTagOptions,
+  scheduleQueryOptions
 };

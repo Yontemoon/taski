@@ -16,6 +16,8 @@ import {
 } from "./todo";
 import {getTodosByMonth} from "./todos"
 
+import { getSchedule } from "./schedule";
+
 import { getAllTags, getTagsByDate, updateColor } from "./tags";
 
 export {
@@ -28,5 +30,6 @@ export {
   getTagsByDate, 
   updateColor,
   editTodo,
-  getTodosByMonth
+  getTodosByMonth,
+  getSchedule
 };
