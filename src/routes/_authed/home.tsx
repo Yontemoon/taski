@@ -3,9 +3,19 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 
 import YearGrid from "@/components/year-grid";
 import Loader from "@/components/loader";
+import { todosByCreatedAtOptions } from "@/lib/options";
+import { format } from "date-fns";
 
 export const Route = createFileRoute("/_authed/home")({
   component: RouteComponent,
+  beforeLoad: ({ context }) => {
+    if (!context?.auth.user?.id) {
+      throw redirect({ to: "/login" });
+    } else {
+      const year = Number(format(new Date(), "yyyy"));
+      context.queryClient.prefetchQuery(todosByCreatedAtOptions(year));
+    }
+  },
 });
 
 function RouteComponent() {
