@@ -1,13 +1,24 @@
-import { scheduleQueryOptions } from "@/lib/options";
+import { scheduleQueryOptions, tagsAllQueryOptions } from "@/lib/options";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useInView } from "react-intersection-observer";
+import TodoTask from "@/components/todo-task";
+import { TTags } from "@/types/tables.types";
 
 export const Route = createFileRoute("/_authed/schedule")({
   component: RouteComponent,
+  beforeLoad: ({ context }) => {
+    const userId = context?.auth?.user?.id;
+    context.queryClient.prefetchQuery(tagsAllQueryOptions(userId!));
+  },
 });
 
 function RouteComponent() {
+  const context = Route.useRouteContext();
+  const userId = context.auth.user?.id;
+  const tags: TTags[] | null =
+    context.queryClient.getQueryData(["tags", userId]) || null;
+  console.log(tags);
   const { data, status, error, fetchNextPage, isFetchingNextPage } =
     useInfiniteQuery(scheduleQueryOptions());
 
@@ -30,10 +41,11 @@ function RouteComponent() {
 
   return (
     <div className="flex flex-grow h-full items-stretch flex-col">
-      <div className="m-auto px-5 py-2">
+      <div className="m-auto px-5 py-2 gap-3 flex flex-col">
         {data?.pages.map((page, i) =>
           page?.data.map((item, index) => (
             <div
+              className="flex gap-1"
               key={item.id}
               ref={
                 i === data.pages.length - 1 && index === page.data.length - 1
@@ -41,7 +53,14 @@ function RouteComponent() {
                   : null
               }
             >
-              {item.date_set} --- {item.todo}
+              {item.date_set} ---{" "}
+              <TodoTask
+                completionAction={() => {
+                  null;
+                }}
+                tags={tags}
+                todo={item}
+              />
             </div>
           ))
         )}
