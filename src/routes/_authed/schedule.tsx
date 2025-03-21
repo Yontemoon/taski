@@ -1,6 +1,6 @@
 import { scheduleQueryOptions, tagsAllQueryOptions } from "@/lib/options";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useInView } from "react-intersection-observer";
 import TodoTask from "@/components/todo-task";
 import { TTags } from "@/types/tables.types";
@@ -53,7 +53,10 @@ function RouteComponent() {
                   : null
               }
             >
-              {item.date_set} ---{" "}
+              <Link to={"/todo/$id"} params={{ id: item.date_set }}>
+                {item.date_set}
+              </Link>
+              ---{" "}
               <TodoTask
                 completionAction={() => {
                   null;
